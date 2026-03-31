@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Make.com + 카카오 알림톡 설정 가이드 — D.Quant 9.0</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/vie.css">
+  <style>
+    body { background: var(--bg-base); }
+    .guide-wrap { max-width: 780px; margin: 0 auto; padding: var(--space-2xl) var(--space-lg); }
+
+    /* Top bar */
+    .guide-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: var(--space-2xl);
+      padding-bottom: var(--space-lg);
+      border-bottom: 1px solid var(--border-default);
+    }
+    .guide-logo { display: flex; align-items: center; gap: var(--space-md); }
+    .kakao-bubble {
+      width: 40px; height: 40px;
+      background: #fee500; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 900; color: #000;
+    }
+
+    /* Hero */
+    .guide-hero {
+      background: linear-gradient(135deg, rgba(254,229,0,0.07), rgba(0,212,255,0.04));
+      border: 1px solid rgba(254,229,0,0.2);
+      border-radius: var(--radius-xl);
+      padding: var(--space-2xl);
+      margin-bottom: var(--space-2xl);
+      text-align: center;
+    }
+    .guide-hero h1 { font-size: 1.6rem; font-weight: 900; color: var(--text-primary); margin-bottom: var(--space-md); }
+    .guide-hero p  { font-size: 0.9rem; color: var(--text-secondary); margin: 0; line-height: 1.7; }
+    .cost-badge {
+      display: inline-flex; align-items: center; gap: var(--space-sm);
+      background: rgba(0,229,160,0.1);
+      border: 1px solid rgba(0,229,160,0.25);
+      border-radius: 20px;
+      padding: var(--space-sm) var(--space-lg);
+      font-size: 0.88rem; font-weight: 700; color: var(--accent-green);
+      margin-top: var(--space-lg);
+    }
+
+    /* Flow diagram */
+    .flow-diagram {
+      display: flex; align-items: center; justify-content: center;
+      flex-wrap: wrap; gap: var(--space-sm);
+      margin: var(--space-xl) 0;
+    }
+    .flow-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-md) var(--space-lg);
+      text-align: center;
+      min-width: 100px;
+    }
+    .flow-box .ico { font-size: 1.4rem; margin-bottom: 4px; }
+    .flow-box .lbl { font-size: 0.75rem; color: var(--text-secondary); font-weight: 600; }
+    .flow-arrow { font-size: 1.2rem; color: var(--text-muted); }
+
+    /* Section */
+    .guide-section {
+      margin-bottom: var(--space-2xl);
+    }
+    .section-title {
+      display: flex; align-items: center; gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+    .section-num {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, #fee500, #ffc107);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem; font-weight: 900; color: #000;
+      flex-shrink: 0;
+    }
+    .section-title h2 { font-size: 1.1rem; font-weight: 800; color: var(--text-primary); margin: 0; }
+
+    /* Step card */
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      margin-bottom: var(--space-md);
+    }
+    .step-card-header {
+      display: flex; align-items: center; gap: var(--space-md);
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: 1px solid var(--border-default);
+      background: rgba(255,255,255,0.02);
+      cursor: pointer;
+      user-select: none;
+    }
+    .step-card-header:hover { background: rgba(255,255,255,0.04); }
+    .step-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #fee500;
+      flex-shrink: 0;
+    }
+    .step-card-header h3 { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin: 0; flex: 1; }
+    .step-card-header .chevron { color: var(--text-muted); font-size: 0.8rem; transition: transform 0.2s; }
+    .step-card-header.open .chevron { transform: rotate(180deg); }
+    .step-card-body { padding: var(--space-lg); display: none; }
+    .step-card-body.open { display: block; }
+
+    .sub-step {
+      display: flex; gap: var(--space-md);
+      margin-bottom: var(--space-md);
+      padding-bottom: var(--space-md);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .sub-step:last-child { border-bottom: none; margin-bottom: 0; }
+    .sub-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); flex-shrink: 0; margin-top: 6px; }
+    .sub-step-content p { font-size: 0.85rem; color: var(--text-secondary); margin: 0 0 var(--space-sm); line-height: 1.6; }
+    .sub-step-content .tip {
+      font-size: 0.78rem; color: var(--text-muted);
+      background: rgba(255,255,255,0.03);
+      border-radius: var(--radius-sm);
+      padding: var(--space-sm) var(--space-md);
+      border-left: 3px solid #fee500;
+      line-height: 1.5;
+    }
+
+    /* Code block */
+    .code-block {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-md);
+      padding: var(--space-md) var(--space-lg);
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      color: #00e5a0;
+      overflow-x: auto;
+      white-space: pre;
+      line-height: 1.7;
+      margin: var(--space-sm) 0;
+    }
+    .code-comment { color: var(--text-muted); }
+    .code-key     { color: #79c0ff; }
+    .code-val     { color: #fee500; }
+    .code-str     { color: #a5d6ff; }
+
+    /* Price table */
+    .price-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin: var(--space-md) 0; }
+    .price-table th {
+      text-align: left; padding: var(--space-sm) var(--space-md);
+      color: var(--text-muted); font-size: 0.78rem; font-weight: 700;
+      border-bottom: 1px solid var(--border-default); letter-spacing: 0.05em;
+    }
+    .price-table td {
+      padding: var(--space-sm) var(--space-md);
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .price-table .highlight td { color: var(--accent-green); font-weight: 700; background: rgba(0,229,160,0.04); }
+    .price-free { color: var(--accent-green); font-weight: 700; }
+    .price-cost { color: #fee500; font-weight: 700; }
+
+    /* Alert box */
+    .alert-box {
+      border-radius: var(--radius-lg); padding: var(--space-md) var(--space-lg);
+      font-size: 0.82rem; line-height: 1.6; margin: var(--space-md) 0;
+      display: flex; gap: var(--space-md); align-items: flex-start;
+    }
+    .alert-box.info    { background: rgba(0,212,255,0.06); border: 1px solid rgba(0,212,255,0.2); color: var(--text-secondary); }
+    .alert-box.warning { background: rgba(254,229,0,0.06); border: 1px solid rgba(254,229,0,0.2); color: var(--text-secondary); }
+    .alert-box.success { background: rgba(0,229,160,0.06); border: 1px solid rgba(0,229,160,0.2); color: var(--text-secondary); }
+    .alert-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* Make JSON example */
+    .make-scenario {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius-xl);
+      padding: var(--space-lg);
+      margin: var(--space-md) 0;
+    }
+    .make-module {
+      display: flex; align-items: center; gap: var(--space-md);
+      padding: var(--space-md);
+      background: rgba(255,255,255,0.04);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-sm);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .make-module:last-child { margin-bottom: 0; }
+    .module-icon {
+      width: 40px; height: 40px;
+      border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; flex-shrink: 0;
+    }
+    .module-info h5 { font-size: 0.85rem; font-weight: 700; color: var(--text-primary); margin: 0 0 2px; }
+    .module-info p  { font-size: 0.75rem; color: var(--text-muted); margin: 0; }
+    .module-arrow { margin: 0 auto 0 0; font-size: 0.8rem; color: var(--text-muted); }
+    .connector-line {
+      width: 2px; height: 20px;
+      background: rgba(255,255,255,0.1);
+      margin: 0 20px;
+    }
+
+    /* CTA */
+    .cta-section {
+      background: linear-gradient(135deg, rgba(254,229,0,0.08), rgba(0,212,255,0.04));
+      border: 1px solid rgba(254,229,0,0.2);
+      border-radius: var(--radius-xl);
+      padding: var(--space-2xl);
+      text-align: center;
+      margin-top: var(--space-2xl);
+    }
+    .cta-section h3 { font-size: 1.1rem; font-weight: 800; color: var(--text-primary); margin-bottom: var(--space-md); }
+    .cta-section p  { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: var(--space-lg); }
+    .cta-buttons { display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap; }
+    .btn-kakao-cta {
+      background: #fee500; color: #000; font-weight: 800;
+      padding: var(--space-md) var(--space-2xl);
+      border-radius: var(--radius-lg); border: none;
+      font-family: var(--font-ko); font-size: 0.9rem;
+      cursor: pointer; text-decoration: none;
+      display: inline-flex; align-items: center; gap: var(--space-sm);
+      transition: filter 0.2s;
+    }
+    .btn-kakao-cta:hover { filter: brightness(1.1); }
+  </style>
+</head>
+<body>
+<div class="guide-wrap">
+
+  <!-- 상단 바 -->
+  <div class="guide-topbar">
+    <div class="guide-logo">
+      <div class="kakao-bubble">K</div>
+      <div>
+        <div style="font-size:0.95rem;font-weight:800;color:var(--text-primary)">카카오 알림톡 설정 가이드</div>
+        <div style="font-size:0.75rem;color:var(--text-muted)">Make.com 무료 플랜 연동 · D.Quant 9.0 V.I.E</div>
+      </div>
+    </div>
+    <a href="admin-notify.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-arrow-left"></i> 관리자 페이지</a>
+  </div>
+
+  <!-- Hero -->
+  <div class="guide-hero">
+    <h1>📲 Make.com + 카카오 알림톡<br>무료 알림 시스템 구축</h1>
+    <p>9명 소규모 운영 기준, <strong style="color:#fee500">월 500원 미만</strong>으로<br>카카오톡 알림 시스템을 완전히 구축할 수 있습니다.</p>
+    <div class="cost-badge">
+      <i class="fa-solid fa-won-sign"></i> Make.com 무료 + 알림톡 발송비 약 300~540원/월 (9명 × 월 4회)
+    </div>
+  </div>
+
+  <!-- 전체 흐름 -->
+  <div class="guide-section">
+    <div class="section-title">
+      <div class="section-num">🔄</div>
+      <h2>전체 시스템 흐름</h2>
+    </div>
+    <div class="flow-diagram">
+      <div class="flow-box">
+        <div class="ico">🌐</div>
+        <div class="lbl">D.Quant 9.0<br>웹앱</div>
+      </div>
+      <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+      <div class="flow-box" style="border-color:rgba(254,229,0,0.3)">
+        <div class="ico">⚡</div>
+        <div class="lbl" style="color:#fee500">Make.com<br>Webhook</div>
+      </div>
+      <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+      <div class="flow-box" style="border-color:rgba(0,212,255,0.3)">
+        <div class="ico">🔀</div>
+        <div class="lbl" style="color:var(--accent-blue)">Make.com<br>시나리오</div>
+      </div>
+      <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+      <div class="flow-box" style="border-color:rgba(254,229,0,0.4)">
+        <div class="ico">💛</div>
+        <div class="lbl" style="color:#fee500">카카오<br>알림톡 API</div>
+      </div>
+      <div class="flow-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+      <div class="flow-box" style="border-color:rgba(0,229,160,0.3)">
+        <div class="ico">📱</div>
+        <div class="lbl" style="color:var(--accent-green)">회원 카톡<br>수신</div>
+      </div>
+    </div>
+    <div class="alert-box info">
+      <i class="fa-solid fa-circle-info alert-icon" style="color:var(--accent-blue)"></i>
+      <span>웹앱이 Make.com 웹훅으로 JSON 데이터를 전송하면, Make.com이 자동으로 카카오 알림톡 API를 호출합니다. 백엔드 서버 없이 완전 자동화!</span>
+    </div>
+  </div>
+
+  <!-- STEP 1: Make.com -->
+  <div class="guide-section">
+    <div class="section-title">
+      <div class="section-num">1</div>
+      <h2>Make.com 설정</h2>
+    </div>
+
+    <div class="step-card">
+      <div class="step-card-header open" onclick="toggleStep(this)">
+        <span class="step-dot"></span>
+        <h3>1-1. Make.com 무료 계정 생성</h3>
+        <i class="fa-solid fa-chevron-down chevron"></i>
+      </div>
+      <div class="step-card-body open">
+        <div class="sub-step">
+          <div class="sub-dot"></div>
+          <div class="sub-step-content">
+            <p><strong>1.</strong> <a href="https://make.com" target="_blank" style="color:var(--accent-blue)">make.com</a> 접속 → <strong>Get started free</strong> 클릭</p>
+            <p><strong>2.</strong> 이메일로 회원가입 (구글 계정 연동 가능)</p>
+            <p><strong>3.</strong> 무료 플랜 선택 — 신용카드 불필요</p>
+            <div class="tip">💡 무료 플랜: 월 1,000 오퍼레이션 무료. 9명 × 월 4회 발송 = 36 오퍼레이션으로 충분합니다.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-card-header" onclick="toggleStep(this)">
+        <span class="step-dot"></span>
+        <h3>1-2. 새 시나리오 생성 & Webhook 트리거 추가</h3>
+        <i class="fa-solid fa-chevron-down chevron"></i>
+      </div>
+      <div class="step-card-body">
+        <div class="sub-step">
+          <div class="sub-dot"></div>
+          <div class="sub-step-content">
+            <p><strong>1.</strong> 좌측 메뉴 <strong>Scenarios</strong> → <strong>+ Create a new scenario</strong></p>
+            <p><strong>2.</strong> 시나리오 이름: <code style="color:#fee500">DQuant9 카카오 알림</code></p>
+            <p><strong>3.</strong> 첫 번째 모듈 클릭 → 검색창에 <strong>Webhooks</strong> 입력 → 선택</p>
+            <p><strong>4.</strong> <strong>Custom Webhook</strong> 선택 → <strong>Add</strong> 클릭</p>
+            <p><strong>5.</strong> Webhook 이름 입력: <code style="color:#fee500">DQuant9Notify</code> → <strong>Save</strong></p>
+            <p><strong>6.</strong> 생성된 <strong>URL 복사</strong> → admin-notify.html에 붙여넣기</p>
+            <div class="tip">⚠️ URL 예시: <code style="color:#00e5a0">https://hook.eu1.make.com/abc123xyz789</code></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-card-header" onclick="toggleStep(this)">
+        <span class="step-dot"></span>
+        <h3>1-3. Make.com 시나리오 구조</h3>
+        <i class="fa-solid fa-chevron-down chevron"></i>
+      </div>
+      <div class="step-card-body">
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:var(--space-md)">아래와 같이 모듈을 구성하세요:</p>
+        <div class="make-scenario">
+          <div class="make-module">
+            <div class="module-icon" style="background:rgba(254,229,0,0.15)">⚡</div>
+            <div class="module-info">
+              <h5>Webhooks → Custom Webhook</h5>
+              <p>웹앱에서 POST 요청 수신 (트리거)</p>
+            </div>
+          </div>
+          <div class="connector-line"></div>
+          <div class="make-module">
+            <div class="module-icon" style="background:rgba(0,212,255,0.15)">🔀</div>
+            <div class="module-info">
+              <h5>Router (선택 사항)</h5>
+              <p>type 필드로 분기: report / monthly / custom</p>
+            </div>
+          </div>
+          <div class="connector-line"></div>
+          <div class="make-module">
+            <div class="module-icon" style="background:rgba(0,229,160,0.15)">🌐</div>
+            <div class="module-info">
+              <h5>HTTP → Make a request</h5>
+              <p>카카오 알림톡 API POST 요청</p>
+            </div>
+          </div>
+          <div class="connector-line"></div>
+          <div class="make-module">
+            <div class="module-icon" style="background:rgba(139,92,246,0.15)">📝</div>
+            <div class="module-info">
+              <h5>Webhooks → Webhook response (선택)</h5>
+              <p>성공/실패 응답 반환</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-card-header" onclick="toggleStep(this)">
+        <span class="step-dot"></span>
+        <h3>1-4. HTTP 모듈 설정 (카카오 API 연결)</h3>
+        <i class="fa-solid fa-chevron-down chevron"></i>
+      </div>
+      <div class="step-card-body">
+        <div class="sub-step">
+          <div class="sub-dot"></div>
+          <div class="sub-step-content">
+            <p><strong>HTTP 모듈 설정값:</strong></p>
+            <div class="code-block"><span class="code-comment">// HTTP → Make a request 모듈 설정</span>
+<span class="code-key">URL:</span>     <span class="code-val">https://alimtalk-api.kakao.com/v2/sender/send</span>
+<span class="code-key">Method:</span> <span class="code-val">POST</span>
+<span class="code-key">Headers:</span>
+  <span class="code-str">Authorization: KakaoAK {발신프로필_API_KEY}</span>
+  <span class="code-str">Content-Type:  application/json</span>
+
+<span class="code-key">Body (JSON):</span>
+{
+  <span class="code-str">"senderKey"</span>: <span class="code-val">"{발신프로필_KEY}"</span>,
+  <span class="code-str">"templateCode"</span>: <span class="code-val">"{승인된_템플릿_코드}"</span>,
+  <span class="code-str">"recipientList"</span>: [
+    {
+      <span class="code-str">"recipientNo"</span>: <span class="code-val">{{1.to_phone}}</span>,
+      <span class="code-str">"templateParameter"</span>: {
+        <span class="code-str">"name"</span>: <span class="code-val">{{1.to_name}}</span>,
+        <span class="code-str">"message"</span>: <span class="code-val">{{1.message}}</span>
+      }
+    }
+  ]
+}</div>
+            <div class="tip">💡 <code>{{1.to_phone}}</code>은 Make.com의 Webhook 수신 데이터 매핑 표현식입니다. 1은 첫 번째 모듈(Webhook) 번호입니다.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: 카카오 비즈 채널 -->
+  <div class="guide-section">
+    <div class="section-title">
+      <div class="section-num">2</div>
+      <h2>카카오 비즈 채널 & 알림톡 설정</h2>
+    </div>
+
+    <div class="step-card">
+      <div class="step-card-header" onclick="toggleStep(this)">
+        <span class="step-dot"></span>
+        <h3>2-1. 카카오 비즈 채널 개설</h3>
+        <i class="fa-solid fa-chevron-down chevron"></i>
+      </div>
+      <div class="step-card-body">
+        <div class="sub-step">
+          <div class="sub-dot"></div>
+          <div class="sub-step-content">
+            <p><strong>1.</strong> <a href="https://business.kakao.com" target="_blank" style="color:#fee500">business.kakao.com</a> → <strong>채널 관리자 센터</strong></p>
+            <p><strong>2.</strong> <strong>새 채널 만들기</strong> → 채널명: <code style="color:#fee500">디퀀트나인</code></p>
+            <p><strong>3.</strong> 카테고리: <strong>금융 > 투자/자산관리</strong></p>
+            <p><strong>4.</strong> 채널 개설 완료 (즉시 승인)</p>
+            <div class="tip">✅ 채널 개설 자체는 무료입니다.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-card-header" onclick="toggleStep(this)">
+        <span class="step-dot"></span>
+        <h3>2-2. BizMessage (알림톡) 서비스 신청</h3>
+        <i class="fa-solid fa-chevron-down chevron"></i>
+      </div>
+      <div class="step-card-body">
+        <div class="sub-step">
+          <div class="sub-dot"></div>
+          <div class="sub-step-content">
+            <p><strong>1.</strong> 채널 관리자 센터 → <strong>알림톡 관리</strong> → <strong>발신 프로필 신청</strong></p>
+            <p><strong>2.</strong> 사업자등록증 업로드 (개인사업자 가능)</p>
+            <p><strong>3.</strong> 심사 완료 후 <strong>발신 프로필 키(senderKey)</strong> 발급 (1~3 영업일)</p>
+            <p><strong>4.</strong> <strong>카카오 비즈니스 API 키</strong> 발급 (REST API 키)</p>
+            <div class="tip">⚠️ 개인 사업자도 신청 가능합니다. 심사 기간 동안 Make.com 연결까지 모두 준비해 두세요.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-card">
+      <div class="step-card-header" onclick="toggleStep(this)">
+        <span class="step-dot"></span>
+        <h3>2-3. 알림톡 템플릿 등록 & 심사</h3>
+        <i class="fa-solid fa-chevron-down chevron"></i>
+      </div>
+      <div class="step-card-body">
+        <div class="sub-step">
+          <div class="sub-dot"></div>
+          <div class="sub-step-content">
+            <p><strong>템플릿 예시 (3일 성과 리포트):</strong></p>
+            <div class="code-block" style="color:var(--text-secondary);font-family:var(--font-ko);font-size:0.82rem">[D.Quant 9.0 V.I.E] 3일 성과 리포트
+
+#{이름}님의 포트폴리오 현황
+
+수익률: +#{수익률}%
+누적 수익(KRW): +#{수익KRW}원
+누적 수익(USDT): +#{수익USDT} USDT
+
+📈 리포트 전체 보기
+👉 start.dquant9.com/reports.html</div>
+            <p style="margin-top:var(--space-md)"><strong>심사 주의 사항:</strong></p>
+            <div class="tip">
+              • 투자 수익률 관련 내용은 <strong>가상 시뮬레이션임을 명시</strong>해야 심사 통과 확률이 높습니다.<br>
+              • "#{변수명}" 형식으로 치환 변수를 표시합니다.<br>
+              • 외부 URL은 실제 운영 도메인(start.dquant9.com)으로 작성하세요.<br>
+              • 심사 기간: 보통 1~3 영업일
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: 비용 정리 -->
+  <div class="guide-section">
+    <div class="section-title">
+      <div class="section-num">3</div>
+      <h2>비용 상세 정리</h2>
+    </div>
+    <div class="step-card">
+      <div class="step-card-body open" style="display:block;padding:0">
+        <table class="price-table">
+          <thead>
+            <tr>
+              <th>항목</th>
+              <th>비용</th>
+              <th>비고</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Make.com 무료 플랜</td>
+              <td class="price-free">무료</td>
+              <td>월 1,000 오퍼레이션 제공</td>
+            </tr>
+            <tr>
+              <td>카카오 비즈 채널 개설</td>
+              <td class="price-free">무료</td>
+              <td>즉시 개설</td>
+            </tr>
+            <tr>
+              <td>알림톡 발신 프로필 신청</td>
+              <td class="price-free">무료</td>
+              <td>사업자 인증 필요</td>
+            </tr>
+            <tr>
+              <td>알림톡 템플릿 심사</td>
+              <td class="price-free">무료</td>
+              <td>1~3 영업일</td>
+            </tr>
+            <tr>
+              <td>알림톡 발송 단가</td>
+              <td class="price-cost">약 8~15원/건</td>
+              <td>BizMessage 사업자별 상이</td>
+            </tr>
+            <tr class="highlight">
+              <td><strong>9명 × 월 4회 발송 (36건)</strong></td>
+              <td><strong>약 288~540원/월</strong></td>
+              <td>실질 비용 전부</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="alert-box success">
+      <i class="fa-solid fa-circle-check alert-icon" style="color:var(--accent-green)"></i>
+      <span><strong>결론:</strong> Make.com + 카카오 알림톡 조합으로 월 500원 미만의 비용으로 완전 자동화된 알림 시스템 운영이 가능합니다. 향후 회원이 늘어나도 Make.com 오퍼레이션 한도(1,000회) 내에서는 추가 비용이 없습니다.</span>
+    </div>
+  </div>
+
+  <!-- STEP 4: 웹훅 데이터 구조 -->
+  <div class="guide-section">
+    <div class="section-title">
+      <div class="section-num">4</div>
+      <h2>웹훅 데이터 구조 (참고)</h2>
+    </div>
+    <div class="step-card">
+      <div class="step-card-body open" style="display:block">
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:var(--space-md)">D.Quant 9.0 웹앱이 Make.com으로 전송하는 JSON 데이터 구조:</p>
+        <div class="code-block">{
+  <span class="code-key">"app_name"</span>:     <span class="code-str">"D.Quant 9.0 V.I.E"</span>,
+  <span class="code-key">"sender_name"</span>:  <span class="code-str">"디퀀트나인"</span>,
+  <span class="code-key">"to_name"</span>:      <span class="code-str">"홍길동"</span>,          <span class="code-comment">// 수신자 이름</span>
+  <span class="code-key">"to_phone"</span>:     <span class="code-str">"01012345678"</span>,   <span class="code-comment">// 하이픈 제거된 전화번호</span>
+  <span class="code-key">"type"</span>:          <span class="code-str">"report"</span>,          <span class="code-comment">// report|monthly|consult|custom</span>
+  <span class="code-key">"message"</span>:       <span class="code-str">"[D.Quant...] 완성된 메시지 전문"</span>,
+  <span class="code-key">"variables"</span>: {
+    <span class="code-key">"name"</span>:         <span class="code-str">"홍길동"</span>,
+    <span class="code-key">"profit_rate"</span>:  <span class="code-str">"10.50"</span>,
+    <span class="code-key">"profit_won"</span>:   <span class="code-str">"3,150,000"</span>,
+    <span class="code-key">"profit_usdt"</span>:  <span class="code-str">"2333.33"</span>
+  },
+  <span class="code-key">"sent_at"</span>:      <span class="code-str">"2026-03-25T09:00:00.000Z"</span>,
+  <span class="code-key">"source"</span>:       <span class="code-str">"dquant9-vie-webapp"</span>
+}</div>
+        <div class="tip">💡 Make.com에서 <code>{{1.message}}</code>로 완성된 메시지를 그대로 카카오 API에 전달하거나, <code>{{1.variables.name}}</code>으로 개별 변수를 템플릿에 매핑할 수 있습니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 5: 체크리스트 -->
+  <div class="guide-section">
+    <div class="section-title">
+      <div class="section-num">5</div>
+      <h2>설정 완료 체크리스트</h2>
+    </div>
+    <div class="step-card">
+      <div class="step-card-body open" style="display:block">
+        <div id="checklist">
+          <!-- JS로 렌더링 -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section">
+    <h3>🚀 설정을 완료했다면 관리자 페이지에서 바로 발송하세요!</h3>
+    <p>Make.com 웹훅 URL을 admin-notify.html에 붙여넣고<br>테스트 버튼으로 연결을 확인하세요.</p>
+    <div class="cta-buttons">
+      <a href="admin-notify.html" class="btn-kakao-cta">
+        <i class="fa-solid fa-paper-plane"></i> 알림 관리자 페이지로 이동
+      </a>
+      <a href="https://make.com" target="_blank" class="btn btn-ghost">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i> Make.com 열기
+      </a>
+      <a href="https://business.kakao.com" target="_blank" class="btn btn-ghost">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i> 카카오 비즈 채널
+      </a>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast-container"></div>
+<script src="js/vie-app.js"></script>
+<script>
+  /* 아코디언 토글 */
+  function toggleStep(header) {
+    header.classList.toggle('open');
+    const body = header.nextElementSibling;
+    body.classList.toggle('open');
+  }
+
+  /* 체크리스트 렌더링 */
+  const checkItems = [
+    { label: 'Make.com 무료 계정 생성 완료', key: 'chk_make_account' },
+    { label: 'Make.com 시나리오 생성 & Webhook URL 발급', key: 'chk_make_webhook' },
+    { label: 'admin-notify.html에 Webhook URL 저장', key: 'chk_webhook_saved' },
+    { label: 'Make.com HTTP 모듈 카카오 API 연결 설정', key: 'chk_make_http' },
+    { label: '카카오 비즈 채널 개설', key: 'chk_kakao_channel' },
+    { label: '알림톡 발신 프로필 신청 & 승인', key: 'chk_sender_key' },
+    { label: '알림톡 메시지 템플릿 등록 & 심사 통과', key: 'chk_template' },
+    { label: 'Make.com HTTP 모듈에 카카오 API키 & senderKey 입력', key: 'chk_api_key' },
+    { label: 'Make.com 시나리오 ON 활성화', key: 'chk_scenario_on' },
+    { label: 'admin-notify.html에서 테스트 발송 확인', key: 'chk_test_done' },
+  ];
+
+  function renderChecklist() {
+    const container = document.getElementById('checklist');
+    container.innerHTML = checkItems.map(item => {
+      const checked = localStorage.getItem(item.key) === '1';
+      return `
+        <div style="display:flex;align-items:center;gap:var(--space-md);padding:var(--space-sm) 0;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer" onclick="toggleCheck('${item.key}')">
+          <div style="width:20px;height:20px;border-radius:4px;border:2px solid ${checked ? 'var(--accent-green)' : 'var(--border-default)'};background:${checked ? 'rgba(0,229,160,0.15)' : 'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s">
+            ${checked ? '<i class="fa-solid fa-check" style="font-size:0.7rem;color:var(--accent-green)"></i>' : ''}
+          </div>
+          <span style="font-size:0.85rem;color:${checked ? 'var(--text-muted)' : 'var(--text-secondary)'};${checked ? 'text-decoration:line-through' : ''}">${item.label}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  function toggleCheck(key) {
+    const cur = localStorage.getItem(key) === '1';
+    localStorage.setItem(key, cur ? '0' : '1');
+    renderChecklist();
+    const completed = checkItems.filter(i => localStorage.getItem(i.key) === '1').length;
+    if (completed === checkItems.length) {
+      VieToast.success('🎉 모든 설정이 완료되었습니다!');
+    }
+  }
+
+  renderChecklist();
+</script>
+</body>
+</html>

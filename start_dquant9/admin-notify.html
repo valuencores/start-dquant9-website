@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>알림 관리자 — D.Quant 9.0 V.I.E</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/vie.css">
+  <style>
+    :root { --admin-accent: #fee500; }
+
+    .admin-header {
+      background: linear-gradient(135deg, rgba(254,229,0,0.08), rgba(0,0,0,0));
+      border-bottom: 1px solid rgba(254,229,0,0.2);
+      padding: var(--space-lg) var(--space-xl);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(16px);
+    }
+    .admin-badge {
+      background: var(--admin-accent);
+      color: #000;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 20px;
+      letter-spacing: 0.06em;
+    }
+    .admin-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: var(--space-xl);
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: var(--space-xl);
+    }
+    /* ── Admin Responsive ── */
+    @media(max-width: 1024px) {
+      .admin-layout { grid-template-columns: 280px 1fr; gap: var(--space-lg); }
+    }
+    @media(max-width: 768px) {
+      .admin-layout { grid-template-columns: 1fr; padding: var(--space-md); gap: var(--space-md); }
+      .admin-card-header { flex-wrap: wrap; gap: 8px; }
+      .result-grid { grid-template-columns: 1fr 1fr !important; }
+    }
+    @media(max-width: 480px) {
+      .admin-layout  { padding: var(--space-sm); }
+      .result-grid   { grid-template-columns: 1fr !important; }
+      .admin-card-header { padding: var(--space-sm) var(--space-md); }
+    }
+
+    /* Card */
+    .admin-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      margin-bottom: var(--space-lg);
+    }
+    .admin-card-header {
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: 1px solid var(--border-default);
+      background: rgba(255,255,255,0.02);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .admin-card-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      letter-spacing: 0.06em;
+    }
+    .admin-card-body { padding: var(--space-lg); }
+
+    /* Webhook status */
+    .webhook-status {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-md);
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: var(--space-md);
+    }
+    .webhook-status.ok  { background: rgba(0,229,160,0.1); color: var(--accent-green); border: 1px solid rgba(0,229,160,0.25); }
+    .webhook-status.err { background: rgba(244,63,94,0.1);  color: var(--accent-red);   border: 1px solid rgba(244,63,94,0.25); }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    /* Kakao brand */
+    .kakao-icon {
+      width: 32px; height: 32px;
+      background: var(--admin-accent);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem; color: #000; font-weight: 900;
+    }
+
+    /* Notify type selector */
+    .notify-types {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-lg);
+    }
+    .notify-type-btn {
+      padding: var(--space-md);
+      border: 2px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      text-align: center;
+      transition: all var(--transition-fast);
+      font-family: var(--font-ko);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+    .notify-type-btn.active {
+      border-color: var(--admin-accent);
+      background: rgba(254,229,0,0.06);
+      color: var(--admin-accent);
+    }
+    .notify-type-btn i { display: block; font-size: 1.2rem; margin-bottom: 4px; }
+
+    /* Progress bar */
+    .progress-bar-wrap {
+      height: 6px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 3px;
+      overflow: hidden;
+      margin: var(--space-md) 0;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--admin-accent), var(--accent-green));
+      border-radius: 3px;
+      transition: width 0.3s ease;
+    }
+
+    /* User list */
+    .user-list { max-height: 320px; overflow-y: auto; }
+    .user-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+    .user-item:hover { background: rgba(255,255,255,0.04); }
+    .user-item.selected { background: rgba(254,229,0,0.06); border: 1px solid rgba(254,229,0,0.2); }
+    .user-avatar-sm {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.82rem; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .user-item-info h6 { font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin: 0; }
+    .user-item-info p  { font-size: 0.75rem; color: var(--text-muted); margin: 0; }
+    .kakao-tag {
+      margin-left: auto;
+      font-size: 0.7rem; font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 20px;
+      background: rgba(254,229,0,0.15);
+      color: var(--admin-accent);
+      flex-shrink: 0;
+    }
+    .no-kakao-tag {
+      margin-left: auto;
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.05);
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    /* Log table */
+    .log-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .log-table th {
+      text-align: left;
+      padding: var(--space-sm) var(--space-md);
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border-default);
+    }
+    .log-table td {
+      padding: var(--space-sm) var(--space-md);
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      vertical-align: middle;
+    }
+    .log-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .log-status { display: inline-flex; align-items: center; gap: 4px; font-size: 0.78rem; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+    .log-status.sent   { background: rgba(0,229,160,0.1);  color: var(--accent-green); }
+    .log-status.failed { background: rgba(244,63,94,0.1);   color: var(--accent-red); }
+    .log-status.error  { background: rgba(255,165,0,0.1);   color: #ffa500; }
+
+    /* Result summary */
+    .result-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: var(--space-md); margin-top: var(--space-md); }
+    .result-item { text-align: center; padding: var(--space-md); background: rgba(255,255,255,0.03); border-radius: var(--radius-md); }
+    .result-item .val { font-size: 1.6rem; font-weight: 800; }
+    .result-item .lbl { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+
+    /* Send button override */
+    .btn-kakao {
+      background: var(--admin-accent) !important;
+      color: #000 !important;
+      font-weight: 800;
+    }
+    .btn-kakao:hover { filter: brightness(1.1); }
+    .btn-kakao:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Template preview */
+    .template-preview {
+      background: rgba(254,229,0,0.04);
+      border: 1px solid rgba(254,229,0,0.15);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      white-space: pre-wrap;
+      font-family: var(--font-ko);
+      min-height: 120px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .char-count { font-size: 0.75rem; color: var(--text-muted); text-align: right; margin-top: 4px; }
+
+    /* Setup section */
+    .setup-step {
+      display: flex;
+      gap: var(--space-md);
+      padding: var(--space-md) 0;
+      border-bottom: 1px solid var(--border-default);
+    }
+    .setup-step:last-child { border-bottom: none; }
+    .step-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: rgba(254,229,0,0.15);
+      color: var(--admin-accent);
+      font-size: 0.8rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-content h5 { font-size: 0.88rem; font-weight: 700; color: var(--text-primary); margin: 0 0 4px; }
+    .step-content p  { font-size: 0.78rem; color: var(--text-muted); margin: 0; line-height: 1.5; }
+    .step-content a  { color: var(--accent-blue); text-decoration: none; }
+    .step-content a:hover { text-decoration: underline; }
+
+    .input-group { position: relative; margin-bottom: var(--space-md); }
+    .input-group label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--text-secondary); margin-bottom: var(--space-xs); }
+    .input-group input, .input-group textarea, .input-group select {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: var(--space-sm) var(--space-md);
+      color: var(--text-primary);
+      font-family: var(--font-ko);
+      font-size: 0.88rem;
+      transition: border var(--transition-fast);
+      box-sizing: border-box;
+    }
+    .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
+      outline: none;
+      border-color: var(--admin-accent);
+    }
+    .input-group textarea { min-height: 100px; resize: vertical; }
+    .input-suffix {
+      position: absolute;
+      right: var(--space-md);
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Admin Header -->
+  <div class="admin-header">
+    <div style="display:flex;align-items:center;gap:var(--space-md)">
+      <div class="kakao-icon">K</div>
+      <div>
+        <div style="font-size:0.95rem;font-weight:800;color:var(--text-primary)">카카오 알림톡 관리자</div>
+        <div style="font-size:0.75rem;color:var(--text-muted)">D.Quant 9.0 V.I.E — Make.com 연동</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:var(--space-md)">
+      <span class="admin-badge">ADMIN</span>
+      <a href="dashboard.html" class="btn btn-ghost btn-sm"><i class="fa-solid fa-arrow-left"></i> 대시보드</a>
+    </div>
+  </div>
+
+  <div class="admin-layout">
+
+    <!-- ── LEFT PANEL ─────────────────────────────────────── -->
+    <div class="left-panel">
+
+      <!-- Webhook 설정 -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <div class="admin-card-title"><i class="fa-solid fa-plug" style="color:var(--admin-accent)"></i> Make.com 웹훅 설정</div>
+          <button class="btn btn-ghost btn-sm" onclick="testWebhook()"><i class="fa-solid fa-vial"></i> 테스트</button>
+        </div>
+        <div class="admin-card-body">
+          <div id="webhook-status-bar" class="webhook-status err">
+            <span class="status-dot"></span>
+            <span id="webhook-status-text">웹훅 URL 미설정</span>
+          </div>
+          <div class="input-group">
+            <label>Make.com Webhook URL</label>
+            <input type="url" id="webhook-url-input" placeholder="https://hook.eu1.make.com/xxxxxxxx" oninput="onWebhookInput()">
+          </div>
+          <button class="btn btn-full btn-kakao" onclick="saveWebhookUrl()">
+            <i class="fa-solid fa-floppy-disk"></i> 저장
+          </button>
+          <div style="margin-top:var(--space-md);padding:var(--space-md);background:rgba(254,229,0,0.04);border-radius:var(--radius-md);border:1px solid rgba(254,229,0,0.1)">
+            <p style="font-size:0.76rem;color:var(--text-muted);margin:0;line-height:1.6">
+              <i class="fa-solid fa-circle-info" style="color:var(--admin-accent)"></i>
+              Make.com → 새 시나리오 → <b style="color:var(--text-secondary)">Webhooks</b> 모듈 추가 → URL 복사 후 여기에 붙여넣기
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Make.com 설정 가이드 -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <div class="admin-card-title"><i class="fa-solid fa-book-open" style="color:var(--accent-blue)"></i> 빠른 설정 가이드</div>
+        </div>
+        <div class="admin-card-body" style="padding:var(--space-md) var(--space-lg)">
+          <div class="setup-step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <h5>Make.com 가입 & 무료 플랜</h5>
+              <p><a href="https://make.com" target="_blank">make.com</a> 접속 → 무료 계정 생성 (월 1,000 오퍼레이션 무료)</p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <h5>새 시나리오 → Webhook 트리거</h5>
+              <p>Webhooks → Custom Webhook → URL 생성 → 위에 붙여넣기</p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <h5>카카오 비즈 채널 연결</h5>
+              <p><a href="https://business.kakao.com" target="_blank">business.kakao.com</a> → 채널 개설 → BizMessage 신청 → 발신 프로필 키 발급</p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <h5>HTTP 모듈로 카카오 API 연결</h5>
+              <p>Make HTTP → POST <code style="color:var(--accent-blue)">https://alimtalk-api.kakao.com/v2/sender/send</code> → 헤더: Authorization: KakaoAK {API_KEY}</p>
+            </div>
+          </div>
+          <div class="setup-step">
+            <div class="step-num">5</div>
+            <div class="step-content">
+              <h5>시나리오 활성화</h5>
+              <p>상단 ON 스위치 → 저장 → 완료! 이 페이지에서 알림 발송 테스트</p>
+            </div>
+          </div>
+          <div style="margin-top:var(--space-md)">
+            <a href="setup-guide.html" class="btn btn-ghost btn-full btn-sm">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> 상세 설정 가이드 보기
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- 발송 통계 -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <div class="admin-card-title"><i class="fa-solid fa-chart-pie" style="color:var(--accent-purple)"></i> 이번 달 발송 현황</div>
+        </div>
+        <div class="admin-card-body">
+          <div class="result-grid">
+            <div class="result-item">
+              <div class="val" id="stat-total" style="color:var(--text-primary)">—</div>
+              <div class="lbl">총 발송</div>
+            </div>
+            <div class="result-item">
+              <div class="val" id="stat-success" style="color:var(--accent-green)">—</div>
+              <div class="lbl">성공</div>
+            </div>
+            <div class="result-item">
+              <div class="val" id="stat-failed" style="color:var(--accent-red)">—</div>
+              <div class="lbl">실패</div>
+            </div>
+          </div>
+          <div style="margin-top:var(--space-md);font-size:0.76rem;color:var(--text-muted);text-align:center">
+            9명 × 월 4회 기준 예상 비용: <b style="color:var(--admin-accent)">약 300~540원/월</b>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── RIGHT PANEL ────────────────────────────────────── -->
+    <div class="right-panel">
+
+      <!-- 알림 발송 -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <div class="admin-card-title"><i class="fa-solid fa-paper-plane" style="color:var(--admin-accent)"></i> 알림 발송</div>
+          <div style="font-size:0.78rem;color:var(--text-muted)">카카오 알림 동의 회원에게만 발송</div>
+        </div>
+        <div class="admin-card-body">
+
+          <!-- 발송 유형 -->
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text-secondary);margin-bottom:var(--space-sm)">발송 유형 선택</div>
+          <div class="notify-types">
+            <button class="notify-type-btn active" data-type="report" onclick="selectType(this,'report')">
+              <i class="fa-solid fa-chart-line"></i>3일 성과 리포트
+            </button>
+            <button class="notify-type-btn" data-type="monthly" onclick="selectType(this,'monthly')">
+              <i class="fa-solid fa-calendar-check"></i>월간 정산 안내
+            </button>
+            <button class="notify-type-btn" data-type="consult" onclick="selectType(this,'consult')">
+              <i class="fa-solid fa-handshake"></i>상담 신청 확인
+            </button>
+            <button class="notify-type-btn" data-type="custom" onclick="selectType(this,'custom')">
+              <i class="fa-solid fa-pen"></i>커스텀 메시지
+            </button>
+          </div>
+
+          <!-- 발송 대상 -->
+          <div style="font-size:0.78rem;font-weight:600;color:var(--text-secondary);margin-bottom:var(--space-sm)">발송 대상</div>
+          <div style="display:flex;gap:var(--space-sm);margin-bottom:var(--space-md)">
+            <button class="btn btn-ghost btn-sm target-btn active" data-target="all" onclick="selectTarget(this,'all')">
+              <i class="fa-solid fa-users"></i> 전체 회원
+            </button>
+            <button class="btn btn-ghost btn-sm target-btn" data-target="selected" onclick="selectTarget(this,'selected')">
+              <i class="fa-solid fa-check-square"></i> 선택 발송
+            </button>
+          </div>
+
+          <!-- 회원 목록 (선택 발송용) -->
+          <div id="user-select-panel" style="display:none;margin-bottom:var(--space-md)">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-sm)">
+              <div style="font-size:0.78rem;color:var(--text-muted)">클릭하여 선택</div>
+              <button class="btn btn-ghost btn-sm" onclick="toggleSelectAll()">전체 선택/해제</button>
+            </div>
+            <div class="user-list" id="user-list">
+              <div style="text-align:center;padding:var(--space-xl);color:var(--text-muted);font-size:0.82rem">
+                <i class="fa-solid fa-spinner fa-spin"></i> 회원 목록 로딩 중...
+              </div>
+            </div>
+          </div>
+
+          <!-- 커스텀 메시지 입력 -->
+          <div id="custom-message-panel" style="display:none">
+            <div class="input-group">
+              <label>커스텀 메시지 내용</label>
+              <textarea id="custom-msg-input" placeholder="발송할 메시지를 입력하세요.&#10;&#10;예: 이번 주 포트폴리오 성과가 업데이트되었습니다. 대시보드를 확인해 주세요." oninput="updatePreview()"></textarea>
+              <div class="char-count"><span id="char-cnt">0</span> / 400자</div>
+            </div>
+          </div>
+
+          <!-- 리포트 데이터 입력 (report 유형) -->
+          <div id="report-data-panel">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:var(--space-sm)">
+              <div class="input-group" style="margin-bottom:0">
+                <label>수익률 (%)</label>
+                <input type="number" id="rpt-rate" value="10.5" step="0.1" min="0" oninput="updatePreview()">
+              </div>
+              <div class="input-group" style="margin-bottom:0">
+                <label>수익(KRW, 원)</label>
+                <input type="number" id="rpt-won" value="3150000" oninput="updatePreview()">
+              </div>
+              <div class="input-group" style="margin-bottom:0">
+                <label>수익(USDT)</label>
+                <input type="number" id="rpt-usdt" value="2333.33" step="0.01" oninput="updatePreview()">
+              </div>
+            </div>
+          </div>
+
+          <!-- 월간 정산 데이터 -->
+          <div id="monthly-data-panel" style="display:none">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:var(--space-sm)">
+              <div class="input-group" style="margin-bottom:0">
+                <label>정산 기간</label>
+                <input type="text" id="mth-period" value="2026년 3월">
+              </div>
+              <div class="input-group" style="margin-bottom:0">
+                <label>정산(KRW)</label>
+                <input type="number" id="mth-krw" value="4200000" oninput="updatePreview()">
+              </div>
+              <div class="input-group" style="margin-bottom:0">
+                <label>정산(USDT)</label>
+                <input type="number" id="mth-usdt" value="3111.11" step="0.01" oninput="updatePreview()">
+              </div>
+            </div>
+          </div>
+
+          <!-- 메시지 미리보기 -->
+          <div style="margin-top:var(--space-lg)">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-sm)">
+              <div style="font-size:0.78rem;font-weight:600;color:var(--text-secondary)">
+                <i class="fa-solid fa-eye" style="color:var(--admin-accent)"></i> 메시지 미리보기
+              </div>
+              <div style="font-size:0.72rem;color:var(--text-muted)">{이름}은 실제 발송 시 자동 치환됩니다</div>
+            </div>
+            <div class="template-preview" id="msg-preview"></div>
+          </div>
+
+          <!-- 발송 버튼 -->
+          <div style="margin-top:var(--space-xl);display:flex;gap:var(--space-sm)">
+            <button class="btn btn-full btn-kakao" id="send-btn" onclick="startSend()">
+              <i class="fa-solid fa-paper-plane"></i> 카카오톡 알림 발송
+            </button>
+          </div>
+
+          <!-- Progress -->
+          <div id="send-progress" style="display:none;margin-top:var(--space-md)">
+            <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--text-muted);margin-bottom:4px">
+              <span id="progress-text">발송 중...</span>
+              <span id="progress-pct">0%</span>
+            </div>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+            </div>
+          </div>
+
+          <!-- Result -->
+          <div id="send-result" style="display:none;margin-top:var(--space-lg)">
+            <div style="font-size:0.82rem;font-weight:700;color:var(--text-primary);margin-bottom:var(--space-md)">발송 결과</div>
+            <div class="result-grid">
+              <div class="result-item">
+                <div class="val" id="res-success" style="color:var(--accent-green)">0</div>
+                <div class="lbl">성공</div>
+              </div>
+              <div class="result-item">
+                <div class="val" id="res-failed" style="color:var(--accent-red)">0</div>
+                <div class="lbl">실패</div>
+              </div>
+              <div class="result-item">
+                <div class="val" id="res-skipped" style="color:var(--text-muted)">0</div>
+                <div class="lbl">건너뜀</div>
+              </div>
+            </div>
+            <div id="error-list" style="margin-top:var(--space-md);display:none">
+              <div style="font-size:0.75rem;color:var(--accent-red);font-weight:600;margin-bottom:var(--space-sm)">오류 목록</div>
+              <div id="error-items" style="font-size:0.75rem;color:var(--text-muted);line-height:1.8"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 발송 이력 -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <div class="admin-card-title"><i class="fa-solid fa-clock-rotate-left" style="color:var(--text-muted)"></i> 최근 발송 이력</div>
+          <button class="btn btn-ghost btn-sm" onclick="loadLogs()"><i class="fa-solid fa-rotate-right"></i> 새로고침</button>
+        </div>
+        <div class="admin-card-body" style="padding:0">
+          <div style="overflow-x:auto">
+            <table class="log-table">
+              <thead>
+                <tr>
+                  <th>수신자</th>
+                  <th>유형</th>
+                  <th>채널</th>
+                  <th>상태</th>
+                  <th>발송 시각</th>
+                </tr>
+              </thead>
+              <tbody id="log-tbody">
+                <tr><td colspan="5" style="text-align:center;padding:var(--space-xl);color:var(--text-muted)"><i class="fa-solid fa-spinner fa-spin"></i> 로딩 중...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container"></div>
+
+  <script src="js/vie-app.js"></script>
+  <script src="js/vie-notify.js"></script>
+  <script>
+    /* ── 초기화 ─────────────────────────────────────────── */
+    let currentType   = 'report';
+    let currentTarget = 'all';
+    let selectedUsers = [];
+    let allUsers      = [];
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      initWebhookStatus();
+      updatePreview();
+      await loadUsers();
+      await loadLogs();
+      await loadStats();
+    });
+
+    /* ── 웹훅 설정 ──────────────────────────────────────── */
+    function initWebhookStatus() {
+      const url = VieNotify.getWebhookUrl();
+      const input = document.getElementById('webhook-url-input');
+      if (url) input.value = url;
+      updateWebhookStatusBar(!!url);
+    }
+
+    function onWebhookInput() {
+      const val = document.getElementById('webhook-url-input').value.trim();
+      updateWebhookStatusBar(val.startsWith('https://hook'));
+    }
+
+    function updateWebhookStatusBar(ok) {
+      const bar  = document.getElementById('webhook-status-bar');
+      const text = document.getElementById('webhook-status-text');
+      bar.className  = 'webhook-status ' + (ok ? 'ok' : 'err');
+      text.textContent = ok ? 'Make.com 웹훅 연결됨' : '웹훅 URL 미설정';
+    }
+
+    function saveWebhookUrl() {
+      const url = document.getElementById('webhook-url-input').value.trim();
+      if (!url) { VieToast.error('웹훅 URL을 입력하세요.'); return; }
+      if (!url.startsWith('https://')) { VieToast.error('https:// 로 시작하는 URL을 입력하세요.'); return; }
+      VieNotify.setWebhookUrl(url);
+      updateWebhookStatusBar(true);
+      VieToast.success('웹훅 URL이 저장되었습니다.');
+    }
+
+    async function testWebhook() {
+      const url = VieNotify.getWebhookUrl();
+      if (!url) { VieToast.error('먼저 웹훅 URL을 저장하세요.'); return; }
+      VieToast.info('테스트 메시지 발송 중...');
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            app_name:    'D.Quant 9.0 V.I.E',
+            type:        'test',
+            to_name:     '관리자',
+            to_phone:    '01000000000',
+            message:     '[테스트] Make.com 웹훅 연결 테스트입니다.',
+            sent_at:     new Date().toISOString(),
+            source:      'admin-test'
+          })
+        });
+        if (res.ok || res.status === 200) {
+          VieToast.success('Make.com에 테스트 신호 전송 완료! Make.com에서 수신 확인하세요.');
+          updateWebhookStatusBar(true);
+        } else {
+          VieToast.error(`응답 오류: HTTP ${res.status}`);
+        }
+      } catch(e) {
+        VieToast.error('연결 실패: ' + e.message);
+      }
+    }
+
+    /* ── 발송 유형 선택 ──────────────────────────────────── */
+    function selectType(el, type) {
+      document.querySelectorAll('.notify-type-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      currentType = type;
+
+      document.getElementById('report-data-panel').style.display  = type === 'report'  ? '' : 'none';
+      document.getElementById('monthly-data-panel').style.display = type === 'monthly' ? '' : 'none';
+      document.getElementById('custom-message-panel').style.display = type === 'custom' ? '' : 'none';
+      updatePreview();
+    }
+
+    /* ── 발송 대상 선택 ──────────────────────────────────── */
+    function selectTarget(el, target) {
+      document.querySelectorAll('.target-btn').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
+      currentTarget = target;
+      document.getElementById('user-select-panel').style.display = target === 'selected' ? '' : 'none';
+    }
+
+    /* ── 회원 목록 로드 ──────────────────────────────────── */
+    async function loadUsers() {
+      try {
+        const res  = await fetch('tables/vie_users?limit=100');
+        const json = await res.json();
+        allUsers   = json.data || [];
+        renderUserList();
+      } catch(e) {
+        // Demo users if API fails
+        allUsers = [
+          {id:'1', name:'밸류앤코어스', phone:'01012345678', kakao_notify:true},
+          {id:'2', name:'이서연', phone:'01023456789', kakao_notify:true},
+          {id:'3', name:'박도현', phone:'01034567890', kakao_notify:false},
+          {id:'4', name:'정하은', phone:'01045678901', kakao_notify:true},
+          {id:'5', name:'최지훈', phone:'01056789012', kakao_notify:true},
+          {id:'6', name:'윤서준', phone:'01067890123', kakao_notify:true},
+          {id:'7', name:'임지유', phone:'01078901234', kakao_notify:false},
+          {id:'8', name:'강민서', phone:'01089012345', kakao_notify:true},
+          {id:'9', name:'오준혁', phone:'01090123456', kakao_notify:true},
+        ];
+        renderUserList();
+      }
+    }
+
+    function renderUserList() {
+      const container = document.getElementById('user-list');
+      if (!allUsers.length) {
+        container.innerHTML = '<div style="text-align:center;padding:var(--space-xl);color:var(--text-muted);font-size:0.82rem">등록된 회원이 없습니다.</div>';
+        return;
+      }
+      container.innerHTML = allUsers.map(u => `
+        <div class="user-item ${selectedUsers.includes(u.id) ? 'selected' : ''}"
+             onclick="toggleUser('${u.id}')" data-uid="${u.id}">
+          <div class="user-avatar-sm">${(u.name||'?').charAt(0)}</div>
+          <div class="user-item-info">
+            <h6>${u.name || '—'}</h6>
+            <p>${u.phone ? maskPhone(u.phone) : '전화번호 없음'}</p>
+          </div>
+          ${u.kakao_notify && u.phone
+            ? '<span class="kakao-tag">카카오 ON</span>'
+            : '<span class="no-kakao-tag">미동의</span>'}
+        </div>
+      `).join('');
+    }
+
+    function toggleUser(uid) {
+      const idx = selectedUsers.indexOf(uid);
+      if (idx >= 0) selectedUsers.splice(idx, 1);
+      else selectedUsers.push(uid);
+      renderUserList();
+    }
+
+    function toggleSelectAll() {
+      const kakaoUsers = allUsers.filter(u => u.kakao_notify && u.phone).map(u => u.id);
+      if (selectedUsers.length === kakaoUsers.length) selectedUsers = [];
+      else selectedUsers = [...kakaoUsers];
+      renderUserList();
+    }
+
+    function maskPhone(p) {
+      const c = (p||'').replace(/[^0-9]/g, '');
+      return c.length >= 8 ? c.substring(0,3) + '-****-' + c.slice(-4) : p;
+    }
+
+    /* ── 메시지 미리보기 ──────────────────────────────────── */
+    function updatePreview() {
+      const preview = document.getElementById('msg-preview');
+      const name    = '{이름}';
+      let msg = '';
+
+      if (currentType === 'report') {
+        const rate = document.getElementById('rpt-rate')?.value || '10.50';
+        const won  = parseInt(document.getElementById('rpt-won')?.value || '3150000').toLocaleString();
+        const usdt = parseFloat(document.getElementById('rpt-usdt')?.value || '2333.33').toFixed(2);
+        msg = `[D.Quant 9.0 V.I.E] 3일 성과 리포트\n\n${name}님의 포트폴리오 현황\n\n수익률: +${rate}%\n누적 수익(KRW): +${won}원\n누적 수익(USDT): +${usdt} USDT\n\n📈 리포트 전체 보기\n👉 start.dquant9.com/reports.html`;
+      } else if (currentType === 'monthly') {
+        const period = document.getElementById('mth-period')?.value || '2026년 3월';
+        const krw    = parseInt(document.getElementById('mth-krw')?.value || '4200000').toLocaleString();
+        const usdt   = parseFloat(document.getElementById('mth-usdt')?.value || '3111.11').toFixed(2);
+        msg = `[D.Quant 9.0 V.I.E] 월간 정산 안내\n\n${name}님, ${period} 정산 내역입니다.\n\n정산 금액(KRW): ${krw}원\n정산 금액(USDT): ${usdt} USDT\n\n상세 내역은 앱에서 확인하세요.\n👉 start.dquant9.com/reports.html`;
+      } else if (currentType === 'consult') {
+        msg = `[D.Quant 9.0 V.I.E] 상담 신청 접수\n\n${name}님의 상담 신청이 접수되었습니다. ✅\n\n파트너: 밸류앤코어스\n예상 연락일: 영업일 기준 1~2일 이내\n\n빠른 시간 내 연락드리겠습니다.`;
+      } else {
+        const custom = document.getElementById('custom-msg-input')?.value || '';
+        const cnt    = custom.length;
+        if (document.getElementById('char-cnt')) document.getElementById('char-cnt').textContent = cnt;
+        msg = custom ? `[D.Quant 9.0 V.I.E]\n\n${custom}` : '메시지를 입력하면 미리보기가 표시됩니다.';
+      }
+
+      preview.textContent = msg;
+    }
+
+    /* ── 발송 실행 ──────────────────────────────────────── */
+    async function startSend() {
+      const webhookUrl = VieNotify.getWebhookUrl();
+      if (!webhookUrl) {
+        VieToast.error('Make.com 웹훅 URL을 먼저 설정하세요.');
+        return;
+      }
+
+      const targetCount = currentTarget === 'all'
+        ? allUsers.filter(u => u.kakao_notify && u.phone).length
+        : selectedUsers.length;
+
+      if (targetCount === 0) {
+        VieToast.error(currentTarget === 'all' ? '카카오 알림 동의 회원이 없습니다.' : '발송 대상을 선택하세요.');
+        return;
+      }
+
+      const confirmed = confirm(`카카오 알림톡을 ${targetCount}명에게 발송하시겠습니까?\n\n유형: ${getTypeLabel(currentType)}\n발송 대상: ${targetCount}명\n예상 비용: 약 ${targetCount * 15}원`);
+      if (!confirmed) return;
+
+      // UI: 발송 중
+      document.getElementById('send-btn').disabled = true;
+      document.getElementById('send-progress').style.display = '';
+      document.getElementById('send-result').style.display   = 'none';
+
+      const data = buildSendData();
+      let results;
+
+      const onProgress = (cur, total, res) => {
+        const pct = Math.round((cur / total) * 100);
+        document.getElementById('progress-fill').style.width = pct + '%';
+        document.getElementById('progress-pct').textContent  = pct + '%';
+        document.getElementById('progress-text').textContent = `${cur} / ${total} 발송 중...`;
+      };
+
+      if (currentTarget === 'all') {
+        results = await VieNotifyAdmin.sendAll(currentType, data, onProgress);
+      } else {
+        results = await VieNotifyAdmin.sendSelected(selectedUsers, currentType, data, onProgress);
+      }
+
+      // 결과 표시
+      document.getElementById('send-btn').disabled = false;
+      document.getElementById('send-progress').style.display = 'none';
+      document.getElementById('send-result').style.display   = '';
+      document.getElementById('res-success').textContent = results.success;
+      document.getElementById('res-failed').textContent  = results.failed;
+      document.getElementById('res-skipped').textContent = results.skipped;
+
+      if (results.errors && results.errors.length > 0) {
+        document.getElementById('error-list').style.display = '';
+        document.getElementById('error-items').innerHTML = results.errors.map(e =>
+          `• ${e.user}: <span style="color:var(--accent-red)">${e.error}</span>`
+        ).join('<br>');
+      }
+
+      VieToast.success(`발송 완료: 성공 ${results.success}건, 실패 ${results.failed}건`);
+      await loadLogs();
+      await loadStats();
+    }
+
+    function buildSendData() {
+      if (currentType === 'report') {
+        return {
+          profit_rate: parseFloat(document.getElementById('rpt-rate').value),
+          profit_won:  parseInt(document.getElementById('rpt-won').value),
+          profit_usdt: parseFloat(document.getElementById('rpt-usdt').value)
+        };
+      } else if (currentType === 'monthly') {
+        return {
+          period:     document.getElementById('mth-period').value,
+          total_krw:  parseInt(document.getElementById('mth-krw').value),
+          total_usdt: parseFloat(document.getElementById('mth-usdt').value)
+        };
+      } else if (currentType === 'custom') {
+        return { message: document.getElementById('custom-msg-input').value };
+      }
+      return {};
+    }
+
+    function getTypeLabel(type) {
+      const labels = { report:'3일 성과 리포트', monthly:'월간 정산 안내', consult:'상담 신청 확인', custom:'커스텀 메시지' };
+      return labels[type] || type;
+    }
+
+    /* ── 발송 이력 로드 ──────────────────────────────────── */
+    async function loadLogs() {
+      const logs = await VieNotifyAdmin.getLogs(20);
+      const tbody = document.getElementById('log-tbody');
+      if (!logs.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:var(--space-xl);color:var(--text-muted);font-size:0.82rem">발송 이력이 없습니다.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = logs.map(log => `
+        <tr>
+          <td>${log.recipient ? maskPhone(log.recipient) : '—'}</td>
+          <td><span class="tag" style="font-size:0.72rem">${getTypeLabel(log.type)}</span></td>
+          <td><i class="fa-solid fa-comment" style="color:#fee500"></i> 카카오</td>
+          <td><span class="log-status ${log.status}">${log.status === 'sent' ? '성공' : log.status === 'failed' ? '실패' : '오류'}</span></td>
+          <td>${log.sent_at ? new Date(log.sent_at).toLocaleString('ko-KR', {month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}) : '—'}</td>
+        </tr>
+      `).join('');
+    }
+
+    /* ── 통계 로드 ──────────────────────────────────────── */
+    async function loadStats() {
+      const logs    = await VieNotifyAdmin.getLogs(100);
+      const now     = new Date();
+      const thisMonth = logs.filter(l => {
+        const d = new Date(l.sent_at);
+        return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+      });
+      const success = thisMonth.filter(l => l.status === 'sent').length;
+      const failed  = thisMonth.filter(l => l.status !== 'sent').length;
+      document.getElementById('stat-total').textContent   = thisMonth.length;
+      document.getElementById('stat-success').textContent = success;
+      document.getElementById('stat-failed').textContent  = failed;
+    }
+  </script>
+</body>
+</html>

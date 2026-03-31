@@ -1,0 +1,2211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D.Quant 9.0 V.I.E — Exclusive Invite-Only</title>
+  <meta name="description" content="변동성이 수익이 되는 24시간을 경험하라. D.Quant 9.0 Virtual Investment Experience — Exclusive Invite-Only Platform.">
+  <!-- Open Graph / KakaoTalk 공유 미리보기 -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="D.Quant 9.0 V.I.E">
+  <meta property="og:title" content="D.Quant 9.0 V.I.E — 변동성이 수익이 되는 24시간">
+  <meta property="og:description" content="초대받은 분만 접근 가능한 AI 알고리즘 가상 투자 경험 플랫폼. D-Grouping · D-Grid · D-Hybrid 전략으로 24시간 운용됩니다.">
+  <meta property="og:image" content="images/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="D.Quant 9.0 V.I.E AI 알고리즘 투자 플랫폼">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="D.Quant 9.0 V.I.E — 변동성이 수익이 되는 24시간">
+  <meta name="twitter:description" content="초대받은 분만 접근 가능한 AI 알고리즘 가상 투자 경험 플랫폼.">
+  <meta name="twitter:image" content="images/og-image.jpg">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+  <!-- App CSS -->
+  <link rel="stylesheet" href="css/vie.css">
+  <style>
+    /* ── Landing-specific styles ── */
+    .landing-hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animated background grid */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: grid-drift 20s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes grid-drift {
+      from { transform: translateY(0); }
+      to   { transform: translateY(60px); }
+    }
+
+    /* Radial glow */
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(0,212,255,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .bg-glow-2 {
+      position: fixed;
+      bottom: -20%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 800px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(139,92,246,0.05) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* Hero content */
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: var(--space-3xl) var(--space-lg);
+      max-width: 700px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-sm);
+      border: 1px solid rgba(0, 212, 255, 0.3);
+      border-radius: var(--radius-full);
+      padding: 6px 16px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent-blue);
+      background: rgba(0, 212, 255, 0.06);
+      margin-bottom: var(--space-xl);
+      animation: fadeIn 0.8s ease 0.2s both;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    .hero-title {
+      font-size: clamp(2.2rem, 6vw, 4rem);
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: var(--space-lg);
+      animation: fadeIn 0.8s ease 0.35s both;
+    }
+    .hero-title .highlight {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-2xl);
+      animation: fadeIn 0.8s ease 0.5s both;
+      line-height: 1.8;
+    }
+
+    /* Invite Code Box */
+    .invite-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      padding: var(--space-2xl);
+      text-align: left;
+      animation: fadeIn 0.8s ease 0.65s both;
+      max-width: 480px;
+      margin: 0 auto var(--space-2xl);
+    }
+    .invite-box-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-lg);
+    }
+    .invite-box-icon {
+      width: 40px; height: 40px;
+      border-radius: var(--radius-md);
+      background: rgba(0,212,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-blue);
+    }
+    .invite-box-title { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); }
+    .invite-box-sub   { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+
+    .invite-input-row {
+      display: flex;
+      gap: var(--space-sm);
+    }
+    .invite-input-row .form-input {
+      flex: 1;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .invite-result {
+      margin-top: var(--space-md);
+      padding: var(--space-md);
+      border-radius: var(--radius-md);
+      font-size: 0.88rem;
+      display: none;
+    }
+    .invite-result.success {
+      background: rgba(0, 229, 160, 0.08);
+      border: 1px solid rgba(0, 229, 160, 0.25);
+      color: var(--accent-green);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    .invite-result.error {
+      background: rgba(244, 63, 94, 0.08);
+      border: 1px solid rgba(244, 63, 94, 0.25);
+      color: var(--accent-red);
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    /* Value Cards */
+    .value-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-md);
+      max-width: 700px;
+      margin: 0 auto var(--space-3xl);
+      animation: fadeIn 0.8s ease 0.8s both;
+    }
+    .value-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      text-align: center;
+      transition: all var(--transition-base);
+    }
+    .value-card:hover {
+      border-color: rgba(0,212,255,0.2);
+      transform: translateY(-3px);
+    }
+    .value-card-icon {
+      font-size: 1.4rem;
+      margin-bottom: var(--space-sm);
+    }
+    .value-card-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .value-card-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Trust badges */
+    .trust-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--space-sm);
+      animation: fadeIn 0.8s ease 1s both;
+    }
+    .trust-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      padding: 6px 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-full);
+    }
+    .trust-item i { color: var(--accent-green); }
+
+    /* Scroll indicator */
+    .scroll-hint {
+      position: absolute;
+      bottom: var(--space-xl);
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      animation: float 2s ease-in-out infinite;
+      z-index: 2;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50%       { transform: translateX(-50%) translateY(6px); }
+    }
+
+    /* Features Section */
+    .features-section {
+      padding: var(--space-3xl) var(--space-lg);
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-lg);
+    }
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      display: flex;
+      gap: var(--space-lg);
+      align-items: flex-start;
+      transition: all var(--transition-base);
+    }
+    .feature-card:hover {
+      border-color: rgba(0,212,255,0.2);
+      transform: translateY(-2px);
+    }
+    .feature-icon {
+      width: 52px; height: 52px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      flex-shrink: 0;
+    }
+    .fi-blue   { background: rgba(0,212,255,0.1);   color: var(--accent-blue); }
+    .fi-green  { background: rgba(0,229,160,0.1);   color: var(--accent-green); }
+    .fi-purple { background: rgba(139,92,246,0.1);  color: var(--accent-purple); }
+    .fi-gold   { background: rgba(245,158,11,0.1);  color: var(--accent-gold); }
+    .feature-body h4 { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+    .feature-body p  { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+
+    /* Portfolio Preview */
+    .pf-preview-section {
+      padding: var(--space-3xl) var(--space-lg);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .pf-preview-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: var(--space-md);
+    }
+
+    /* ── 카드 기본 ── */
+    .pf-mini-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      padding: var(--space-xl) var(--space-md);
+      padding-top: calc(var(--space-xl) + 8px);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.35s cubic-bezier(.22,.68,0,1.4),
+                  box-shadow 0.35s ease,
+                  border-color 0.3s ease,
+                  background 0.3s ease;
+    }
+
+    /* 상단 컬러 바 */
+    .pf-mini-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      border-radius: 3px 3px 0 0;
+      transition: height 0.3s ease;
+    }
+    /* 하단 글로우 */
+    .pf-mini-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 10%; right: 10%;
+      height: 40px;
+      border-radius: 50%;
+      filter: blur(18px);
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+
+    /* ── 등급별 색상 정의 ── */
+    .pf-mini-card.core   { --c: var(--color-core);       --c-rgb: 74,144,226; }
+    .pf-mini-card.growth { --c: var(--color-growth);     --c-rgb: 54,179,126; }
+    .pf-mini-card.premium{ --c: var(--color-premium);    --c-rgb: 124,111,166; }
+    .pf-mini-card.sa     { --c: var(--color-strategy-a); --c-rgb: 201,148,86; }
+    .pf-mini-card.sb     { --c: var(--color-strategy-b); --c-rgb: 224,92,92; }
+
+    .pf-mini-card::before { background: var(--c); }
+    .pf-mini-card::after  { background: var(--c); }
+
+    /* ── 호버 상태 ── */
+    .pf-mini-card:hover,
+    .pf-mini-card.touch-active {
+      transform: translateY(-8px) scale(1.03);
+      border-color: var(--c);
+      background: rgba(var(--c-rgb), 0.07);
+      box-shadow: 0 16px 40px rgba(var(--c-rgb), 0.25),
+                  0 0 0 1px rgba(var(--c-rgb), 0.3);
+    }
+    .pf-mini-card:hover::before,
+    .pf-mini-card.touch-active::before { height: 6px; }
+    .pf-mini-card:hover::after,
+    .pf-mini-card.touch-active::after  { opacity: 0.5; }
+
+    /* ── 카드 내부 요소 ── */
+    .pf-tier {
+      font-size: 0.72rem; font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .pf-amount {
+      font-size: 1.1rem; font-weight: 800;
+      color: var(--text-primary);
+      margin: 6px 0 4px;
+    }
+    .pf-rate {
+      font-size: 1.25rem; font-weight: 900;
+      transition: transform 0.3s ease;
+      line-height: 1;
+    }
+    .pf-mini-card:hover .pf-rate,
+    .pf-mini-card.touch-active .pf-rate,
+    .pf-mini-card.selected .pf-rate { transform: scale(1.08); }
+
+    /* ── algo 라벨 (2배 이상 크게) ── */
+    .pf-algo {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 12px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.82rem;        /* 기존 0.7rem → 약 2.3배 */
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      background: rgba(var(--c-rgb), 0.12);
+      color: var(--c);
+      border: 1px solid rgba(var(--c-rgb), 0.3);
+      transition: all 0.3s ease;
+    }
+    .pf-algo i { font-size: 0.8rem; }
+    .pf-mini-card:hover .pf-algo,
+    .pf-mini-card.touch-active .pf-algo {
+      background: rgba(var(--c-rgb), 0.22);
+      border-color: rgba(var(--c-rgb), 0.6);
+      box-shadow: 0 0 12px rgba(var(--c-rgb), 0.3);
+    }
+
+    /* ── 툴팁 오버레이 ── */
+    .pf-tooltip {
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius-xl);
+      background: rgba(5,8,20,0.94);
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: var(--space-lg) var(--space-md);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.28s ease;
+      z-index: 10;
+    }
+    .pf-mini-card:hover .pf-tooltip,
+    .pf-mini-card.touch-active .pf-tooltip { opacity: 1; }
+    /* 선택됨 or 비활성 상태에서는 툴팁 숨김 */
+    .pf-mini-card.selected .pf-tooltip,
+    .pf-mini-card.disabled .pf-tooltip { opacity: 0 !important; pointer-events: none; }
+
+    .pf-tooltip-title {
+      font-size: 0.78rem; font-weight: 900;
+      color: var(--c);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .pf-tooltip-algo {
+      font-size: 0.92rem; font-weight: 800;
+      color: var(--text-primary);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .pf-tooltip-divider {
+      width: 32px; height: 2px;
+      background: rgba(var(--c-rgb), 0.5);
+      border-radius: 1px;
+    }
+    .pf-tooltip-desc {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      text-align: center;
+    }
+    .pf-tooltip-detail {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      text-align: center;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding-top: 8px;
+      margin-top: 2px;
+    }
+    .pf-tooltip-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.7rem; font-weight: 700;
+      background: rgba(var(--c-rgb), 0.15);
+      color: var(--c);
+      border: 1px solid rgba(var(--c-rgb), 0.3);
+    }
+
+    /* ── 포트폴리오 체크박스 선택 UI ── */
+
+    /* 카드 상단 우측 체크 인디케이터 */
+    .pf-mini-card .pf-check-box {
+      position: absolute;
+      top: 14px; right: 14px;
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      border: 2px solid rgba(var(--c-rgb), 0.4);
+      background: rgba(var(--c-rgb), 0.06);
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.25s ease;
+      z-index: 5;
+    }
+    .pf-mini-card .pf-check-box i {
+      font-size: 0.7rem;
+      color: #fff;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 0.2s cubic-bezier(.22,.68,0,1.6);
+    }
+
+    /* 선택됨 상태 */
+    .pf-mini-card.selected {
+      border-color: var(--c) !important;
+      background: rgba(var(--c-rgb), 0.10) !important;
+      box-shadow: 0 0 0 2px rgba(var(--c-rgb), 0.4),
+                  0 12px 32px rgba(var(--c-rgb), 0.2) !important;
+      transform: translateY(-4px) !important;
+    }
+    .pf-mini-card.selected::before { height: 6px; }
+    .pf-mini-card.selected::after  { opacity: 0.6; }
+    .pf-mini-card.selected .pf-check-box {
+      background: var(--c);
+      border-color: var(--c);
+      box-shadow: 0 0 10px rgba(var(--c-rgb), 0.6);
+    }
+    .pf-mini-card.selected .pf-check-box i {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .pf-mini-card.selected .pf-tier { color: var(--c); }
+
+    /* 비활성(2개 선택 후 나머지) */
+    .pf-mini-card.disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+    .pf-mini-card.disabled:hover { transform: none; }
+
+    /* 안내 배너 */
+    .pf-select-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: var(--space-lg);
+      padding: 14px 20px;
+      border-radius: var(--radius-lg);
+      background: rgba(0,212,255,0.06);
+      border: 1px solid rgba(0,212,255,0.18);
+    }
+    .pf-select-hint {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.83rem; color: var(--text-secondary);
+    }
+    .pf-select-hint i { color: var(--accent-blue); font-size: 0.9rem; }
+    .pf-select-hint strong { color: var(--accent-blue); }
+    .pf-select-count {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .pf-count-dots {
+      display: flex; gap: 5px;
+    }
+    .pf-count-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.2);
+      background: transparent;
+      transition: all 0.25s ease;
+    }
+    .pf-count-dot.on {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 6px rgba(0,212,255,0.6);
+    }
+
+    /* 선택 요약 바 */
+    .pf-selected-summary {
+      margin-top: var(--space-lg);
+      padding: 14px 20px;
+      border-radius: var(--radius-lg);
+      background: rgba(0,229,160,0.06);
+      border: 1px solid rgba(0,229,160,0.15);
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      animation: fadeUp 0.3s ease;
+    }
+    .pf-selected-summary.visible { display: flex; }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(8px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .pf-sel-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pf-sel-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.76rem; font-weight: 700;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .pf-sel-chip.core    { background:rgba(74,144,226,0.15);  color:#4a90e2;  border-color:rgba(74,144,226,0.3); }
+    .pf-sel-chip.growth  { background:rgba(54,179,126,0.15);  color:#36b37e;  border-color:rgba(54,179,126,0.3); }
+    .pf-sel-chip.premium { background:rgba(124,111,166,0.15); color:#9d91d9;  border-color:rgba(124,111,166,0.3); }
+    .pf-sel-chip.sa      { background:rgba(201,148,86,0.15);  color:#c99456;  border-color:rgba(201,148,86,0.3); }
+    .pf-sel-chip.sb      { background:rgba(224,92,92,0.15);   color:#e05c5c;  border-color:rgba(224,92,92,0.3); }
+    .pf-sel-cta {
+      font-size: 0.8rem;
+      color: var(--accent-green);
+      display: flex; align-items: center; gap: 5px;
+      font-weight: 600;
+    }
+
+    /* ── 코인 마켓 섹션 ── */
+    .mkt-section {
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      background: var(--bg-card);
+    }
+    .mkt-tab-bar {
+      display: flex; align-items: center;
+      border-bottom: 1px solid var(--border-default);
+      background: rgba(255,255,255,.02);
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .mkt-tab-bar::-webkit-scrollbar { display:none; }
+    .mkt-tab {
+      display: flex; align-items: center; gap: 5px;
+      padding: 11px 16px;
+      font-size: .75rem; font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer; white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: all .2s; flex-shrink: 0;
+    }
+    .mkt-tab:hover { color: var(--text-secondary); }
+    .mkt-tab.active { color: var(--accent-blue); border-bottom-color: var(--accent-blue); }
+    .mkt-tab .tab-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: currentColor; opacity: .6;
+    }
+    .mkt-refresh-btn {
+      margin-left: auto; flex-shrink: 0;
+      padding: 6px 14px; font-size: .72rem; font-weight: 700;
+      color: var(--text-muted); background: transparent; border: none;
+      cursor: pointer; font-family: var(--font-ko);
+      display: flex; align-items: center; gap: 5px; transition: color .2s;
+    }
+    .mkt-refresh-btn:hover { color: var(--accent-blue); }
+    .mkt-refresh-btn.spinning i { animation: spin360 .8s linear; }
+    @keyframes spin360 { to { transform: rotate(360deg); } }
+    .mkt-grid {
+      display: grid; grid-template-columns: repeat(6,1fr);
+      gap: 1px; background: var(--border-default);
+    }
+    @media(max-width:1200px){ .mkt-grid{ grid-template-columns: repeat(4,1fr); } }
+    @media(max-width:900px) { .mkt-grid{ grid-template-columns: repeat(3,1fr); } }
+    @media(max-width:600px) { .mkt-grid{ grid-template-columns: repeat(2,1fr); } }
+    .coin-card {
+      background: var(--bg-card); padding: 12px 14px;
+      display: flex; flex-direction: column; gap: 6px;
+      transition: background .2s; cursor: default;
+    }
+    .coin-card:hover { background: rgba(255,255,255,.03); }
+    .coin-top { display: flex; align-items: center; gap: 8px; }
+    .coin-logo { width:28px; height:28px; border-radius:50%; object-fit:cover; flex-shrink:0; background:rgba(255,255,255,.05); }
+    .coin-logo-fallback {
+      width:28px; height:28px; border-radius:50%;
+      background: linear-gradient(135deg,var(--accent-blue),var(--accent-purple));
+      display:flex; align-items:center; justify-content:center;
+      font-size:.65rem; font-weight:900; color:#fff; flex-shrink:0;
+    }
+    .coin-names { flex:1; min-width:0; }
+    .coin-symbol { font-size:.78rem; font-weight:800; color:var(--text-primary); }
+    .coin-name   { font-size:.65rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .coin-rank   { font-size:.6rem; font-weight:700; padding:1px 5px; border-radius:8px; background:rgba(255,255,255,.06); color:var(--text-muted); flex-shrink:0; }
+    .coin-price  { font-size:.88rem; font-weight:800; color:var(--text-primary); font-family:'Inter',sans-serif; letter-spacing:-.01em; }
+    .coin-change { display:inline-flex; align-items:center; gap:3px; font-size:.72rem; font-weight:700; padding:2px 6px; border-radius:10px; }
+    .coin-change.up   { background:rgba(0,229,160,.1);  color:var(--accent-green); }
+    .coin-change.down { background:rgba(244,63,94,.1);   color:var(--accent-red); }
+    .coin-change.flat { background:rgba(255,255,255,.05); color:var(--text-muted); }
+    .coin-volatility-bars { display:flex; flex-direction:column; gap:4px; margin-top:2px; }
+    .vol-row { display:flex; align-items:center; gap:4px; }
+    .vol-label { font-size:.58rem; color:var(--text-muted); width:18px; flex-shrink:0; }
+    .vol-bar-wrap { flex:1; height:4px; border-radius:2px; background:rgba(255,255,255,.06); overflow:hidden; }
+    .vol-bar { height:100%; border-radius:2px; transition:width .8s ease; }
+    .vol-bar.up   { background:var(--accent-green); }
+    .vol-bar.down { background:var(--accent-red); }
+    .vol-val { font-size:.62rem; font-weight:700; width:46px; text-align:right; flex-shrink:0; }
+    .vol-val.up   { color:var(--accent-green); }
+    .vol-val.down { color:var(--accent-red); }
+    .vol-volume-bar { height:3px; border-radius:2px; background:linear-gradient(90deg,var(--accent-blue),var(--accent-purple)); transition:width .8s ease; margin-top:2px; }
+    .mkt-footer { padding:8px 16px; border-top:1px solid var(--border-default); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:6px; }
+    .mkt-footer-text { font-size:.66rem; color:var(--text-muted); }
+    .mkt-live-dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--accent-green); margin-right:4px; animation:mktblink 1.5s ease-in-out infinite; }
+    @keyframes mktblink { 0%,100%{opacity:1} 50%{opacity:.2} }
+    .mkt-skeleton { display:grid; grid-template-columns:repeat(6,1fr); gap:1px; background:var(--border-default); }
+    @media(max-width:900px){ .mkt-skeleton{ grid-template-columns:repeat(3,1fr); } }
+    @media(max-width:600px){ .mkt-skeleton{ grid-template-columns:repeat(2,1fr); } }
+    .mkt-skel-card { background:var(--bg-card); padding:14px; display:flex; flex-direction:column; gap:8px; }
+    .skel-line { height:10px; border-radius:4px; background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.09) 50%,rgba(255,255,255,.04) 75%); background-size:200% 100%; animation:skelShimmer 1.4s ease infinite; }
+    @keyframes skelShimmer { to { background-position:-200% 0; } }
+
+    /* ══════════════════════════════════════════
+       ROADMAP SECTION — Topic별 로드맵
+    ══════════════════════════════════════════ */
+    .roadmap-section {
+      padding: var(--space-3xl) var(--space-lg) calc(var(--space-3xl) + 20px);
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* 수직 중앙 연결선 */
+    .roadmap-timeline {
+      position: relative;
+    }
+    .roadmap-timeline::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0; bottom: 0;
+      width: 2px;
+      transform: translateX(-50%);
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(0,212,255,0.15) 5%,
+        rgba(0,212,255,0.3) 20%,
+        rgba(139,92,246,0.3) 50%,
+        rgba(245,158,11,0.3) 80%,
+        rgba(0,229,160,0.15) 95%,
+        transparent 100%
+      );
+    }
+    @media(max-width:768px){
+      .roadmap-timeline::before {
+        left: 28px;
+      }
+    }
+
+    /* 개별 토픽 스텝 */
+    .rm-step {
+      display: grid;
+      grid-template-columns: 1fr 56px 1fr;
+      gap: 0 var(--space-lg);
+      align-items: center;
+      margin-bottom: 32px;
+      position: relative;
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .rm-step.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    /* 짝수 스텝: 카드가 오른쪽 */
+    .rm-step.even {
+      grid-template-areas: "spacer center card";
+    }
+    .rm-step.odd {
+      grid-template-areas: "card center spacer";
+    }
+    .rm-step.odd  .rm-card    { grid-area: card; }
+    .rm-step.odd  .rm-center  { grid-area: center; }
+    .rm-step.odd  .rm-spacer  { grid-area: spacer; }
+    .rm-step.even .rm-card    { grid-area: card; }
+    .rm-step.even .rm-center  { grid-area: center; }
+    .rm-step.even .rm-spacer  { grid-area: spacer; }
+
+    @media(max-width:768px){
+      .rm-step,
+      .rm-step.odd,
+      .rm-step.even {
+        grid-template-columns: 56px 1fr;
+        grid-template-areas: "center card" !important;
+        gap: 0 14px;
+        margin-bottom: 16px;
+      }
+      .rm-step.odd  .rm-spacer,
+      .rm-step.even .rm-spacer { display: none; }
+    }
+
+    /* 중앙 노드 */
+    .rm-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      z-index: 2;
+    }
+    .rm-node {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: #fff;
+      position: relative;
+      flex-shrink: 0;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: default;
+    }
+    .rm-node::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 1.5px solid currentColor;
+      opacity: 0.25;
+      animation: nodeRing 2.5s ease-in-out infinite;
+    }
+    @keyframes nodeRing {
+      0%, 100% { transform: scale(1); opacity: 0.25; }
+      50% { transform: scale(1.15); opacity: 0.08; }
+    }
+    .rm-step:hover .rm-node {
+      transform: scale(1.12);
+    }
+
+    .rm-node.topic-1 { background: linear-gradient(135deg, #00d4ff, #0099cc); box-shadow: 0 0 20px rgba(0,212,255,0.4); color:#00d4ff;}
+    .rm-node.topic-2 { background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 0 20px rgba(139,92,246,0.4); color:#8b5cf6;}
+    .rm-node.topic-3 { background: linear-gradient(135deg, #00e5a0, #00b37a); box-shadow: 0 0 20px rgba(0,229,160,0.4); color:#00e5a0;}
+    .rm-node.topic-4 { background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 0 20px rgba(245,158,11,0.4); color:#f59e0b;}
+    .rm-node.topic-5 { background: linear-gradient(135deg, #f43f5e, #e11d48); box-shadow: 0 0 20px rgba(244,63,94,0.4); color:#f43f5e;}
+
+    .rm-node-num {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    /* 카드 */
+    .rm-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      padding: var(--space-xl);
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.3s cubic-bezier(.22,.68,0,1.3),
+                  border-color 0.3s ease,
+                  box-shadow 0.3s ease,
+                  background 0.3s ease;
+    }
+
+    /* 카드 왼쪽/오른쪽 컬러 라인 */
+    .rm-card::before {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 3px;
+      border-radius: 3px;
+      left: 0;
+      transition: width 0.3s ease;
+    }
+    /* 짝수는 오른쪽 */
+    .rm-step.even .rm-card::before {
+      left: auto; right: 0;
+    }
+
+    .rm-card.topic-1::before { background: #00d4ff; }
+    .rm-card.topic-2::before { background: #8b5cf6; }
+    .rm-card.topic-3::before { background: #00e5a0; }
+    .rm-card.topic-4::before { background: #f59e0b; }
+    .rm-card.topic-5::before { background: #f43f5e; }
+
+    .rm-card:hover,
+    .rm-card.active {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.3);
+    }
+
+    .rm-card.topic-1:hover, .rm-card.topic-1.active {
+      border-color: rgba(0,212,255,0.35);
+      background: rgba(0,212,255,0.04);
+      box-shadow: 0 12px 36px rgba(0,212,255,0.15);
+    }
+    .rm-card.topic-2:hover, .rm-card.topic-2.active {
+      border-color: rgba(139,92,246,0.35);
+      background: rgba(139,92,246,0.04);
+      box-shadow: 0 12px 36px rgba(139,92,246,0.15);
+    }
+    .rm-card.topic-3:hover, .rm-card.topic-3.active {
+      border-color: rgba(0,229,160,0.35);
+      background: rgba(0,229,160,0.04);
+      box-shadow: 0 12px 36px rgba(0,229,160,0.15);
+    }
+    .rm-card.topic-4:hover, .rm-card.topic-4.active {
+      border-color: rgba(245,158,11,0.35);
+      background: rgba(245,158,11,0.04);
+      box-shadow: 0 12px 36px rgba(245,158,11,0.15);
+    }
+    .rm-card.topic-5:hover, .rm-card.topic-5.active {
+      border-color: rgba(244,63,94,0.35);
+      background: rgba(244,63,94,0.04);
+      box-shadow: 0 12px 36px rgba(244,63,94,0.15);
+    }
+
+    /* ── >> LOOK 아이콘 오버레이 ── */
+    .rm-look-overlay {
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius-xl);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: rgba(5,8,20,0.88);
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+      z-index: 8;
+      flex-direction: column;
+    }
+    .rm-card:hover .rm-look-overlay {
+      opacity: 1;
+    }
+    .rm-look-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.1rem;
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      color: #fff;
+    }
+    .rm-look-arrows {
+      display: flex;
+      align-items: center;
+      gap: 0px;
+    }
+    .rm-look-arrows span {
+      font-size: 1.4rem;
+      font-weight: 900;
+      animation: arrowShift 0.8s ease-in-out infinite alternate;
+    }
+    .rm-look-arrows span:nth-child(1) { animation-delay: 0s;    color: rgba(255,255,255,0.4); }
+    .rm-look-arrows span:nth-child(2) { animation-delay: 0.15s; color: rgba(255,255,255,0.65); }
+    .rm-look-arrows span:nth-child(3) { animation-delay: 0.30s; color: rgba(255,255,255,1); }
+    @keyframes arrowShift {
+      from { transform: translateX(0); }
+      to   { transform: translateX(5px); }
+    }
+    .rm-look-sub {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.08em;
+      margin-top: 4px;
+    }
+
+    /* 카드 내부 콘텐츠 */
+    .rm-card-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .rm-topic-label {
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
+    .rm-topic-label.topic-1 { background:rgba(0,212,255,0.12); color:#00d4ff; border:1px solid rgba(0,212,255,0.25); }
+    .rm-topic-label.topic-2 { background:rgba(139,92,246,0.12); color:#a78bfa; border:1px solid rgba(139,92,246,0.25); }
+    .rm-topic-label.topic-3 { background:rgba(0,229,160,0.12); color:#00e5a0; border:1px solid rgba(0,229,160,0.25); }
+    .rm-topic-label.topic-4 { background:rgba(245,158,11,0.12); color:#fbbf24; border:1px solid rgba(245,158,11,0.25); }
+    .rm-topic-label.topic-5 { background:rgba(244,63,94,0.12);  color:#fb7185; border:1px solid rgba(244,63,94,0.25); }
+
+    .rm-card-icon {
+      font-size: 1.3rem;
+      margin-left: auto;
+    }
+    .rm-card-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .rm-card-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    /* 상세 확장 영역 */
+    .rm-card-detail {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(.22,.68,0,1.2),
+                  opacity 0.35s ease,
+                  margin 0.3s ease;
+      opacity: 0;
+      margin-top: 0;
+    }
+    .rm-card-detail.open {
+      max-height: 280px;
+      opacity: 1;
+      margin-top: var(--space-md);
+    }
+    .rm-detail-inner {
+      border-top: 1px solid var(--border-default);
+      padding-top: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .rm-detail-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+    }
+    .rm-detail-row i {
+      font-size: 0.75rem;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+    .rm-card-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: var(--space-sm);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      text-decoration: none;
+      transition: gap 0.2s ease;
+    }
+    .rm-card-cta:hover { gap: 9px; }
+
+    /* 스페이서 */
+    .rm-spacer { /* empty placeholder */ }
+
+    /* CTA Section */
+    .cta-section {
+      text-align: center;
+      padding: var(--space-3xl) var(--space-lg);
+    }
+
+    /* ══ Index Responsive ══ */
+
+    /* Tablet (≤1024px) */
+    @media (max-width: 1024px) {
+      .features-section  { padding: var(--space-2xl) var(--space-md); }
+      .pf-preview-section { padding: var(--space-2xl) var(--space-md); }
+      .roadmap-section   { padding: var(--space-2xl) var(--space-md); }
+      .pf-preview-grid   { grid-template-columns: repeat(3, 1fr); }
+      .pf-mini-card.sa, .pf-mini-card.sb { grid-column: auto; }
+    }
+
+    /* Tablet-M (≤900px) */
+    @media (max-width: 900px) {
+      .pf-preview-grid { grid-template-columns: repeat(3, 1fr); }
+      .value-cards     { grid-template-columns: 1fr 1fr; max-width: 100%; }
+    }
+
+    /* Mobile (≤768px) */
+    @media (max-width: 768px) {
+      .hero-section    { padding: 100px var(--space-md) 80px; min-height: auto; }
+      .hero-title      { font-size: clamp(1.5rem, 6vw, 2.2rem); }
+      .hero-sub        { font-size: 0.88rem; padding: 0 var(--space-sm); }
+      .invite-box      { padding: var(--space-md); margin: 0 0 var(--space-lg); }
+      .invite-input-row{ flex-direction: column; }
+      .invite-input-row input { border-radius: var(--radius-md) !important; }
+      .invite-input-row button { border-radius: var(--radius-md) !important; width: 100%; }
+      .value-cards     { grid-template-columns: 1fr 1fr; max-width: 100%; margin-bottom: var(--space-xl); }
+      .trust-row       { gap: var(--space-xs); }
+      .trust-item      { font-size: 0.72rem; padding: 4px 10px; }
+      .features-grid   { grid-template-columns: 1fr; gap: var(--space-md); }
+      .feature-card    { padding: var(--space-md); gap: var(--space-md); }
+      .feature-icon    { width: 44px; height: 44px; font-size: 1.2rem; }
+      .pf-preview-grid { grid-template-columns: repeat(2, 1fr); }
+      .pf-mini-card.sb { grid-column: span 2; }
+      .pf-select-banner { flex-direction: column; gap: 8px; }
+      .scroll-hint     { display: none; }
+      /* mkt 섹션 */
+      .mkt-tab-bar { overflow-x: auto; scrollbar-width: none; }
+    }
+
+    /* Mobile-S (≤480px) */
+    @media (max-width: 480px) {
+      .hero-title      { font-size: 1.5rem; }
+      .value-cards     { grid-template-columns: 1fr; max-width: 100%; }
+      .pf-preview-grid { grid-template-columns: 1fr; }
+      .pf-mini-card.sb { grid-column: auto; }
+      .pf-selected-summary { flex-direction: column; align-items: flex-start; }
+      .rm-card         { padding: var(--space-md); }
+      .rm-card-title   { font-size: 0.88rem; }
+      .rm-node         { width: 38px; height: 38px; font-size: 0.9rem; }
+      .features-section, .pf-preview-section, .roadmap-section { padding: var(--space-xl) var(--space-sm); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Effects -->
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+  <div class="bg-glow-2"></div>
+
+  <!-- Top Nav -->
+  <nav class="vie-nav">
+    <div class="vie-nav-inner">
+      <div class="vie-nav-brand">
+        <a href="index.html" style="display:flex;align-items:center;gap:8px;text-decoration:none">
+          <span class="vie-nav-logo">D.Quant 9.0</span>
+          <span class="vie-nav-badge">V.I.E</span>
+        </a>
+      </div>
+      <div class="vie-nav-links">
+        <a href="dashboard.html" class="vie-nav-link"><i class="fa-solid fa-chart-line"></i> 대시보드</a>
+        <a href="reports.html"   class="vie-nav-link"><i class="fa-solid fa-file-lines"></i> 리포트</a>
+        <a href="consult.html"   class="vie-nav-link"><i class="fa-solid fa-handshake"></i> 상담</a>
+        <a href="benchmark.html" class="vie-nav-link benchmark"><i class="fa-solid fa-chart-column"></i> 벤치마크</a>
+        <a href="mypage.html"    class="vie-nav-link"><i class="fa-solid fa-user"></i> My</a>
+        <a href="login.html"     class="vie-nav-link" id="nav-login-btn"><i class="fa-solid fa-right-to-bracket"></i> 로그인</a>
+      </div>
+      <div class="vie-nav-hamburger" onclick="vieNavToggle(this)" aria-label="메뉴">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </nav>
+  <nav class="vie-nav-mobile" id="vie-nav-mobile">
+    <a href="dashboard.html" class="vie-nav-link"><i class="fa-solid fa-chart-line"></i> 대시보드</a>
+    <a href="reports.html"   class="vie-nav-link"><i class="fa-solid fa-file-lines"></i> 리포트</a>
+    <a href="consult.html"   class="vie-nav-link"><i class="fa-solid fa-handshake"></i> 상담</a>
+    <a href="benchmark.html" class="vie-nav-link benchmark"><i class="fa-solid fa-chart-column"></i> 벤치마크</a>
+    <a href="mypage.html"    class="vie-nav-link"><i class="fa-solid fa-user"></i> My</a>
+    <a href="login.html"     class="vie-nav-link" id="nav-login-btn-m"><i class="fa-solid fa-right-to-bracket"></i> 로그인</a>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="landing-hero" id="invite">
+    <div class="hero-content">
+      <!-- Eyebrow -->
+      <div class="hero-eyebrow">
+        <i class="fa-solid fa-lock-open" style="font-size:0.7rem"></i>
+        Exclusive Invite-Only Platform
+      </div>
+
+      <!-- Title -->
+      <h1 class="hero-title">
+        변동성이 <span class="highlight">수익이 되는</span><br>
+        24시간을 경험하라.
+      </h1>
+
+      <!-- Sub -->
+      <p class="hero-sub">
+        D.Quant 9.0의 알고리즘 운용 철학을 가상 투자 경험으로 직접 체감하세요.<br>
+        초대받은 분만 접근 가능한 프리미엄 Virtual Investment Experience입니다.
+      </p>
+
+      <!-- 이미 회원이실 분 링크 -->
+      <div style="margin-bottom:var(--space-lg);text-align:center">
+        <span style="font-size:0.85rem;color:var(--text-muted)">이미 회원이세요?</span>
+        <a href="login.html" style="font-size:0.85rem;font-weight:700;color:var(--accent-blue);margin-left:8px">
+          <i class="fa-solid fa-right-to-bracket"></i> 로그인 하기
+        </a>
+      </div>
+
+      <!-- Invite Code Box -->
+      <div class="invite-box">
+        <div class="invite-box-header">
+          <div class="invite-box-icon">
+            <i class="fa-solid fa-key"></i>
+          </div>
+          <div>
+            <div class="invite-box-title">초대 코드 입력</div>
+            <div class="invite-box-sub">파트너에게 받은 초대 코드를 입력해 주세요</div>
+          </div>
+        </div>
+        <div class="invite-input-row">
+          <input
+            type="text"
+            class="form-input"
+            id="invite-code-input"
+            placeholder="예: DQ9-ALPHA-2026"
+            value="DQ9-ALPHA-2026"
+            maxlength="30"
+            autocomplete="off"
+            spellcheck="false"
+          >
+          <button class="btn btn-primary" id="verify-btn" style="white-space:nowrap;min-width:90px">
+            <span id="verify-text">코드 확인</span>
+            <span id="verify-spinner" class="hidden">
+              <i class="fa-solid fa-spinner fa-spin"></i>
+            </span>
+          </button>
+        </div>
+        <!-- Result Message -->
+        <div class="invite-result" id="invite-result"></div>
+        <!-- Proceed Button (hidden until verified) -->
+        <button class="btn btn-success btn-full mt-md hidden" id="proceed-btn" onclick="window.location.href='onboarding.html'">
+          <i class="fa-solid fa-arrow-right"></i>
+          회원가입 시작하기
+        </button>
+        <p class="form-hint mt-sm">
+          <i class="fa-solid fa-circle-info" style="color:var(--text-muted)"></i>
+          기본 데모 코드 <strong style="color:var(--accent-blue)">DQ9-ALPHA-2026</strong>이 자동 입력되어 있습니다. 바로 확인하거나 파트너 코드로 변경하세요.
+        </p>
+      </div>
+
+      <!-- Value Cards -->
+      <div class="value-cards">
+        <div class="value-card">
+          <div class="value-card-icon">🤖</div>
+          <div class="value-card-title">가상 투자 경험</div>
+          <div class="value-card-desc">알고리즘 성과를 직접 시뮬레이션</div>
+        </div>
+        <div class="value-card">
+          <div class="value-card-icon">📊</div>
+          <div class="value-card-title">3일 주기 리포트</div>
+          <div class="value-card-desc">자동 발송 성과 업데이트</div>
+        </div>
+        <div class="value-card">
+          <div class="value-card-icon">🔒</div>
+          <div class="value-card-title">초대 기반 접근</div>
+          <div class="value-card-desc">파트너 연결 Exclusive 서비스</div>
+        </div>
+      </div>
+
+      <!-- Trust Row -->
+      <div class="trust-row">
+        <div class="trust-item"><i class="fa-solid fa-check"></i> 최대 2개 포트폴리오 선택</div>
+        <div class="trust-item"><i class="fa-solid fa-check"></i> D-Grouping / D-Grid / D-Hybrid</div>
+        <div class="trust-item"><i class="fa-solid fa-check"></i> 이메일 · 카카오 자동 알림</div>
+        <div class="trust-item"><i class="fa-solid fa-check"></i> HIxAI 협업 운용 철학</div>
+      </div>
+    </div>
+
+    <!-- Scroll Hint -->
+    <div class="scroll-hint">
+      <span>더 알아보기</span>
+      <i class="fa-solid fa-chevron-down"></i>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section" id="features">
+    <div class="section-header text-center">
+      <div class="section-eyebrow">PLATFORM FEATURES</div>
+      <h2 class="section-title">디퀀트나인의 투자 철학을<br>직접 경험하는 방법</h2>
+      <p class="section-subtitle" style="margin:0 auto">
+        단순 수익률 제시가 아니라, 알고리즘이 작동하는 과정 전체를 경험하는 구조입니다.
+      </p>
+    </div>
+    <div class="features-grid mt-xl">
+      <div class="feature-card">
+        <div class="feature-icon fi-blue"><i class="fa-solid fa-circle-nodes"></i></div>
+        <div class="feature-body">
+          <h4>HIxAI 협업 운용 시스템</h4>
+          <p>인간의 전략 설계와 AI의 변동성 해석이 결합된 D.Quant만의 Human×AI 협업 모델로 시뮬레이션합니다.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-green"><i class="fa-solid fa-chart-line"></i></div>
+        <div class="feature-body">
+          <h4>일일 누적 수익 곡선</h4>
+          <p>투자 개시일부터 하루 단위로 성과가 쌓이는 우상향 수익 곡선을 실시간으로 시각화합니다.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-purple"><i class="fa-solid fa-bell"></i></div>
+        <div class="feature-body">
+          <h4>자동화 성과 리포트</h4>
+          <p>매 3일마다 이메일과 카카오톡으로 성과 업데이트가 자동 발송되어 지속적인 신뢰 경험을 만듭니다.</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon fi-gold"><i class="fa-solid fa-shield-halved"></i></div>
+        <div class="feature-body">
+          <h4>지능형 정산 엔진</h4>
+          <p>최대 표준 이익률 기준으로 고객 수익 배정, 시스템 운영, 안전자산 적립이 자동으로 배분되는 구조입니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ROADMAP SECTION — 투자 경험 로드맵 ══ -->
+  <section class="roadmap-section" id="roadmap">
+    <div class="section-header text-center">
+      <div class="section-eyebrow">HOW IT WORKS</div>
+      <h2 class="section-title">D.Quant 9.0 투자 경험<br><span style="background:linear-gradient(135deg,var(--accent-blue),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">5단계 로드맵</span></h2>
+      <p class="section-subtitle" style="margin:0 auto">
+        초대 코드 입력부터 수익 수령까지 — 전 과정을 투명하게 경험합니다.
+      </p>
+    </div>
+
+    <div class="roadmap-timeline mt-xl">
+
+      <!-- STEP 1 — 초대 코드 접근 -->
+      <div class="rm-step odd" id="rm-step-1">
+        <div class="rm-card topic-1" onclick="toggleRmCard(this)" tabindex="0">
+          <!-- >> LOOK 오버레이 -->
+          <div class="rm-look-overlay">
+            <div class="rm-look-label">
+              <div class="rm-look-arrows">
+                <span>›</span><span>›</span><span>›</span>
+              </div>
+              LOOK
+            </div>
+            <div class="rm-look-sub">클릭하면 상세 정보가 펼쳐집니다</div>
+          </div>
+          <div class="rm-card-eyebrow">
+            <span class="rm-topic-label topic-1">TOPIC 01</span>
+            <span class="rm-card-icon">🔑</span>
+          </div>
+          <div class="rm-card-title">초대 코드로 Exclusive 접근</div>
+          <div class="rm-card-desc">
+            파트너로부터 발급받은 전용 초대 코드를 입력하면 D.Quant 9.0 V.I.E 플랫폼에 즉시 접근할 수 있습니다.
+          </div>
+          <div class="rm-card-detail" id="rm-detail-1">
+            <div class="rm-detail-inner">
+              <div class="rm-detail-row"><i class="fa-solid fa-check" style="color:#00d4ff"></i> 초대 코드는 파트너(밸류앤코어스)가 직접 발급</div>
+              <div class="rm-detail-row"><i class="fa-solid fa-check" style="color:#00d4ff"></i> 코드 유효성 즉시 검증 — 파트너 정보 자동 연결</div>
+              <div class="rm-detail-row"><i class="fa-solid fa-check" style="color:#00d4ff"></i> 데모 코드 <code style="background:rgba(0,212,255,0.1);padding:1px 6px;border-radius:4px;font-size:0.78rem;color:#00d4ff">DQ9-ALPHA-2026</code> 즉시 체험 가능</div>
+              <a href="#invite" class="rm-card-cta" onclick="event.stopPropagation(); document.getElementById('invite-code-input').focus(); window.scrollTo({top:0,behavior:'smooth'})">
+                <i class="fa-solid fa-key"></i> 지금 코드 입력하기
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="rm-center">
+          <div class="rm-node topic-1"><i class="fa-solid fa-key"></i></div>
+          <div class="rm-node-num">01</div>
+        </div>
+        <div class="rm-spacer"></div>
+      </div>
+
+      <!-- STEP 2 — 포트폴리오 선택 -->
+      <div class="rm-step even" id="rm-step-2">
+        <div class="rm-spacer"></div>
+        <div class="rm-center">
+          <div class="rm-node topic-2"><i class="fa-solid fa-layer-group"></i></div>
+          <div class="rm-node-num">02</div>
+        </div>
+        <div class="rm-card topic-2" onclick="toggleRmCard(this)" tabindex="0">
+          <div class="rm-look-overlay">
+            <div class="rm-look-label">
+              <div class="rm-look-arrows">
+                <span>›</span><span>›</span><span>›</span>
+              </div>
+              LOOK
+            </div>
+            <div class="rm-look-sub">클릭하면 상세 정보가 펼쳐집니다</div>
+          </div>
+          <div class="rm-card-eyebrow">
+            <span class="rm-topic-label topic-2">TOPIC 02</span>
+            <span class="rm-card-icon">📊</span>
+          </div>
+          <div class="rm-card-title">최대 2개 포트폴리오 선택</div>
+          <div class="rm-card-desc">
+            CORE부터 STRATEGY B까지 5가지 등급 중 본인 성향에 맞는 포트폴리오를 최대 2개 선택하면 알고리즘이 즉시 배정됩니다.
+          </div>
+          <div class="rm-card-detail" id="rm-detail-2">
+            <div class="rm-detail-inner">
+              <div class="rm-detail-row"><i class="fa-solid fa-check" style="color:#a78bfa"></i> <b style="color:var(--text-primary)">CORE</b> · <b style="color:var(--text-primary)">GROWTH</b> · <b style="color:var(--text-primary)">PREMIUM</b> — D-Grid/D-Grouping 적용</div>
+              <div class="rm-detail-row"><i class="fa-solid fa-check" style="color:#a78bfa"></i> <b style="color:var(--text-primary)">STRATEGY A·B</b> — D-Hybrid 고급 전략 (1억원↑)</div>
+              <div class="rm-detail-row"><i class="fa-solid fa-check" style="color:#a78bfa"></i> 선택 즉시 알고리즘 자동 배정 · 가상 운용 시작</div>
+              <a href="#portfolios" class="rm-card-cta" onclick="event.stopPropagation()">
+                <i class="fa-solid fa-layer-group"></i> 포트폴리오 미리보기
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 3 — 알고리즘 운용 시작 -->
+      <div class="rm-step odd" id="rm-step-3">
+        <div class="rm-card topic-3" onclick="toggleRmCard(this)" tabindex="0">
+          <div class="rm-look-overlay">
+            <div class="rm-look-label">
+              <div class="rm-look-arrows">
+                <span>›</span><span>›</span><span>›</span>
+              </div>
+              LOOK
+            </div>
+            <div class="rm-look-sub">클릭하면 상세 정보가 펼쳐집니다</div>
+          </div>
+          <div class="rm-card-eyebrow">
+            <span class="rm-topic-label topic-3">TOPIC 03</span>
+            <span class="rm-card-icon">🤖</span>
+          </div>
+          <div class="rm-card-title">HIxAI 알고리즘 24시간 운용</div>
+          <div class="rm-card-desc">
+            인간의 전략 설계와 AI 변동성 해석이 결합된 D.Quant 전용 엔진이 24시간 무중단으로 가상 운용을 시작합니다.
+          </div>
+          <div class="rm-card-detail" id="rm-detail-3">
+            <div class="rm-detail-inner">
+              <div class="rm-detail-row"><i class="fa-solid fa-circle-nodes" style="color:#00e5a0"></i> D-Grouping: 협소 구간 집중 — 변동성 낮은 구간 방어</div>
+              <div class="rm-detail-row"><i class="fa-solid fa-table-cells" style="color:#00e5a0"></i> D-Grid: 격자 구간 반복 진입·청산 — 변동성 수익화</div>
+              <div class="rm-detail-row"><i class="fa-solid fa-shuffle" style="color:#00e5a0"></i> D-Hybrid: 방어+수익 자동 전환 — 고액 자산 최적화</div>
+              <a href="dashboard.html" class="rm-card-cta" onclick="event.stopPropagation()">
+                <i class="fa-solid fa-chart-line"></i> 대시보드에서 운용 현황 보기
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="rm-center">
+          <div class="rm-node topic-3"><i class="fa-solid fa-robot"></i></div>
+          <div class="rm-node-num">03</div>
+        </div>
+        <div class="rm-spacer"></div>
+      </div>
+
+      <!-- STEP 4 — 3일 주기 성과 리포트 -->
+      <div class="rm-step even" id="rm-step-4">
+        <div class="rm-spacer"></div>
+        <div class="rm-center">
+          <div class="rm-node topic-4"><i class="fa-solid fa-bell"></i></div>
+          <div class="rm-node-num">04</div>
+        </div>
+        <div class="rm-card topic-4" onclick="toggleRmCard(this)" tabindex="0">
+          <div class="rm-look-overlay">
+            <div class="rm-look-label">
+              <div class="rm-look-arrows">
+                <span>›</span><span>›</span><span>›</span>
+              </div>
+              LOOK
+            </div>
+            <div class="rm-look-sub">클릭하면 상세 정보가 펼쳐집니다</div>
+          </div>
+          <div class="rm-card-eyebrow">
+            <span class="rm-topic-label topic-4">TOPIC 04</span>
+            <span class="rm-card-icon">📬</span>
+          </div>
+          <div class="rm-card-title">3일 주기 자동 성과 리포트</div>
+          <div class="rm-card-desc">
+            투자 개시 후 매 3일마다 이메일과 카카오톡으로 자동 발송되는 성과 업데이트로 지속적인 신뢰 경험을 제공합니다.
+          </div>
+          <div class="rm-card-detail" id="rm-detail-4">
+            <div class="rm-detail-inner">
+              <div class="rm-detail-row"><i class="fa-solid fa-envelope" style="color:#fbbf24"></i> 이메일 · 카카오톡 동시 발송 (매 3일 오전 9시)</div>
+              <div class="rm-detail-row"><i class="fa-solid fa-chart-bar" style="color:#fbbf24"></i> 현재 누적 수익률 + 알고리즘 작동 상태 포함</div>
+              <div class="rm-detail-row"><i class="fa-solid fa-calendar-check" style="color:#fbbf24"></i> 월간 정산 예고 — 확정 수익 적립 안내 자동화</div>
+              <a href="reports.html" class="rm-card-cta" onclick="event.stopPropagation()">
+                <i class="fa-solid fa-file-lines"></i> 리포트 샘플 보기
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5 — 실투자 상담 전환 -->
+      <div class="rm-step odd" id="rm-step-5">
+        <div class="rm-card topic-5" onclick="toggleRmCard(this)" tabindex="0">
+          <div class="rm-look-overlay">
+            <div class="rm-look-label">
+              <div class="rm-look-arrows">
+                <span>›</span><span>›</span><span>›</span>
+              </div>
+              LOOK
+            </div>
+            <div class="rm-look-sub">클릭하면 상세 정보가 펼쳐집니다</div>
+          </div>
+          <div class="rm-card-eyebrow">
+            <span class="rm-topic-label topic-5">TOPIC 05</span>
+            <span class="rm-card-icon">🚀</span>
+          </div>
+          <div class="rm-card-title">밸류앤코어스와 실투자 상담</div>
+          <div class="rm-card-desc">
+            가상 투자 경험으로 충분히 신뢰를 확인했다면, 밸류앤코어스 전문 운용사와 실제 투자 상담을 시작할 수 있습니다.
+          </div>
+          <div class="rm-card-detail" id="rm-detail-5">
+            <div class="rm-detail-inner">
+              <div class="rm-detail-row"><i class="fa-solid fa-handshake" style="color:#fb7185"></i> 밸류앤코어스 공인 운용사 1:1 전담 상담 연결</div>
+              <div class="rm-detail-row"><i class="fa-solid fa-shield-halved" style="color:#fb7185"></i> 실투자 시 IRT 시스템 · 지급준비금 안전장치 적용</div>
+              <div class="rm-detail-row"><i class="fa-solid fa-crown" style="color:#fb7185"></i> 체험 성과 데이터 기반으로 맞춤형 전략 설계 제공</div>
+              <a href="consult.html" class="rm-card-cta" onclick="event.stopPropagation()">
+                <i class="fa-solid fa-handshake"></i> 상담 신청하기
+                <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="rm-center">
+          <div class="rm-node topic-5"><i class="fa-solid fa-handshake"></i></div>
+          <div class="rm-node-num">05</div>
+        </div>
+        <div class="rm-spacer"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Portfolio Preview Section -->
+  <section class="pf-preview-section" id="portfolios">
+    <div class="section-header text-center">
+      <div class="section-eyebrow">PORTFOLIO TIERS</div>
+      <h2 class="section-title">5가지 등급별 포트폴리오</h2>
+      <p class="section-subtitle" style="margin:0 auto">
+        최대 2개를 선택할 수 있으며, 등급에 따라 전용 알고리즘이 배정됩니다.
+      </p>
+    </div>
+    <!-- 최대 2개 선택 안내 배너 -->
+    <div class="pf-select-banner mt-xl">
+      <div class="pf-select-hint">
+        <i class="fa-solid fa-hand-pointer"></i>
+        포트폴리오를 클릭해 선택하세요 &nbsp;—&nbsp; <strong>최대 2개</strong>까지 선택 가능합니다
+      </div>
+      <div class="pf-select-count">
+        <span id="pf-count-text">0 / 2 선택</span>
+        <div class="pf-count-dots">
+          <div class="pf-count-dot" id="pf-dot-1"></div>
+          <div class="pf-count-dot" id="pf-dot-2"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pf-preview-grid" id="pf-index-grid">
+
+      <!-- CORE -->
+      <div class="pf-mini-card core" data-tier="Core" data-class="core" onclick="togglePfCard(this)">
+        <div class="pf-check-box"><i class="fa-solid fa-check"></i></div>
+        <div class="pf-tier">CORE</div>
+        <div class="pf-amount">1,000만원</div>
+        <div class="pf-rate-row" style="display:flex;align-items:center;justify-content:center;gap:4px;margin:4px 0">
+          <span class="pf-rate" style="color:var(--color-core)">+2.5%</span>
+          <span style="font-size:0.75rem;color:var(--text-muted)">/ 월</span>
+        </div>
+        <div class="pf-algo"><i class="fa-solid fa-shield-halved"></i>D-Grouping</div>
+        <div class="pf-card-mini-desc" style="font-size:0.72rem;color:var(--text-muted);margin-top:8px">협소 타겟 보수 안정 운용</div>
+        <!-- 툴팁 -->
+        <div class="pf-tooltip">
+          <div class="pf-tooltip-title">CORE</div>
+          <div class="pf-tooltip-algo"><i class="fa-solid fa-shield-halved"></i> D-Grouping</div>
+          <div class="pf-tooltip-divider"></div>
+          <div class="pf-tooltip-desc">리스크를 먼저 방어하는<br><b>안정 중심 엔진</b></div>
+          <div class="pf-tooltip-detail">변동성이 낮은 구간에서 집중 운용하여<br>자산 손실 방어를 최우선으로 설계된<br>보수적 입문 포트폴리오</div>
+          <div class="pf-tooltip-badge"><i class="fa-solid fa-lock"></i> 안정 최우선</div>
+        </div>
+      </div>
+
+      <!-- GROWTH -->
+      <div class="pf-mini-card growth" data-tier="Growth" data-class="growth" onclick="togglePfCard(this)">
+        <div class="pf-check-box"><i class="fa-solid fa-check"></i></div>
+        <div class="pf-tier">GROWTH</div>
+        <div class="pf-amount">3,000만원</div>
+        <div class="pf-rate-row" style="display:flex;align-items:center;justify-content:center;gap:4px;margin:4px 0">
+          <span class="pf-rate" style="color:var(--color-growth)">+3.0%</span>
+          <span style="font-size:0.75rem;color:var(--text-muted)">/ 월</span>
+        </div>
+        <div class="pf-algo"><i class="fa-solid fa-table-cells"></i>D-Grid</div>
+        <div class="pf-card-mini-desc" style="font-size:0.72rem;color:var(--text-muted);margin-top:8px">표준 안정형 변동성 포착</div>
+        <!-- 툴팁 -->
+        <div class="pf-tooltip">
+          <div class="pf-tooltip-title">GROWTH</div>
+          <div class="pf-tooltip-algo"><i class="fa-solid fa-table-cells"></i> D-Grid</div>
+          <div class="pf-tooltip-divider"></div>
+          <div class="pf-tooltip-desc">반복 변동성을 수익 기회로<br><b>전환하는 포착 엔진</b></div>
+          <div class="pf-tooltip-detail">일정 간격의 가격 구간을 격자로 설정,<br>반복 진입·청산을 통해 변동성 자체를<br>수익원으로 활용하는 성장 전략</div>
+          <div class="pf-tooltip-badge"><i class="fa-solid fa-arrows-up-down"></i> 변동성 수익화</div>
+        </div>
+      </div>
+
+      <!-- PREMIUM -->
+      <div class="pf-mini-card premium" data-tier="Premium" data-class="premium" onclick="togglePfCard(this)">
+        <div class="pf-check-box"><i class="fa-solid fa-check"></i></div>
+        <div class="pf-tier">PREMIUM</div>
+        <div class="pf-amount">5,000만원</div>
+        <div class="pf-rate-row" style="display:flex;align-items:center;justify-content:center;gap:4px;margin:4px 0">
+          <span class="pf-rate" style="color:var(--color-premium)">+4.0%</span>
+          <span style="font-size:0.75rem;color:var(--text-muted)">/ 월</span>
+        </div>
+        <div class="pf-algo"><i class="fa-solid fa-table-cells"></i>D-Grid</div>
+        <div class="pf-card-mini-desc" style="font-size:0.72rem;color:var(--text-muted);margin-top:8px">안정 확산형 다층 포착</div>
+        <!-- 툴팁 -->
+        <div class="pf-tooltip">
+          <div class="pf-tooltip-title">PREMIUM</div>
+          <div class="pf-tooltip-algo"><i class="fa-solid fa-table-cells"></i> D-Grid</div>
+          <div class="pf-tooltip-divider"></div>
+          <div class="pf-tooltip-desc">D-Grid 고도화 버전<br><b>프리미엄 격자 운용 전략</b></div>
+          <div class="pf-tooltip-detail">더 넓은 구간·다중 레이어 격자로<br>대형 변동성 이벤트까지 포착하는<br>중급 이상 추천 포트폴리오</div>
+          <div class="pf-tooltip-badge"><i class="fa-solid fa-layer-group"></i> 다층 격자 구조</div>
+        </div>
+      </div>
+
+      <!-- STRATEGY A -->
+      <div class="pf-mini-card sa" data-tier="Strategy A" data-class="sa" onclick="togglePfCard(this)">
+        <div class="pf-check-box"><i class="fa-solid fa-check"></i></div>
+        <div class="pf-tier">STRATEGY A</div>
+        <div class="pf-amount">1억원</div>
+        <div class="pf-rate-row" style="display:flex;align-items:center;justify-content:center;gap:4px;margin:4px 0">
+          <span class="pf-rate" style="color:var(--color-strategy-a)">+4.0%</span>
+          <span style="font-size:0.75rem;color:var(--text-muted)">/ 월</span>
+        </div>
+        <div class="pf-algo"><i class="fa-solid fa-circle-nodes"></i>D-Hybrid</div>
+        <div class="pf-card-mini-desc" style="font-size:0.72rem;color:var(--text-muted);margin-top:8px">전략 확산형 · 방어+수익</div>
+        <!-- 툴팁 -->
+        <div class="pf-tooltip">
+          <div class="pf-tooltip-title">STRATEGY A</div>
+          <div class="pf-tooltip-algo"><i class="fa-solid fa-circle-nodes"></i> D-Hybrid</div>
+          <div class="pf-tooltip-divider"></div>
+          <div class="pf-tooltip-desc">방어와 확장을 동시에 수행하는<br><b>상위 전략 엔진</b></div>
+          <div class="pf-tooltip-detail">D-Grouping의 리스크 방어와<br>D-Grid의 수익 포착을 하이브리드로 결합,<br>시장 국면에 따라 자동 전환 운용</div>
+          <div class="pf-tooltip-badge"><i class="fa-solid fa-bolt"></i> 하이브리드 전략</div>
+        </div>
+      </div>
+
+      <!-- STRATEGY B -->
+      <div class="pf-mini-card sb" data-tier="Strategy B" data-class="sb" onclick="togglePfCard(this)">
+        <div class="pf-check-box"><i class="fa-solid fa-check"></i></div>
+        <div class="pf-tier">STRATEGY B <span style="background:rgba(224,92,92,0.15);color:#e05c5c;font-size:0.62rem;padding:1px 5px;border-radius:10px;margin-left:3px">최상위</span></div>
+        <div class="pf-amount">2억원</div>
+        <div class="pf-rate-row" style="display:flex;align-items:center;justify-content:center;gap:4px;margin:4px 0">
+          <span class="pf-rate" style="color:var(--color-strategy-b)">+4.0%</span>
+          <span style="font-size:0.75rem;color:var(--text-muted)">/ 월</span>
+        </div>
+        <div class="pf-algo"><i class="fa-solid fa-circle-nodes"></i>D-Hybrid</div>
+        <div class="pf-card-mini-desc" style="font-size:0.72rem;color:var(--text-muted);margin-top:8px">고액 자산가 전용 최상위 전략</div>
+        <!-- 툴팁 -->
+        <div class="pf-tooltip">
+          <div class="pf-tooltip-title">STRATEGY B</div>
+          <div class="pf-tooltip-algo"><i class="fa-solid fa-circle-nodes"></i> D-Hybrid</div>
+          <div class="pf-tooltip-divider"></div>
+          <div class="pf-tooltip-desc">최상위 자본 기반<br><b>풀 스펙 하이브리드 전략</b></div>
+          <div class="pf-tooltip-detail">2억원 이상 대형 자본에 최적화,<br>포지션 분산·헤징·수익 극대화를<br>동시에 실행하는 최상위 포트폴리오</div>
+          <div class="pf-tooltip-badge"><i class="fa-solid fa-crown"></i> 최상위 전략</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 선택 요약 바 -->
+    <div class="pf-selected-summary" id="pf-selected-summary">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span style="font-size:0.78rem;color:var(--text-muted);white-space:nowrap">선택한 포트폴리오</span>
+        <div class="pf-sel-chips" id="pf-sel-chips"></div>
+      </div>
+      <a href="onboarding.html" class="pf-sel-cta" id="pf-sel-cta-link">
+        <i class="fa-solid fa-arrow-right"></i>
+        지금 가입하고 체험하기
+      </a>
+    </div>
+
+    <div class="text-center mt-xl">
+      <div class="tag blue">월 기준 시뮬레이션 수익률은 가상 투자 경험 기준입니다</div>
+    </div>
+  </section>
+
+  <!-- ══ CRYPTO MARKET SECTION ══ -->
+  <section style="padding: var(--space-3xl) var(--space-lg); max-width:1300px; margin:0 auto;" id="market">
+    <div class="section-header text-center" style="margin-bottom:var(--space-xl)">
+      <div class="section-eyebrow">LIVE CRYPTO MARKET</div>
+      <h2 class="section-title">실시간 가상자산 시장 현황</h2>
+      <p class="section-subtitle" style="margin:0 auto">
+        D.Quant 알고리즘이 분석하는 주요 가상자산의 실시간 시세 및 변동성 지표입니다.
+      </p>
+    </div>
+
+    <div class="mkt-section" id="mkt-section-index">
+      <!-- 탭 헤더 -->
+      <div class="mkt-tab-bar">
+        <div class="mkt-tab active" onclick="idxMktSwitchTab('volume',this)">
+          <span class="tab-dot"></span> 거래량 TOP 12
+        </div>
+        <div class="mkt-tab" onclick="idxMktSwitchTab('vol1y',this)">
+          <span class="tab-dot"></span> 1년 변동성 TOP 12
+        </div>
+        <div class="mkt-tab" onclick="idxMktSwitchTab('vol3m',this)">
+          <span class="tab-dot"></span> 3개월 변동성 TOP 12
+        </div>
+        <div class="mkt-tab" onclick="idxMktSwitchTab('vol1m',this)">
+          <span class="tab-dot"></span> 1개월 변동성 TOP 12
+        </div>
+        <button class="mkt-refresh-btn" onclick="idxMktRefresh(this)" title="새로고침">
+          <i class="fa-solid fa-rotate-right" id="idx-mkt-refresh-icon"></i>
+          <span id="idx-mkt-last-time">—</span>
+        </button>
+      </div>
+
+      <!-- 코인 카드 영역 -->
+      <div id="idx-mkt-body">
+        <div class="mkt-skeleton" id="idx-mkt-skeleton">
+          <div class="mkt-skel-card"><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:80%"></div><div class="skel-line" style="width:45%"></div></div>
+          <div class="mkt-skel-card"><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:80%"></div><div class="skel-line" style="width:45%"></div></div>
+          <div class="mkt-skel-card"><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:80%"></div><div class="skel-line" style="width:45%"></div></div>
+          <div class="mkt-skel-card"><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:80%"></div><div class="skel-line" style="width:45%"></div></div>
+          <div class="mkt-skel-card"><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:80%"></div><div class="skel-line" style="width:45%"></div></div>
+          <div class="mkt-skel-card"><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:80%"></div><div class="skel-line" style="width:45%"></div></div>
+          <div class="mkt-skel-card"><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:80%"></div><div class="skel-line" style="width:45%"></div></div>
+          <div class="mkt-skel-card"><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:80%"></div><div class="skel-line" style="width:45%"></div></div>
+          <div class="mkt-skel-card"><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:80%"></div><div class="skel-line" style="width:45%"></div></div>
+          <div class="mkt-skel-card"><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:80%"></div><div class="skel-line" style="width:45%"></div></div>
+          <div class="mkt-skel-card"><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:80%"></div><div class="skel-line" style="width:45%"></div></div>
+          <div class="mkt-skel-card"><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:80%"></div><div class="skel-line" style="width:45%"></div></div>
+        </div>
+      </div>
+
+      <!-- 푸터 -->
+      <div class="mkt-footer">
+        <div class="mkt-footer-text">
+          <span class="mkt-live-dot"></span>
+          시세 데이터: CoinGecko 공개 API · <span id="idx-mkt-update-time">로딩 중...</span>
+        </div>
+        <div class="mkt-footer-text">
+          ※ 실제 투자 권유가 아닌 시장 참고용 데이터입니다
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="glass-card" style="max-width:600px;margin:0 auto;padding:var(--space-2xl)">
+      <div class="hero-eyebrow" style="justify-content:center;margin-bottom:var(--space-lg)">
+        지금 바로 시작하세요
+      </div>
+      <h2 style="text-align:center;margin-bottom:var(--space-md)">
+        초대 코드가 있으신가요?
+      </h2>
+      <p style="text-align:center;margin-bottom:var(--space-xl)">
+        유효한 초대 코드를 입력하면 바로 D.Quant 9.0 V.I.E에 접속할 수 있습니다.
+      </p>
+      <div class="text-center">
+        <button class="btn btn-cta btn-lg" onclick="document.getElementById('invite-code-input').focus(); window.scrollTo({top:0,behavior:'smooth'})">
+          <i class="fa-solid fa-key"></i>
+          초대 코드로 시작하기
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer style="border-top:1px solid var(--border-default);padding:var(--space-xl) var(--space-lg);text-align:center">
+    <div style="max-width:1100px;margin:0 auto">
+      <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--space-md)">
+        <div style="font-size:0.85rem;font-weight:700;color:var(--text-primary)">
+          D.Quant 9.0 V.I.E
+        </div>
+        <div style="font-size:0.75rem;color:var(--text-muted)">
+          본 서비스는 가상 투자 경험 시뮬레이션을 제공하며 실제 투자를 권유하지 않습니다.
+        </div>
+        <div style="font-size:0.75rem;color:var(--text-muted)">
+          © 2026 D.Quant Nine. All rights reserved.
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- App JS -->
+  <script src="js/vie-app.js"></script>
+  <script src="js/vie-market.js"></script>
+  <script>
+    // Redirect if already logged in
+    VieAuth.redirectIfLoggedIn();
+
+    const input    = document.getElementById('invite-code-input');
+    const verifyBtn= document.getElementById('verify-btn');
+    const verifyTxt= document.getElementById('verify-text');
+    const verifySpn= document.getElementById('verify-spinner');
+    const resultEl = document.getElementById('invite-result');
+    const proceedBtn = document.getElementById('proceed-btn');
+
+    // 기본 초대 코드 대문자 통일
+    input.value = input.value.toUpperCase();
+
+    // Enter key
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') verifyCode();
+    });
+    input.addEventListener('input', () => {
+      input.value = input.value.toUpperCase();
+      resultEl.className = 'invite-result';
+      resultEl.style.display = 'none';
+      proceedBtn.classList.add('hidden');
+      input.classList.remove('success', 'error');
+    });
+
+    verifyBtn.addEventListener('click', verifyCode);
+
+    // 페이지 로드 시 기본 초대 코드 자동 검증
+    window.addEventListener('load', () => {
+      if (input.value.trim()) {
+        setTimeout(() => verifyCode(), 600);
+      }
+    });
+
+    async function verifyCode() {
+      const code = input.value.trim();
+      if (!code) {
+        input.classList.add('error');
+        setTimeout(() => input.classList.remove('error'), 1200);
+        return;
+      }
+      // Show spinner
+      verifyTxt.classList.add('hidden');
+      verifySpn.classList.remove('hidden');
+      verifyBtn.disabled = true;
+
+      try {
+        const result = await VieInvite.verify(code);
+        if (result.valid) {
+          resultEl.className = 'invite-result success';
+          resultEl.innerHTML = `
+            <i class="fa-solid fa-circle-check"></i>
+            <div>
+              <strong>초대 코드가 확인되었습니다!</strong>
+              <div style="font-size:0.8rem;margin-top:2px">파트너: ${result.partner_name}</div>
+            </div>
+          `;
+          resultEl.style.display = 'flex';
+          proceedBtn.classList.remove('hidden');
+          input.classList.add('success');
+          VieToast.success('유효한 초대 코드입니다. 회원가입을 시작하세요!');
+        } else {
+          resultEl.className = 'invite-result error';
+          resultEl.innerHTML = `
+            <i class="fa-solid fa-circle-xmark"></i>
+            <div>
+              <strong>유효하지 않은 코드입니다.</strong>
+              <div style="font-size:0.8rem;margin-top:2px">초대 코드를 다시 확인하거나 파트너에게 문의해 주세요.</div>
+            </div>
+          `;
+          resultEl.style.display = 'flex';
+          input.classList.add('error');
+        }
+      } catch(e) {
+        resultEl.className = 'invite-result error';
+        resultEl.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.`;
+        resultEl.style.display = 'flex';
+      } finally {
+        verifyTxt.classList.remove('hidden');
+        verifySpn.classList.add('hidden');
+        verifyBtn.disabled = false;
+      }
+    }
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  </script>
+
+  <!-- ══ Roadmap Intersection Observer & Toggle ══ -->
+  <script>
+  (function() {
+    /* ── 스크롤 진입 시 .visible 추가 ── */
+    const rmSteps = document.querySelectorAll('.rm-step');
+    if ('IntersectionObserver' in window) {
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach((entry, i) => {
+          if (entry.isIntersecting) {
+            // 각 스텝마다 순차 딜레이
+            const stepIdx = Array.from(rmSteps).indexOf(entry.target);
+            setTimeout(() => {
+              entry.target.classList.add('visible');
+            }, stepIdx * 120);
+            obs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      rmSteps.forEach(step => obs.observe(step));
+    } else {
+      // 미지원 브라우저: 즉시 표시
+      rmSteps.forEach(s => s.classList.add('visible'));
+    }
+
+    /* ── 카드 클릭 → 상세 토글 ── */
+    window.toggleRmCard = function(card) {
+      const isActive = card.classList.contains('active');
+
+      // 같은 step 내 다른 카드 닫기 (전체)
+      document.querySelectorAll('.rm-card.active').forEach(c => {
+        if (c !== card) {
+          c.classList.remove('active');
+          const d = c.querySelector('.rm-card-detail');
+          if (d) d.classList.remove('open');
+        }
+      });
+
+      if (isActive) {
+        card.classList.remove('active');
+        const detail = card.querySelector('.rm-card-detail');
+        if (detail) detail.classList.remove('open');
+      } else {
+        card.classList.add('active');
+        const detail = card.querySelector('.rm-card-detail');
+        if (detail) detail.classList.add('open');
+      }
+    };
+
+    /* ── 키보드 접근성 ── */
+    document.querySelectorAll('.rm-card[tabindex]').forEach(card => {
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleRmCard(card);
+        }
+      });
+    });
+  })();
+  </script>
+
+  <!-- Portfolio Card Select (최대 2개 선택) -->
+  <script>
+  (function() {
+    const MAX_SELECT = 2;
+    let selected = []; // { tier, cls } 배열
+
+    const tierLabels = {
+      'Core':       'CORE',
+      'Growth':     'GROWTH',
+      'Premium':    'PREMIUM',
+      'Strategy A': 'STRATEGY A',
+      'Strategy B': 'STRATEGY B'
+    };
+    const tierAmounts = {
+      'Core':       '1,000만원',
+      'Growth':     '3,000만원',
+      'Premium':    '5,000만원',
+      'Strategy A': '1억원',
+      'Strategy B': '2억원'
+    };
+
+    function updateUI() {
+      const count  = selected.length;
+      const dot1   = document.getElementById('pf-dot-1');
+      const dot2   = document.getElementById('pf-dot-2');
+      const cntTxt = document.getElementById('pf-count-text');
+      const summary= document.getElementById('pf-selected-summary');
+      const chips  = document.getElementById('pf-sel-chips');
+
+      // 카운트 도트 업데이트
+      if (dot1) dot1.classList.toggle('on', count >= 1);
+      if (dot2) dot2.classList.toggle('on', count >= 2);
+      if (cntTxt) cntTxt.textContent = count + ' / 2 선택';
+
+      // 선택 요약 바
+      if (summary) {
+        if (count > 0) {
+          summary.classList.add('visible');
+          chips.innerHTML = selected.map(s =>
+            `<span class="pf-sel-chip ${s.cls}">
+              <i class="fa-solid fa-check" style="font-size:0.6rem"></i>
+              ${tierLabels[s.tier]} · ${tierAmounts[s.tier]}
+            </span>`
+          ).join('');
+        } else {
+          summary.classList.remove('visible');
+        }
+      }
+
+      // 카드 disabled 처리 (2개 선택 후 나머지)
+      document.querySelectorAll('#pf-index-grid .pf-mini-card').forEach(card => {
+        const tier = card.dataset.tier;
+        const isSelected = selected.some(s => s.tier === tier);
+        if (count >= MAX_SELECT && !isSelected) {
+          card.classList.add('disabled');
+        } else {
+          card.classList.remove('disabled');
+        }
+      });
+    }
+
+    // 전역 함수 — onclick에서 호출
+    window.togglePfCard = function(card) {
+      if (card.classList.contains('disabled')) return;
+      const tier = card.dataset.tier;
+      const cls  = card.dataset.class;
+      const idx  = selected.findIndex(s => s.tier === tier);
+
+      if (idx >= 0) {
+        // 이미 선택됨 → 해제
+        selected.splice(idx, 1);
+        card.classList.remove('selected');
+      } else {
+        if (selected.length >= MAX_SELECT) return; // 이미 2개
+        selected.push({ tier, cls });
+        card.classList.add('selected');
+      }
+      updateUI();
+    };
+
+    // 초기 UI 적용
+    updateUI();
+  })();
+  </script>
+
+  <!-- Portfolio Card Touch Interaction -->
+  <script>
+    (function() {
+      const cards = document.querySelectorAll('.pf-mini-card');
+      cards.forEach(card => {
+        // 터치 시작 → active 클래스 추가
+        card.addEventListener('touchstart', function(e) {
+          // 다른 카드 active 해제 (선택된 카드는 유지)
+          cards.forEach(c => { if(!c.classList.contains('selected')) c.classList.remove('touch-active'); });
+          if (!this.classList.contains('selected')) this.classList.add('touch-active');
+        }, { passive: true });
+
+        // 터치 종료 → 0.8초 후 해제 (툴팁 잔류)
+        card.addEventListener('touchend', function() {
+          const self = this;
+          setTimeout(() => self.classList.remove('touch-active'), 800);
+        }, { passive: true });
+      });
+
+      document.addEventListener('touchstart', function(e) {
+        if (!e.target.closest('.pf-mini-card')) {
+          cards.forEach(c => c.classList.remove('touch-active'));
+        }
+      }, { passive: true });
+    })();
+  </script>
+
+  <!-- ══ Crypto Market Script (Index) ══ -->
+  <script>
+  (function() {
+    let idxMktData  = [];
+    let idxActiveTab = 'volume';
+
+    /* ── 초기화 ─────────────────────── */
+    async function idxMktInit() {
+      idxMktData = await VieMarket.fetchAll();
+      idxRenderMktTab(idxActiveTab);
+      idxUpdateMktTime();
+    }
+    idxMktInit();
+    setInterval(idxMktInit, 90000);
+
+    /* ── 탭 전환 ────────────────────── */
+    window.idxMktSwitchTab = function(tab, el) {
+      idxActiveTab = tab;
+      document.querySelectorAll('#mkt-section-index .mkt-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      idxRenderMktTab(tab);
+    };
+
+    /* ── 수동 새로고침 ──────────────── */
+    window.idxMktRefresh = async function(btn) {
+      btn.classList.add('spinning');
+      VieMarket._lastFetch = 0;
+      idxMktData = await VieMarket.fetchAll();
+      idxRenderMktTab(idxActiveTab);
+      idxUpdateMktTime();
+      setTimeout(() => btn.classList.remove('spinning'), 800);
+    };
+
+    /* ── 탭별 렌더 ──────────────────── */
+    function idxRenderMktTab(tab) {
+      const body = document.getElementById('idx-mkt-body');
+      document.getElementById('idx-mkt-skeleton')?.remove();
+
+      if (!idxMktData.length) {
+        body.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);font-size:.85rem">
+          <i class="fa-solid fa-triangle-exclamation" style="color:#f5a623;margin-bottom:8px;display:block;font-size:1.5rem"></i>
+          시세 데이터를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.
+        </div>`;
+        return;
+      }
+
+      let coins;
+      if (tab === 'volume') {
+        coins = [...idxMktData]
+          .sort((a,b) => (b.total_volume||0) - (a.total_volume||0))
+          .slice(0,12);
+        body.innerHTML = idxBuildVolumeGrid(coins);
+      } else {
+        const period = tab === 'vol1y' ? '1y' : tab === 'vol3m' ? '3m' : '1m';
+        coins = [...idxMktData]
+          .sort((a,b) => VieMarket.volatilityScore(b,period) - VieMarket.volatilityScore(a,period))
+          .slice(0,12);
+        body.innerHTML = idxBuildVolatilityGrid(coins, period);
+      }
+    }
+
+    /* ── 거래량 TOP 12 그리드 ────────── */
+    function idxBuildVolumeGrid(coins) {
+      const maxVol = Math.max(...coins.map(c => c.total_volume||0));
+      return `<div class="mkt-grid">${coins.map((c,i) => {
+        const meta   = MARKET_META[c.id] || {};
+        const chg24h = c.price_change_percentage_24h;
+        const chgCls = chg24h > 0 ? 'up' : chg24h < 0 ? 'down' : 'flat';
+        const volPct = maxVol > 0 ? ((c.total_volume||0)/maxVol*100).toFixed(1) : '0';
+        return `
+          <div class="coin-card">
+            <div class="coin-top">
+              ${idxLogoHTML(c, meta)}
+              <div class="coin-names">
+                <div class="coin-symbol">${meta.symbol || c.symbol?.toUpperCase()}</div>
+                <div class="coin-name">${meta.name || c.name}</div>
+              </div>
+              <div class="coin-rank">#${c.market_cap_rank||i+1}</div>
+            </div>
+            <div class="coin-price">${VieMarket.fmtPrice(c.current_price)}</div>
+            <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+              <span class="coin-change ${chgCls}">
+                <i class="fa-solid fa-arrow-${chg24h>=0?'up':'down'}" style="font-size:.55rem"></i>
+                ${VieMarket.fmtChange(chg24h)}
+              </span>
+              <span style="font-size:.62rem;color:var(--text-muted)">24h</span>
+            </div>
+            <div style="font-size:.62rem;color:var(--text-muted);margin-top:2px">
+              거래량 ${VieMarket.fmtVolume(c.total_volume)}
+            </div>
+            <div class="vol-volume-bar" style="width:${volPct}%"></div>
+          </div>`;
+      }).join('')}</div>`;
+    }
+
+    /* ── 변동성 TOP 12 그리드 ────────── */
+    function idxBuildVolatilityGrid(coins, period) {
+      const labelMap = { '1y':'1년', '3m':'3개월', '1m':'1개월' };
+      const maxScore = Math.max(...coins.map(c => VieMarket.volatilityScore(c, period)));
+
+      return `<div class="mkt-grid">${coins.map((c,i) => {
+        const meta   = MARKET_META[c.id] || {};
+        const chg24h = c.price_change_percentage_24h;
+        const chg7d  = c.price_change_percentage_7d_in_currency;
+        const chg30d = c.price_change_percentage_30d_in_currency;
+        const chg1y  = c.price_change_percentage_1y_in_currency;
+        const score  = VieMarket.volatilityScore(c, period);
+        const rows = period === '1y'
+          ? [['1y',chg1y],['30d',chg30d],['7d',chg7d]]
+          : period === '3m'
+          ? [['3m',chg30d!=null?chg30d*3:null],['30d',chg30d],['7d',chg7d]]
+          : [['30d',chg30d],['7d',chg7d],['24h',chg24h]];
+
+        return `
+          <div class="coin-card">
+            <div class="coin-top">
+              ${idxLogoHTML(c, meta)}
+              <div class="coin-names">
+                <div class="coin-symbol">${meta.symbol || c.symbol?.toUpperCase()}</div>
+                <div class="coin-name">${meta.name || c.name}</div>
+              </div>
+              <div class="coin-rank" style="background:rgba(245,166,35,.1);color:#f5a623">V${i+1}</div>
+            </div>
+            <div class="coin-price">${VieMarket.fmtPrice(c.current_price)}</div>
+            <div class="coin-volatility-bars">
+              ${rows.map(([lbl,val]) => {
+                if (val==null) return '';
+                const abs = Math.abs(val);
+                const pct = maxScore > 0 ? Math.min((abs/maxScore)*100,100).toFixed(1) : '0';
+                const cls = val >= 0 ? 'up' : 'down';
+                return `<div class="vol-row">
+                  <span class="vol-label">${lbl}</span>
+                  <div class="vol-bar-wrap"><div class="vol-bar ${cls}" style="width:${pct}%"></div></div>
+                  <span class="vol-val ${cls}">${VieMarket.fmtChange(val)}</span>
+                </div>`;
+              }).join('')}
+            </div>
+            <div style="font-size:.6rem;color:var(--text-muted);margin-top:4px">
+              ${labelMap[period]} 변동성 지수: <b style="color:#f5a623">${score.toFixed(1)}%</b>
+            </div>
+          </div>`;
+      }).join('')}</div>`;
+    }
+
+    /* ── 로고 HTML ──────────────────── */
+    function idxLogoHTML(coin, meta) {
+      const src = meta.logo || coin.image;
+      if (src) {
+        return `<img class="coin-logo" src="${src}" alt="${meta.symbol||''}"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="coin-logo-fallback" style="display:none">${(meta.symbol||'?').slice(0,2)}</div>`;
+      }
+      return `<div class="coin-logo-fallback">${(meta.symbol||'?').slice(0,2)}</div>`;
+    }
+
+    /* ── 시간 표시 ──────────────────── */
+    function idxUpdateMktTime() {
+      const now = new Date().toLocaleTimeString('ko-KR');
+      const el1 = document.getElementById('idx-mkt-update-time');
+      const el2 = document.getElementById('idx-mkt-last-time');
+      if (el1) el1.textContent = '최종 업데이트: ' + now;
+      if (el2) el2.textContent = now;
+    }
+  })();
+  </script>
+</body>
+</html>
