@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>회원가입 — D.Quant 9.0 V.I.E</title>
+  <meta name="description" content="D.Quant 9.0 V.I.E 회원가입. 초대 코드로 AI 알고리즘 가상 투자 체험을 시작하세요.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="D.Quant 9.0 V.I.E">
+  <meta property="og:title" content="D.Quant 9.0 V.I.E — 변동성이 수익이 되는 24시간">
+  <meta property="og:description" content="초대 코드로 시작하는 AI 알고리즘 가상 투자 체험. D-Grouping · D-Grid · D-Hybrid 전략을 직접 경험하세요.">
+  <meta property="og:image" content="images/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="images/og-image.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/vie.css">
+  <style>
+    /* Onboarding layout */
+    .onboarding-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 80px var(--space-lg) 40px;
+    }
+    .onboarding-card {
+      width: 100%;
+      max-width: 600px;
+    }
+
+    /* Step content panels */
+    .step-panel {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+    .step-panel.active { display: block; }
+
+    /* Portfolio Select Grid */
+    .pf-select-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-md);
+    }
+
+    .pf-select-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      cursor: pointer;
+      transition: all var(--transition-base);
+      position: relative;
+      overflow: hidden;
+    }
+    .pf-select-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 4px;
+      border-radius: 4px 4px 0 0;
+    }
+    .pf-select-card.core::before     { background: var(--color-core); }
+    .pf-select-card.growth::before   { background: var(--color-growth); }
+    .pf-select-card.premium::before  { background: var(--color-premium); }
+    .pf-select-card.strategy-a::before { background: var(--color-strategy-a); }
+    .pf-select-card.strategy-b::before { background: var(--color-strategy-b); }
+
+    .pf-select-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .pf-select-card.selected {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 1px var(--accent-blue), 0 0 20px rgba(0,212,255,0.15);
+    }
+    .pf-select-card.disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* Check icon overlay */
+    .pf-check {
+      position: absolute;
+      top: var(--space-md);
+      right: var(--space-md);
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: #fff;
+      opacity: 0;
+      transform: scale(0);
+      transition: all var(--transition-base);
+    }
+    .pf-select-card.selected .pf-check {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .pf-card-tier     { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+    .pf-card-amount   { font-size: 1.4rem; font-weight: 800; color: var(--text-primary); margin: 4px 0; }
+    .pf-card-rate-row { display: flex; align-items: center; gap: var(--space-sm); flex-wrap: wrap; margin: 6px 0; }
+    .pf-rate-badge    { font-size: 0.9rem; font-weight: 700; padding: 2px 10px; border-radius: var(--radius-full); }
+    .pf-algo-tag      { font-size: 0.7rem; padding: 2px 8px; border-radius: var(--radius-full); font-weight: 600; }
+    .pf-card-desc     { font-size: 0.78rem; color: var(--text-muted); margin-top: 8px; line-height: 1.5; }
+
+    /* Selection summary */
+    .selection-summary {
+      background: rgba(0, 212, 255, 0.05);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+      border-radius: var(--radius-lg);
+      padding: var(--space-md) var(--space-lg);
+      margin-top: var(--space-md);
+      display: none;
+    }
+    .selection-summary.show { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-sm); }
+    .sel-left { font-size: 0.85rem; color: var(--text-secondary); }
+    .sel-portfolios { display: flex; gap: var(--space-sm); flex-wrap: wrap; }
+    .sel-badge {
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      background: rgba(0, 212, 255, 0.12);
+      color: var(--accent-blue);
+      border: 1px solid rgba(0, 212, 255, 0.2);
+    }
+
+    /* Onboarding Complete */
+    .complete-icon {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: rgba(0, 229, 160, 0.12);
+      border: 2px solid rgba(0, 229, 160, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: var(--accent-green);
+      margin: 0 auto var(--space-xl);
+      animation: pulseScale 1.5s ease-out;
+    }
+    @keyframes pulseScale {
+      0%   { transform: scale(0); opacity: 0; }
+      60%  { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .hixai-card {
+      background: linear-gradient(135deg, rgba(0,212,255,0.06), rgba(139,92,246,0.06));
+      border: 1px solid rgba(139,92,246,0.2);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      margin-top: var(--space-lg);
+    }
+    .hixai-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: var(--accent-purple);
+      margin-bottom: var(--space-sm);
+    }
+    .hixai-title { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+    .hixai-desc  { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
+
+    /* Algo description modal area */
+    .algo-explain {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      margin-top: var(--space-lg);
+    }
+    .algo-explain-row {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-md);
+      padding: var(--space-md) 0;
+      border-bottom: 1px solid var(--border-default);
+    }
+    .algo-explain-row:last-child { border-bottom: none; }
+    .algo-explain-icon {
+      width: 36px; height: 36px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .algo-explain-text h5 { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+    .algo-explain-text p  { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; }
+
+    /* ── Onboarding Responsive ── */
+    @media (max-width: 768px) {
+      .onboarding-content { padding: var(--space-xl) var(--space-md); }
+      .pf-select-grid { grid-template-columns: 1fr 1fr; }
+      .step-indicator { gap: var(--space-sm); }
+      .step-dot-label { font-size: 0.62rem; }
+      .invite-input-row { flex-direction: column; }
+      .invite-input-row input  { border-radius: var(--radius-md) !important; }
+      .invite-input-row button { border-radius: var(--radius-md) !important; width: 100%; }
+    }
+    @media (max-width: 520px) {
+      .pf-select-grid { grid-template-columns: 1fr; }
+      .onboarding-wrapper { padding-top: 76px; }
+      .algo-explain { flex-direction: column; gap: 8px; }
+      .step-actions { flex-direction: column; gap: 8px; }
+      .step-actions .btn { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Nav -->
+  <nav class="vie-nav">
+    <div class="vie-nav-inner">
+      <div class="vie-nav-brand">
+        <a href="index.html" style="display:flex;align-items:center;gap:8px;text-decoration:none">
+          <span class="vie-nav-logo">D.Quant 9.0</span>
+          <span class="vie-nav-badge">V.I.E</span>
+        </a>
+      </div>
+      <div class="vie-nav-links">
+        <a href="dashboard.html" class="vie-nav-link"><i class="fa-solid fa-chart-line"></i> 대시보드</a>
+        <a href="reports.html"   class="vie-nav-link"><i class="fa-solid fa-file-lines"></i> 리포트</a>
+        <a href="consult.html"   class="vie-nav-link"><i class="fa-solid fa-handshake"></i> 상담</a>
+        <a href="benchmark.html" class="vie-nav-link benchmark"><i class="fa-solid fa-chart-column"></i> 벤치마크</a>
+        <a href="mypage.html"    class="vie-nav-link"><i class="fa-solid fa-user"></i> My</a>
+        <a href="login.html"     class="vie-nav-link" id="nav-login-btn"><i class="fa-solid fa-right-to-bracket"></i> 로그인</a>
+      </div>
+      <div class="vie-nav-hamburger" onclick="vieNavToggle(this)" aria-label="메뉴">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </nav>
+  <nav class="vie-nav-mobile" id="vie-nav-mobile">
+    <a href="dashboard.html" class="vie-nav-link"><i class="fa-solid fa-chart-line"></i> 대시보드</a>
+    <a href="reports.html"   class="vie-nav-link"><i class="fa-solid fa-file-lines"></i> 리포트</a>
+    <a href="consult.html"   class="vie-nav-link"><i class="fa-solid fa-handshake"></i> 상담</a>
+    <a href="benchmark.html" class="vie-nav-link benchmark"><i class="fa-solid fa-chart-column"></i> 벤치마크</a>
+    <a href="mypage.html"    class="vie-nav-link"><i class="fa-solid fa-user"></i> My</a>
+    <a href="login.html"     class="vie-nav-link" id="nav-login-btn-m"><i class="fa-solid fa-right-to-bracket"></i> 로그인</a>
+  </nav>
+
+  <div class="onboarding-wrapper">
+    <div class="onboarding-card">
+      <!-- Step Progress -->
+      <div class="step-progress" id="step-progress">
+        <div class="step-item">
+          <div style="display:flex;flex-direction:column;align-items:center">
+            <div class="step-dot active" id="sd-1">1</div>
+            <div class="step-label active" id="sl-1">코드 확인</div>
+          </div>
+          <div class="step-line" id="sl-12"></div>
+        </div>
+        <div class="step-item">
+          <div style="display:flex;flex-direction:column;align-items:center">
+            <div class="step-dot" id="sd-2">2</div>
+            <div class="step-label" id="sl-2">기본 정보</div>
+          </div>
+          <div class="step-line" id="sl-23"></div>
+        </div>
+        <div class="step-item">
+          <div style="display:flex;flex-direction:column;align-items:center">
+            <div class="step-dot" id="sd-3">3</div>
+            <div class="step-label" id="sl-3">포트폴리오</div>
+          </div>
+          <div class="step-line" id="sl-34"></div>
+        </div>
+        <div class="step-item">
+          <div style="display:flex;flex-direction:column;align-items:center">
+            <div class="step-dot" id="sd-4">4</div>
+            <div class="step-label" id="sl-4">완료</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 1: Code Verified -->
+      <div class="step-panel active" id="panel-1">
+        <div class="glass-card">
+          <div class="section-eyebrow">STEP 1 · 초대 코드 확인</div>
+          <h3 style="margin:var(--space-sm) 0 var(--space-md)">초대 코드가 확인되었습니다</h3>
+          <div id="invite-info-box" style="background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.2);border-radius:var(--radius-md);padding:var(--space-md) var(--space-lg);margin-bottom:var(--space-lg)">
+            <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:4px">초대 파트너</div>
+            <div style="font-size:1rem;font-weight:700;color:var(--accent-green)" id="partner-display">—</div>
+            <div style="font-size:0.78rem;color:var(--text-muted);margin-top:4px" id="code-display">코드: —</div>
+          </div>
+          <p style="margin-bottom:var(--space-xl)">
+            파트너의 초대로 D.Quant 9.0 V.I.E에 접속하셨습니다.<br>
+            다음 단계에서 기본 정보를 입력하시면 바로 가상 투자 체험을 시작할 수 있습니다.
+          </p>
+          <div id="no-code-msg" class="hidden" style="background:rgba(244,63,94,0.08);border:1px solid rgba(244,63,94,0.2);border-radius:var(--radius-md);padding:var(--space-md);margin-bottom:var(--space-lg);font-size:0.88rem;color:var(--accent-red)">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            초대 코드 정보가 없습니다. <a href="index.html" style="color:var(--accent-red);font-weight:600;text-decoration:underline">처음으로 돌아가기</a>
+          </div>
+          <button class="btn btn-primary btn-full btn-lg" onclick="goStep(2)">
+            기본 정보 입력하기 <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Account Info -->
+      <div class="step-panel" id="panel-2">
+        <div class="glass-card">
+          <div class="section-eyebrow">STEP 2 · 기본 정보</div>
+          <h3 style="margin:var(--space-sm) 0 var(--space-xl)">계정 정보를 입력해 주세요</h3>
+
+          <form id="step2-form" autocomplete="on" onsubmit="event.preventDefault();validateStep2()">
+          <div class="form-group">
+            <label class="form-label">이름 *</label>
+            <input type="text" class="form-input" id="f-name" placeholder="홍길동" maxlength="20" autocomplete="name">
+            <span class="form-error hidden" id="e-name"><i class="fa-solid fa-circle-xmark"></i> 이름을 입력해 주세요.</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">이메일 *</label>
+            <input type="email" class="form-input" id="f-email" placeholder="example@email.com" autocomplete="email">
+            <span class="form-error hidden" id="e-email"><i class="fa-solid fa-circle-xmark"></i> 유효한 이메일을 입력해 주세요.</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">휴대전화 *</label>
+            <input type="tel" class="form-input" id="f-phone" placeholder="010-0000-0000" maxlength="13" autocomplete="tel">
+            <span class="form-error hidden" id="e-phone"><i class="fa-solid fa-circle-xmark"></i> 휴대전화 번호를 입력해 주세요.</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label">비밀번호 *</label>
+            <input type="password" class="form-input" id="f-pw" placeholder="8자 이상" autocomplete="new-password">
+            <span class="form-error hidden" id="e-pw"><i class="fa-solid fa-circle-xmark"></i> 비밀번호는 8자 이상이어야 합니다.</span>
+          </div>
+          <div class="form-group" style="margin-bottom:var(--space-lg)">
+            <label class="form-label">비밀번호 확인 *</label>
+            <input type="password" class="form-input" id="f-pw2" placeholder="비밀번호를 다시 입력" autocomplete="new-password">
+            <span class="form-error hidden" id="e-pw2"><i class="fa-solid fa-circle-xmark"></i> 비밀번호가 일치하지 않습니다.</span>
+          </div>
+
+          <hr class="divider">
+
+          <div style="margin-bottom:var(--space-md)">
+            <div style="font-size:0.82rem;font-weight:600;color:var(--text-secondary);margin-bottom:var(--space-md)">알림 수신 설정</div>
+            <label class="checkbox-group mb-md">
+              <input type="checkbox" id="f-email-notify" checked>
+              <div>
+                <div style="font-size:0.9rem;color:var(--text-primary);font-weight:500"><i class="fa-solid fa-envelope" style="color:var(--accent-blue)"></i> 이메일 알림</div>
+                <div style="font-size:0.75rem;color:var(--text-muted)">3일 주기 성과 리포트 및 월간 정산 알림</div>
+              </div>
+            </label>
+            <label class="checkbox-group">
+              <input type="checkbox" id="f-kakao-notify" checked>
+              <div>
+                <div style="font-size:0.9rem;color:var(--text-primary);font-weight:500"><i class="fa-solid fa-comment" style="color:#fee500"></i> 카카오톡 알림</div>
+                <div style="font-size:0.75rem;color:var(--text-muted)">카카오 알림톡으로 주요 업데이트 수신</div>
+              </div>
+            </label>
+          </div>
+
+          <hr class="divider">
+          <label class="checkbox-group mt-md">
+            <input type="checkbox" id="f-terms">
+            <span style="font-size:0.82rem;color:var(--text-secondary)">
+              <a href="#" style="color:var(--accent-blue)">이용약관</a> 및 <a href="#" style="color:var(--accent-blue)">개인정보처리방침</a>에 동의합니다. (필수)
+            </span>
+          </label>
+          <span class="form-error hidden mt-sm" id="e-terms"><i class="fa-solid fa-circle-xmark"></i> 약관에 동의해 주세요.</span>
+
+          <div style="display:flex;gap:var(--space-sm);margin-top:var(--space-xl)">
+            <button type="button" class="btn btn-ghost btn-full" onclick="goStep(1)"><i class="fa-solid fa-arrow-left"></i> 이전</button>
+            <button type="submit" class="btn btn-primary btn-full">다음 단계 <i class="fa-solid fa-arrow-right"></i></button>
+          </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Step 3: Portfolio Selection -->
+      <div class="step-panel" id="panel-3">
+        <div class="glass-card">
+          <div class="section-eyebrow">STEP 3 · 포트폴리오 선택</div>
+          <h3 style="margin:var(--space-sm) 0 var(--space-xs)">가상 투자 포트폴리오를 선택해 주세요</h3>
+          <p style="margin-bottom:var(--space-lg);font-size:0.85rem">
+            최대 <strong style="color:var(--accent-blue)">2개</strong>까지 선택 가능하며, 선택 즉시 알고리즘이 배정됩니다.
+          </p>
+
+          <div class="pf-select-grid" id="pf-grid">
+            <!-- Core -->
+            <div class="pf-select-card core" data-tier="Core" onclick="togglePortfolio(this)">
+              <div class="pf-check"><i class="fa-solid fa-check"></i></div>
+              <div class="pf-card-tier">CORE</div>
+              <div class="pf-card-amount">1,000만원</div>
+              <div class="pf-card-rate-row">
+                <span class="pf-rate-badge" style="background:rgba(74,144,226,0.15);color:#4a90e2">+2.5% / 월</span>
+                <span class="pf-algo-tag" style="background:rgba(0,212,255,0.1);color:var(--accent-blue)">D-Grouping</span>
+              </div>
+              <div class="pf-card-desc">협소 타겟 보수 안정 운용</div>
+            </div>
+
+            <!-- Growth -->
+            <div class="pf-select-card growth" data-tier="Growth" onclick="togglePortfolio(this)">
+              <div class="pf-check"><i class="fa-solid fa-check"></i></div>
+              <div class="pf-card-tier">GROWTH</div>
+              <div class="pf-card-amount">3,000만원</div>
+              <div class="pf-card-rate-row">
+                <span class="pf-rate-badge" style="background:rgba(54,179,126,0.15);color:#36b37e">+3.0% / 월</span>
+                <span class="pf-algo-tag" style="background:rgba(0,229,160,0.1);color:var(--accent-green)">D-Grid</span>
+              </div>
+              <div class="pf-card-desc">표준 안정형 변동성 포착</div>
+            </div>
+
+            <!-- Premium -->
+            <div class="pf-select-card premium" data-tier="Premium" onclick="togglePortfolio(this)">
+              <div class="pf-check"><i class="fa-solid fa-check"></i></div>
+              <div class="pf-card-tier">PREMIUM</div>
+              <div class="pf-card-amount">5,000만원</div>
+              <div class="pf-card-rate-row">
+                <span class="pf-rate-badge" style="background:rgba(124,111,166,0.15);color:#9d91d9">+4.0% / 월</span>
+                <span class="pf-algo-tag" style="background:rgba(0,229,160,0.1);color:var(--accent-green)">D-Grid</span>
+              </div>
+              <div class="pf-card-desc">안정 확산형 다층 포착</div>
+            </div>
+
+            <!-- Strategy A -->
+            <div class="pf-select-card strategy-a" data-tier="Strategy A" onclick="togglePortfolio(this)">
+              <div class="pf-check"><i class="fa-solid fa-check"></i></div>
+              <div class="pf-card-tier">STRATEGY A</div>
+              <div class="pf-card-amount">1억원</div>
+              <div class="pf-card-rate-row">
+                <span class="pf-rate-badge" style="background:rgba(201,148,86,0.15);color:#c99456">+4.0% / 월</span>
+                <span class="pf-algo-tag" style="background:rgba(139,92,246,0.1);color:var(--accent-purple)">D-Hybrid</span>
+              </div>
+              <div class="pf-card-desc">전략 확산형 · 방어+수익</div>
+            </div>
+
+            <!-- Strategy B -->
+            <div class="pf-select-card strategy-b" data-tier="Strategy B" onclick="togglePortfolio(this)" style="grid-column:span 2">
+              <div class="pf-check"><i class="fa-solid fa-check"></i></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+                <div>
+                  <div class="pf-card-tier">STRATEGY B <span style="background:rgba(224,92,92,0.15);color:#e05c5c;font-size:0.65rem;padding:1px 6px;border-radius:20px;margin-left:4px">최상위</span></div>
+                  <div class="pf-card-amount">2억원</div>
+                  <div class="pf-card-rate-row">
+                    <span class="pf-rate-badge" style="background:rgba(224,92,92,0.15);color:#e05c5c">+4.0% / 월</span>
+                    <span class="pf-algo-tag" style="background:rgba(139,92,246,0.1);color:var(--accent-purple)">D-Hybrid</span>
+                  </div>
+                </div>
+                <div class="pf-card-desc" style="max-width:200px">고액 자산가 전용 최상위 전략 성장형 모델</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selection summary -->
+          <div class="selection-summary" id="sel-summary">
+            <div class="sel-left">
+              <div style="font-size:0.75rem;color:var(--text-muted)">선택한 포트폴리오</div>
+              <div class="sel-portfolios mt-xs" id="sel-badges"></div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-size:0.72rem;color:var(--text-muted)">예상 월 시뮬레이션</div>
+              <div style="font-size:1rem;font-weight:700;color:var(--accent-green)" id="sel-rate">—</div>
+            </div>
+          </div>
+
+          <!-- Algo Explanation -->
+          <div class="algo-explain" style="margin-top:var(--space-lg)">
+            <div style="font-size:0.8rem;font-weight:700;color:var(--text-muted);margin-bottom:var(--space-sm);letter-spacing:0.08em">알고리즘 설명</div>
+            <div class="algo-explain-row">
+              <div class="algo-explain-icon" style="background:rgba(0,212,255,0.1);color:var(--accent-blue)"><i class="fa-solid fa-shield-halved"></i></div>
+              <div class="algo-explain-text">
+                <h5>D-Grouping</h5>
+                <p>하락 리스크를 먼저 방어하는 안정 중심 엔진. 협소한 타겟 구간에서 정밀하게 포지션을 관리합니다.</p>
+              </div>
+            </div>
+            <div class="algo-explain-row">
+              <div class="algo-explain-icon" style="background:rgba(0,229,160,0.1);color:var(--accent-green)"><i class="fa-solid fa-table-cells"></i></div>
+              <div class="algo-explain-text">
+                <h5>D-Grid</h5>
+                <p>반복적인 변동성 구간을 수익 기회로 전환하는 포착 엔진. 그리드 간격을 활용해 꾸준한 수익을 누적합니다.</p>
+              </div>
+            </div>
+            <div class="algo-explain-row">
+              <div class="algo-explain-icon" style="background:rgba(139,92,246,0.1);color:var(--accent-purple)"><i class="fa-solid fa-circle-nodes"></i></div>
+              <div class="algo-explain-text">
+                <h5>D-Hybrid</h5>
+                <p>D-Grouping의 안정성과 D-Grid의 수익성을 결합한 상위 전략. 하락장 방어와 상승장 수익 극대화를 동시에 수행합니다.</p>
+              </div>
+            </div>
+          </div>
+
+          <span class="form-error hidden mt-md" id="e-portfolio"><i class="fa-solid fa-circle-xmark"></i> 최소 1개의 포트폴리오를 선택해 주세요.</span>
+
+          <div style="display:flex;gap:var(--space-sm);margin-top:var(--space-xl)">
+            <button class="btn btn-ghost btn-full" onclick="goStep(2)"><i class="fa-solid fa-arrow-left"></i> 이전</button>
+            <button class="btn btn-success btn-full" id="complete-btn" onclick="completeSignup()">
+              <span id="complete-text">이 포트폴리오로 시작하기</span>
+              <span id="complete-spinner" class="hidden"><i class="fa-solid fa-spinner fa-spin"></i></span>
+              <i class="fa-solid fa-rocket" id="complete-icon"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Complete -->
+      <div class="step-panel" id="panel-4">
+        <div class="glass-card text-center" style="padding:var(--space-2xl)">
+          <div class="complete-icon">
+            <i class="fa-solid fa-check"></i>
+          </div>
+          <div class="section-eyebrow" style="display:block;margin-bottom:var(--space-md)">가입 완료</div>
+          <h2 style="margin-bottom:var(--space-md)">D.Quant 9.0 V.I.E에<br>오신 것을 환영합니다!</h2>
+          <p style="margin-bottom:var(--space-xl)">
+            <strong id="complete-name" style="color:var(--text-primary)">—</strong>님의 계정이 성공적으로 생성되었습니다.<br>
+            선택하신 포트폴리오의 알고리즘이 지금 즉시 활성화됩니다.
+          </p>
+
+          <!-- Summary cards -->
+          <div id="complete-summary" style="text-align:left;margin-bottom:var(--space-lg)"></div>
+
+          <!-- HIxAI Card -->
+          <div class="hixai-card">
+            <div class="hixai-label">HIxAI — Human × AI Collaboration</div>
+            <div class="hixai-title">인간의 전략 × AI의 변동성 해석</div>
+            <div class="hixai-desc">
+              D.Quant 9.0은 전문 트레이더의 전략 설계와 AI 알고리즘의 실시간 변동성 해석이 결합된 HIxAI 운용 모델을 적용합니다. 사람이 판단하고, AI가 실행하는 협업 구조가 지금 활성화되었습니다.
+            </div>
+          </div>
+
+          <!-- Notification preview -->
+          <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border-default);border-radius:var(--radius-md);padding:var(--space-md);margin-top:var(--space-lg);text-align:left">
+            <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:var(--space-sm)">
+              <i class="fa-solid fa-bell" style="color:var(--accent-blue)"></i> 첫 알림 예고
+            </div>
+            <div style="font-size:0.85rem;color:var(--text-secondary)">가입 확인 알림이 이메일로 발송됩니다.</div>
+            <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:4px">첫 성과 리포트는 3일 후 오전 9시에 자동 발송됩니다.</div>
+          </div>
+
+          <button class="btn btn-cta btn-full btn-xl mt-xl" onclick="window.location.href='dashboard.html'">
+            <i class="fa-solid fa-chart-line"></i>
+            대시보드로 이동하기
+          </button>
+          <button class="btn btn-ghost mt-sm" style="width:100%;margin-top:var(--space-md)" onclick="window.location.href='consult.html'">
+            파트너 안내 보기
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container"></div>
+
+  <script src="js/vie-app.js"></script>
+  <script>
+    /* ---- State ---- */
+    let currentStep = 1;
+    let selectedPortfolios = [];
+    const MAX_SELECT = 2;
+
+    /* ---- Init ---- */
+    const onboardData = VieStorage.get('onboardingData');
+    if (!onboardData) {
+      document.getElementById('invite-info-box').style.display = 'none';
+      document.getElementById('no-code-msg').classList.remove('hidden');
+    } else {
+      document.getElementById('partner-display').textContent = onboardData.partner_name || '밸류앤코어스';
+      document.getElementById('code-display').textContent = '코드: ' + (onboardData.invite_code || '—');
+    }
+
+    /* ---- Step Navigation ---- */
+    function goStep(n) {
+      document.getElementById('panel-' + currentStep).classList.remove('active');
+      document.getElementById('panel-' + n).classList.add('active');
+      updateStepUI(n);
+      currentStep = n;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateStepUI(active) {
+      for (let i = 1; i <= 4; i++) {
+        const dot = document.getElementById('sd-' + i);
+        const lbl = document.getElementById('sl-' + i);
+        dot.classList.remove('active', 'completed');
+        lbl.classList.remove('active', 'completed');
+        if (i < active) {
+          dot.classList.add('completed');
+          dot.innerHTML = '<i class="fa-solid fa-check" style="font-size:0.7rem"></i>';
+          lbl.classList.add('completed');
+        } else if (i === active) {
+          dot.classList.add('active');
+          dot.textContent = i;
+          lbl.classList.add('active');
+        } else {
+          dot.textContent = i;
+        }
+      }
+      const lines = ['sl-12','sl-23','sl-34'];
+      lines.forEach((id, idx) => {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle('completed', active > idx + 1);
+      });
+    }
+
+    /* ---- Step 2 Validation ---- */
+    function validateStep2() {
+      let ok = true;
+      const name  = document.getElementById('f-name').value.trim();
+      const email = document.getElementById('f-email').value.trim();
+      const phone = document.getElementById('f-phone').value.trim();
+      const pw    = document.getElementById('f-pw').value;
+      const pw2   = document.getElementById('f-pw2').value;
+      const terms = document.getElementById('f-terms').checked;
+
+      const show = (id, visible) => document.getElementById(id).classList.toggle('hidden', !visible);
+
+      show('e-name',  !name);      if (!name)  ok = false;
+      show('e-email', !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)); if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) ok = false;
+      show('e-phone', !phone);     if (!phone) ok = false;
+      show('e-pw',    pw.length < 8);   if (pw.length < 8)  ok = false;
+      show('e-pw2',   pw !== pw2);       if (pw !== pw2)     ok = false;
+      show('e-terms', !terms);     if (!terms) ok = false;
+
+      if (ok) {
+        // Save to storage (비밀번호 포함 — 재로그인 시 초대 코드 없이 사용)
+        const saved = VieStorage.get('onboardingData') || {};
+        VieStorage.set('onboardingData', {
+          ...saved,
+          name, email, phone,
+          password: pw,   // 재로그인 검증용 저장 (프로토타입 평문 — 실 서비스 시 해싱 필요)
+          email_notify: document.getElementById('f-email-notify').checked,
+          kakao_notify: document.getElementById('f-kakao-notify').checked
+        });
+        goStep(3);
+      }
+    }
+
+    /* ---- Portfolio Selection ---- */
+    function togglePortfolio(card) {
+      const tier = card.getAttribute('data-tier');
+      if (card.classList.contains('selected')) {
+        card.classList.remove('selected');
+        selectedPortfolios = selectedPortfolios.filter(t => t !== tier);
+      } else {
+        if (selectedPortfolios.length >= MAX_SELECT) {
+          VieToast.info('최대 2개까지 선택 가능합니다.');
+          card.classList.add('disabled');
+          setTimeout(() => card.classList.remove('disabled'), 600);
+          return;
+        }
+        card.classList.add('selected');
+        selectedPortfolios.push(tier);
+      }
+      updateSelectionSummary();
+    }
+
+    function updateSelectionSummary() {
+      const summary = document.getElementById('sel-summary');
+      const badges  = document.getElementById('sel-badges');
+      const rateEl  = document.getElementById('sel-rate');
+      document.getElementById('e-portfolio').classList.add('hidden');
+
+      if (!selectedPortfolios.length) {
+        summary.classList.remove('show');
+        return;
+      }
+      summary.classList.add('show');
+
+      // 배지: 상품명 + 개별 수익률 표시
+      badges.innerHTML = selectedPortfolios
+        .map(t => {
+          const pf = VIE_CONFIG.PORTFOLIOS[t];
+          const rateStr = pf ? `+${(pf.rate * 100).toFixed(1)}%` : '';
+          return `<span class="sel-badge">${t} <span style="color:var(--accent-green);font-weight:900">${rateStr}</span></span>`;
+        })
+        .join('');
+
+      // 수익률 표시: 포트폴리오 1개면 단독 수익률, 2개면 각각 개별로 표시
+      if (selectedPortfolios.length === 1) {
+        const pf = VIE_CONFIG.PORTFOLIOS[selectedPortfolios[0]];
+        const rate = pf ? (pf.rate * 100).toFixed(1) : '0.0';
+        rateEl.innerHTML = `<span style="color:var(--accent-green)">+${rate}%</span> / 월`;
+      } else {
+        // 2개 선택 시: 개별 수익률 각각 표시 (합산이 아님)
+        const parts = selectedPortfolios.map(t => {
+          const pf = VIE_CONFIG.PORTFOLIOS[t];
+          return pf ? `<span style="font-size:0.82rem;color:var(--accent-green)">+${(pf.rate*100).toFixed(1)}%</span>` : '';
+        });
+        // 가중평균 월 수익률도 참고 표시
+        let totalPrincipal = 0, totalMonthly = 0;
+        selectedPortfolios.forEach(t => {
+          const pf = VIE_CONFIG.PORTFOLIOS[t];
+          if (pf) { totalPrincipal += pf.principal; totalMonthly += pf.principal * pf.rate; }
+        });
+        const weightedRate = totalPrincipal > 0 ? (totalMonthly / totalPrincipal * 100).toFixed(2) : '0.00';
+        rateEl.innerHTML =
+          `${parts.join('<span style="color:rgba(255,255,255,0.3);margin:0 2px"> / </span>')}<br>` +
+          `<span style="font-size:0.72rem;color:rgba(255,255,255,0.4)">가중평균 월 수익률 <strong style="color:#f5a623">+${weightedRate}%</strong></span>`;
+      }
+    }
+
+    /* ---- Complete Signup ---- */
+    async function completeSignup() {
+      if (!selectedPortfolios.length) {
+        document.getElementById('e-portfolio').classList.remove('hidden');
+        return;
+      }
+
+      const btn = document.getElementById('complete-btn');
+      const txt = document.getElementById('complete-text');
+      const spn = document.getElementById('complete-spinner');
+      const ico = document.getElementById('complete-icon');
+      btn.disabled = true;
+      txt.classList.add('hidden');
+      ico.classList.add('hidden');
+      spn.classList.remove('hidden');
+
+      try {
+        const data = VieStorage.get('onboardingData') || {};
+        const userId = 'user-' + Date.now();
+
+        const user = {
+          id: userId,
+          name: data.name || '사용자',
+          email: data.email || '',
+          phone: data.phone || '',
+          password: data.password || '',   // 재로그인 시 초대 코드 없이 검증용
+          invite_code: data.invite_code || '',
+          partner_id: data.partner_id || '',
+          partner_name: data.partner_name || '',
+          selected_portfolios: selectedPortfolios,
+          signup_date: new Date().toISOString(),      // 온보딩 완료 = 투자 시작일
+          status: 'active',
+          email_notify: data.email_notify ?? true,
+          kakao_notify: data.kakao_notify ?? true,
+          consult_requested: false
+        };
+
+        // Save to API
+        try {
+          await VieAPI.post(VIE_CONFIG.TABLES.USERS, user);
+        } catch(e) { /* Store locally as fallback */ }
+
+        // Save to local session
+        VieAuth.setUser(user);
+        VieAuth.registerDemo(user);          // 로그인 시 참조용으로도 저장
+        VieStorage.set('onboardingData', { ...data, userId });
+
+        // Generate mock reports/notifications
+        const reports = VieSimulator.generateReports(user);
+        for (const r of reports.slice(0, 3)) {
+          try { await VieAPI.post(VIE_CONFIG.TABLES.REPORTS, r); } catch(e) {}
+        }
+        // Onboarding notification
+        try {
+          await VieAPI.post(VIE_CONFIG.TABLES.NOTIFICATIONS, {
+            id: 'notif-onboard-' + userId,
+            user_id: userId,
+            notif_type: 'onboarding',
+            title: 'D.Quant 9.0 V.I.E 가입이 완료되었습니다',
+            body: `${user.name}님, ${selectedPortfolios.join(' + ')} 포트폴리오가 활성화되었습니다.`,
+            channel: 'both',
+            is_read: false,
+            sent_at: new Date().toISOString()
+          });
+        } catch(e) {}
+
+        // Update complete UI
+        document.getElementById('complete-name').textContent = user.name;
+
+        const summaryEl = document.getElementById('complete-summary');
+        summaryEl.innerHTML = selectedPortfolios.map(tier => {
+          const pf = VIE_CONFIG.PORTFOLIOS[tier];
+          const algoInfo = VIE_CONFIG.ALGORITHMS[pf?.algo || 'D-Grouping'];
+          return `
+            <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border-default);border-radius:var(--radius-md);padding:var(--space-md);margin-bottom:var(--space-sm);display:flex;align-items:center;gap:var(--space-md)">
+              <i class="fa-solid ${algoInfo?.icon || 'fa-chart-line'}" style="color:${pf?.color||'#00d4ff'};font-size:1.2rem;flex-shrink:0"></i>
+              <div style="flex:1">
+                <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:2px">${tier}</div>
+                <div style="font-size:1rem;font-weight:700;color:var(--text-primary)">${pf ? pf.principal.toLocaleString('ko-KR') + '만원' : ''}</div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:0.72rem;color:var(--text-muted)">월 시뮬레이션</div>
+                <div style="font-size:1rem;font-weight:700;color:var(--accent-green)">+${pf ? (pf.rate * 100).toFixed(1) : '—'}%</div>
+              </div>
+              <div class="algo-status">ACTIVE</div>
+            </div>
+          `;
+        }).join('');
+
+        goStep(4);
+        VieToast.success('가입이 완료되었습니다! 대시보드로 이동하세요.');
+      } catch(e) {
+        VieToast.error('오류가 발생했습니다. 다시 시도해 주세요.');
+        console.error(e);
+      } finally {
+        btn.disabled = false;
+        txt.classList.remove('hidden');
+        ico.classList.remove('hidden');
+        spn.classList.add('hidden');
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,2675 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>대시보드 — D.Quant 9.0 V.I.E</title>
+  <meta name="description" content="D.Quant 9.0 V.I.E 대시보드. AI 알고리즘 실시간 운용 현황과 누적 수익을 확인하세요.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="D.Quant 9.0 V.I.E">
+  <meta property="og:title" content="대시보드 — D.Quant 9.0 V.I.E">
+  <meta property="og:description" content="AI 알고리즘이 24시간 운용 중. 실시간 누적 수익과 포트폴리오 성과를 확인하세요.">
+  <meta property="og:image" content="images/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="images/og-image.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/vie.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    /* Dashboard-specific */
+    .dash-appbar {
+      padding: var(--space-md) var(--space-lg);
+      background: var(--bg-glass);
+      border-bottom: 1px solid var(--border-default);
+      backdrop-filter: blur(16px);
+    }
+    .welcome-msg { font-size: 0.88rem; color: var(--text-secondary); }
+    .welcome-name { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); }
+
+    /* Notification dot */
+    .notif-btn {
+      position: relative;
+      width: 40px; height: 40px;
+      border-radius: var(--radius-md);
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-secondary);
+      transition: all var(--transition-fast);
+    }
+    .notif-btn:hover { border-color: var(--border-active); color: var(--accent-blue); }
+    .notif-dot {
+      position: absolute;
+      top: 6px; right: 6px;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent-red);
+      border: 2px solid var(--bg-secondary);
+    }
+
+    /* Invest summary bar */
+    .invest-bar {
+      background: linear-gradient(135deg, rgba(0,212,255,0.06), rgba(139,92,246,0.04));
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: var(--radius-lg);
+      padding: var(--space-md) var(--space-lg);
+      margin-bottom: var(--space-lg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+    }
+    .invest-bar-left { display: flex; align-items: center; gap: var(--space-md); flex-wrap: wrap; }
+    .ib-item { }
+    .ib-label { font-size: 0.7rem; color: var(--text-muted); letter-spacing: 0.06em; margin-bottom: 2px; }
+    .ib-value { font-size: 0.95rem; font-weight: 700; color: var(--text-primary); }
+
+    /* KPI Row */
+    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-md); margin-bottom: var(--space-lg); }
+
+    /* ── KPI 카드 내 USDT 병기 ── */
+    .kpi-usdt {
+      display: flex; align-items: center; gap: 5px;
+      margin-top: 5px;
+      font-size: 0.78rem; color: #26a17b; font-weight: 600;
+      font-family: 'Inter', sans-serif;
+    }
+    .kpi-usdt-badge {
+      font-size: 0.6rem; padding: 1px 5px; border-radius: 8px;
+      background: rgba(38,161,123,0.15); color: #26a17b;
+      border: 1px solid rgba(38,161,123,0.3); font-weight: 700; letter-spacing: 0.05em;
+    }
+
+    /* ── 포트폴리오별 금액 분해표 ── */
+    .kpi-pf-breakdown {
+      margin-top: 8px; border-top: 1px solid var(--border-default);
+      padding-top: 7px; display: flex; flex-direction: column; gap: 3px;
+    }
+    .kpi-pf-row {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 0.72rem;
+    }
+    .kpi-pf-name { color: var(--text-muted); }
+    .kpi-pf-val  { color: var(--text-primary); font-weight: 600; font-family: 'Inter', sans-serif; }
+    .kpi-pf-total {
+      margin-top: 3px; padding-top: 4px;
+      border-top: 1px dashed rgba(255,255,255,0.08);
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 0.74rem;
+    }
+    .kpi-pf-total-label { color: var(--accent-blue); font-weight: 700; }
+    .kpi-pf-total-val   { color: var(--accent-blue); font-weight: 800; font-family: 'Inter', sans-serif; }
+
+    /* ── 운용 기간 시·분·월 ── */
+    .kpi-duration-sub {
+      margin-top: 5px; display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .kpi-dur-item {
+      display: flex; flex-direction: column; align-items: center;
+      background: rgba(255,255,255,0.04); border-radius: 6px;
+      padding: 3px 8px; border: 1px solid var(--border-default);
+      min-width: 44px;
+    }
+    .kpi-dur-val   { font-size: 0.82rem; font-weight: 800; color: var(--text-primary); font-family: 'Inter', sans-serif; }
+    .kpi-dur-label { font-size: 0.58rem; color: var(--text-muted); letter-spacing: 0.06em; margin-top: 1px; }
+
+    /* ── 알고리즘 배지 영역 ── */
+    #algo-badges-area {
+      justify-content: center !important;
+      flex-wrap: wrap !important;
+    }
+
+    /* 알고리즘 배지 툴팁 래퍼 */
+    .algo-badge-wrap {
+      position: relative;
+      display: inline-flex;
+    }
+    .algo-badge-tooltip {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%; transform: translateX(-50%);
+      min-width: 220px; max-width: 280px;
+      background: rgba(8,12,28,0.97);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 13px 15px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+      backdrop-filter: blur(12px);
+      z-index: 200;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateX(-50%) translateY(6px);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+    }
+    .algo-badge-wrap:hover .algo-badge-tooltip,
+    .algo-badge-wrap.touch-show .algo-badge-tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+      pointer-events: auto;
+    }
+    /* 꼬리 화살표 */
+    .algo-badge-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%; left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: rgba(255,255,255,0.1);
+    }
+    .algo-tip-title {
+      font-size: 0.82rem; font-weight: 800;
+      color: var(--text-primary); margin-bottom: 5px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .algo-tip-desc {
+      font-size: 0.78rem; color: var(--text-secondary);
+      line-height: 1.65; margin-bottom: 8px;
+    }
+    .algo-tip-rows { display: flex; flex-direction: column; gap: 4px; }
+    .algo-tip-row {
+      display: flex; align-items: flex-start; gap: 6px;
+      font-size: 0.74rem; color: var(--text-muted);
+    }
+    .algo-tip-row i { font-size: 0.68rem; margin-top: 2px; flex-shrink: 0; }
+
+    /* ── 풀카운터 상단 메타 정보바 ── */
+    .pool-meta-bar {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+      padding: 20px 24px 16px;
+    }
+    .pool-meta-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 0 28px;
+      border-right: 1px solid var(--border-default);
+    }
+    .pool-meta-item:last-child { border-right: none; }
+    .pool-meta-label {
+      font-size: 0.68rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .pool-meta-val {
+      font-size: 1.35rem; font-weight: 900;
+      color: var(--text-primary); font-family: 'Inter', sans-serif;
+      letter-spacing: -0.01em; line-height: 1.1;
+    }
+    .pool-meta-val.accent-blue  { color: var(--accent-blue); }
+    .pool-meta-val.accent-green { color: var(--accent-green); }
+    .pool-meta-val.accent-gold  { color: var(--accent-gold); }
+    .pool-meta-sub {
+      font-size: 0.68rem; color: var(--text-muted);
+      margin-top: 1px;
+    }
+    @media(max-width:600px){
+      .pool-meta-item { padding: 10px 16px; border-right: none; border-bottom: 1px solid var(--border-default); width: 100%; align-items: flex-start; }
+      .pool-meta-item:last-child { border-bottom: none; }
+      .pool-meta-bar { flex-direction: column; padding: 12px 20px; }
+      .pool-meta-val { font-size: 1.15rem; }
+    }
+
+    /* Chart Section */
+    .chart-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-lg);
+    }
+    .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-lg);
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+    }
+    .chart-title { font-size: 1rem; font-weight: 700; color: var(--text-primary); }
+    .chart-period-btns { display: flex; gap: 4px; }
+    .period-btn {
+      font-size: 0.75rem;
+      padding: 4px 12px;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      border: 1px solid var(--border-default);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .period-btn.active, .period-btn:hover {
+      background: rgba(0,212,255,0.1);
+      border-color: var(--accent-blue);
+      color: var(--accent-blue);
+    }
+    .chart-wrapper { height: 240px; position: relative; }
+
+    /* Portfolio Detail Cards */
+    .pf-detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-md); margin-bottom: var(--space-lg); }
+    .pf-detail-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      position: relative;
+      overflow: hidden;
+    }
+    .pf-detail-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .pf-detail-card.core::before     { background: var(--color-core); }
+    .pf-detail-card.growth::before   { background: var(--color-growth); }
+    .pf-detail-card.premium::before  { background: var(--color-premium); }
+    .pf-detail-card.strategy-a::before { background: var(--color-strategy-a); }
+    .pf-detail-card.strategy-b::before { background: var(--color-strategy-b); }
+
+    .pf-detail-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: var(--space-md); }
+    .pf-detail-profit { font-size: 1.3rem; font-weight: 800; color: var(--accent-green); }
+    .pf-detail-rows   { display: flex; flex-direction: column; gap: 6px; margin-top: var(--space-md); }
+    .pf-detail-row    { display: flex; justify-content: space-between; font-size: 0.82rem; }
+    .pf-detail-row-label { color: var(--text-muted); }
+    .pf-detail-row-val   { color: var(--text-primary); font-weight: 500; }
+
+    /* Notification Snapshot */
+    .notif-snapshot {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-lg);
+    }
+    .notif-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-md);
+      padding: var(--space-md) 0;
+      border-bottom: 1px solid var(--border-default);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+    .notif-item:last-child { border-bottom: none; }
+    .notif-item:hover { background: rgba(255,255,255,0.02); margin: 0 -var(--space-md); padding: var(--space-md); border-radius: var(--radius-sm); }
+
+    /* ══ Analyst Report ══ */
+    .analyst-report {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: var(--space-lg);
+      position: relative;
+    }
+    /* 상단 좌측 액센트 라인 */
+    .analyst-report::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #00e5a0, #00d4ff, rgba(0,212,255,0));
+    }
+    .ar-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 20px 12px;
+      border-bottom: 1px solid var(--border-default);
+      flex-wrap: wrap;
+    }
+    .ar-title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .ar-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      border: 1px solid;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    .ar-title {
+      font-size: 0.82rem;
+      font-weight: 900;
+      color: var(--text-primary);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .ar-subtitle {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      letter-spacing: 0.02em;
+    }
+    .ar-update-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.62rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.38);
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 4px 12px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .ar-body {
+      padding: 16px 20px 14px;
+    }
+    .ar-paragraph {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.78);
+      line-height: 1.8;
+      margin: 0;
+      letter-spacing: 0.01em;
+    }
+    .ar-paragraph-secondary {
+      margin-top: 10px;
+      color: rgba(255,255,255,0.52);
+      font-size: 0.76rem;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .ar-footer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 10px 20px 14px;
+    }
+    .ar-algo-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid;
+      letter-spacing: 0.04em;
+    }
+    .ar-disclaimer {
+      font-size: 0.6rem;
+      color: rgba(255,255,255,0.22);
+      margin-left: auto;
+      letter-spacing: 0.02em;
+    }
+
+    /* Settlement upcoming */
+    .settlement-banner {
+      background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(245,158,11,0.04));
+      border: 1px solid rgba(245,158,11,0.2);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin-bottom: var(--space-lg);
+    }
+    .sb-icon {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      background: rgba(245,158,11,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-gold);
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    /* Fixed CTA */
+    .dash-fixed-cta {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 50;
+      background: linear-gradient(to top, var(--bg-primary) 70%, transparent);
+      padding: var(--space-lg);
+      display: flex;
+      justify-content: center;
+    }
+    .dash-cta-inner {
+      max-width: 500px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .dash-cta-sub { font-size: 0.75rem; color: var(--text-muted); text-align: center; }
+
+    /* ══ Dashboard Responsive ══ */
+
+    /* Tablet (≤1024px) */
+    @media (max-width: 1024px) {
+      .kpi-row { grid-template-columns: repeat(2, 1fr); }
+      .invest-bar { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .profit-dist-cards { grid-template-columns: 1fr !important; gap: 8px; }
+    }
+
+    /* Mobile (≤768px) */
+    @media (max-width: 768px) {
+      .kpi-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .pf-detail-grid { grid-template-columns: 1fr; }
+      .dash-fixed-cta { padding-bottom: calc(var(--space-lg) + 70px); }
+
+      /* Pool counter: 세로 배치 */
+      #pool-counter-block [style*="grid-template-columns:1fr 1px 1fr"] {
+        grid-template-columns: 1fr !important;
+      }
+      #pool-counter-block [style*="grid-template-columns:1fr 1px 1fr"] > div:nth-child(2) {
+        display: none !important;
+      }
+
+      /* 알림 */
+      .notif-item { gap: 10px; }
+
+      /* 차트 헤더 */
+      .chart-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+
+      /* mkt 탭 */
+      .mkt-tab { font-size: 0.72rem; padding: 8px 12px; white-space: nowrap; }
+
+      /* pool-meta: 2열 */
+      .pool-meta-bar { display: grid; grid-template-columns: 1fr 1fr; gap:0; padding: 12px 16px; }
+      .pool-meta-item { border-right: none !important; border-bottom: 1px solid var(--border-default); padding: 12px 12px; align-items: flex-start; }
+      .pool-meta-item:nth-child(2n) { border-left: 1px solid var(--border-default); }
+      .pool-meta-item:last-child, .pool-meta-item:nth-last-child(2):nth-child(odd) { border-bottom: none; }
+
+      /* 애널리스트 리포트 */
+      .ar-header { padding: 12px 14px 10px; }
+      .ar-body   { padding: 14px 14px; font-size: 0.82rem; }
+      .ar-update { font-size: 0.62rem; }
+    }
+
+    /* Mobile-S (≤480px) */
+    @media (max-width: 480px) {
+      .kpi-row { grid-template-columns: 1fr; gap: 8px; }
+      #rt-counter-krw  { font-size: 1.4rem !important; }
+      #rt-counter-usdt { font-size: 2rem !important; }
+      .pool-meta-bar { grid-template-columns: 1fr; }
+      .pool-meta-item { border-left: none !important; }
+      .invest-bar-left { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .kpi-duration-sub { gap: 5px; }
+      .kpi-dur-item { min-width: 38px; padding: 3px 6px; }
+    }
+
+    /* ══════════════════════════════════════
+       CRYPTO MARKET SECTION
+    ══════════════════════════════════════ */
+    .mkt-section {
+      margin-top: var(--space-lg);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      background: var(--bg-card);
+    }
+
+    /* 탭 헤더 */
+    .mkt-tab-bar {
+      display: flex; align-items: center;
+      border-bottom: 1px solid var(--border-default);
+      background: rgba(255,255,255,.02);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .mkt-tab-bar::-webkit-scrollbar { display:none; }
+    .mkt-tab {
+      display: flex; align-items: center; gap: 5px;
+      padding: 11px 16px;
+      font-size: .75rem; font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer; white-space: nowrap;
+      border-bottom: 2px solid transparent;
+      transition: all .2s;
+      flex-shrink: 0;
+    }
+    .mkt-tab:hover { color: var(--text-secondary); }
+    .mkt-tab.active { color: var(--accent-blue); border-bottom-color: var(--accent-blue); }
+    .mkt-tab .tab-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: currentColor; opacity: .6;
+    }
+
+    /* 새로고침 버튼 */
+    .mkt-refresh-btn {
+      margin-left: auto; flex-shrink: 0;
+      padding: 6px 14px;
+      font-size: .72rem; font-weight: 700;
+      color: var(--text-muted);
+      background: transparent; border: none;
+      cursor: pointer; font-family: var(--font-ko);
+      display: flex; align-items: center; gap: 5px;
+      transition: color .2s;
+    }
+    .mkt-refresh-btn:hover { color: var(--accent-blue); }
+    .mkt-refresh-btn.spinning i { animation: spin360 .8s linear; }
+    @keyframes spin360 { to { transform: rotate(360deg); } }
+
+    /* ═══════════════════════════════════════
+       코인 마켓 — 완전 재작성 (동적 강화)
+    ═══════════════════════════════════════ */
+
+    /* ── 그리드 ── */
+    .mkt-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 1px;
+      background: var(--border-default);
+    }
+    @media(max-width:1200px){ .mkt-grid{ grid-template-columns: repeat(4,1fr); } }
+    @media(max-width:900px)  { .mkt-grid{ grid-template-columns: repeat(3,1fr); } }
+    @media(max-width:600px)  { .mkt-grid{ grid-template-columns: repeat(2,1fr); } }
+
+    /* ── 카드 기본 ── */
+    .coin-card {
+      background: var(--bg-card);
+      padding: 13px 14px 11px;
+      display: flex; flex-direction: column; gap: 6px;
+      position: relative;
+      overflow: hidden;
+      transition: background .25s, box-shadow .25s;
+      cursor: default;
+    }
+    /* 좌측 컬러 액센트 라인 */
+    .coin-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px; height: 100%;
+      background: transparent;
+      transition: background .3s, opacity .3s;
+      opacity: 0;
+    }
+    .coin-card.flash-up::before   { background: var(--accent-green); opacity: 1; }
+    .coin-card.flash-down::before { background: var(--accent-red);   opacity: 1; }
+    .coin-card:hover { background: rgba(255,255,255,.04); }
+
+    /* ── 카드 진입 애니메이션 ── */
+    @keyframes cardSlideIn {
+      from { opacity:0; transform: translateY(10px) scale(.97); }
+      to   { opacity:1; transform: translateY(0)    scale(1); }
+    }
+    .coin-card.anim-in {
+      animation: cardSlideIn .35s cubic-bezier(.22,.68,0,1.2) both;
+    }
+
+    /* ── 가격 변동 Flash ── */
+    @keyframes priceFlashUp {
+      0%   { color:var(--accent-green); text-shadow: 0 0 12px rgba(0,229,160,.8); }
+      70%  { color:var(--accent-green); text-shadow: 0 0 6px  rgba(0,229,160,.4); }
+      100% { color:var(--text-primary); text-shadow: none; }
+    }
+    @keyframes priceFlashDown {
+      0%   { color:var(--accent-red); text-shadow: 0 0 12px rgba(244,63,94,.8); }
+      70%  { color:var(--accent-red); text-shadow: 0 0 6px  rgba(244,63,94,.4); }
+      100% { color:var(--text-primary); text-shadow: none; }
+    }
+    .coin-price.flash-up   { animation: priceFlashUp   1.4s ease forwards; }
+    .coin-price.flash-down { animation: priceFlashDown 1.4s ease forwards; }
+
+    /* ── 상단 영역 ── */
+    .coin-top { display: flex; align-items: center; gap: 8px; }
+    .coin-logo {
+      width: 28px; height: 28px; border-radius: 50%;
+      object-fit: cover; flex-shrink: 0;
+      background: rgba(255,255,255,.05);
+    }
+    .coin-logo-fallback {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg,var(--accent-blue),var(--accent-purple));
+      display: flex; align-items: center; justify-content: center;
+      font-size: .65rem; font-weight: 900; color: #fff; flex-shrink: 0;
+    }
+    .coin-names { flex: 1; min-width: 0; }
+    .coin-symbol { font-size: .78rem; font-weight: 800; color: var(--text-primary); }
+    .coin-name   { font-size: .65rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .coin-rank {
+      font-size: .6rem; font-weight: 700;
+      padding: 1px 5px; border-radius: 8px;
+      background: rgba(255,255,255,.06);
+      color: var(--text-muted); flex-shrink: 0;
+    }
+
+    /* ── 가격 ── */
+    .coin-price {
+      font-size: .92rem; font-weight: 800;
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      letter-spacing: -.01em;
+      transition: color .15s;
+    }
+
+    /* ── 등락 배지 ── */
+    .coin-change {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: .72rem; font-weight: 700;
+      padding: 2px 7px; border-radius: 10px;
+      transition: all .3s;
+    }
+    .coin-change.up   { background: rgba(0,229,160,.12);  color: var(--accent-green); box-shadow: 0 0 0 0 rgba(0,229,160,.4); }
+    .coin-change.down { background: rgba(244,63,94,.12);   color: var(--accent-red);   box-shadow: 0 0 0 0 rgba(244,63,94,.4); }
+    .coin-change.flat { background: rgba(255,255,255,.05); color: var(--text-muted); }
+
+    /* pulse 효과 — 큰 변동 시 */
+    @keyframes changePulse {
+      0%   { box-shadow: 0 0 0 0   rgba(var(--pulse-rgb),.5); }
+      60%  { box-shadow: 0 0 0 8px rgba(var(--pulse-rgb),0); }
+      100% { box-shadow: 0 0 0 0   rgba(var(--pulse-rgb),0); }
+    }
+    .coin-change.pulse-up   { --pulse-rgb: 0,229,160; animation: changePulse .7s ease; }
+    .coin-change.pulse-down { --pulse-rgb: 244,63,94;  animation: changePulse .7s ease; }
+
+    /* ── 변동성 바 ── */
+    .coin-volatility-bars { display: flex; flex-direction: column; gap: 4px; margin-top: 2px; }
+    .vol-row { display: flex; align-items: center; gap: 4px; }
+    .vol-label { font-size: .58rem; color: var(--text-muted); width: 18px; flex-shrink: 0; }
+    .vol-bar-wrap {
+      flex: 1; height: 4px; border-radius: 2px;
+      background: rgba(255,255,255,.06); overflow: hidden;
+    }
+    .vol-bar {
+      height: 100%; border-radius: 2px;
+      transition: width 1s cubic-bezier(.22,.68,0,1.2);
+    }
+    .vol-bar.up   { background: linear-gradient(90deg,var(--accent-green),rgba(0,229,160,.5)); }
+    .vol-bar.down { background: linear-gradient(90deg,var(--accent-red),rgba(244,63,94,.5)); }
+    .vol-val { font-size: .62rem; font-weight: 700; width: 46px; text-align: right; flex-shrink: 0; }
+    .vol-val.up   { color: var(--accent-green); }
+    .vol-val.down { color: var(--accent-red); }
+
+    /* ── 거래량 바 ── */
+    .vol-volume-bar {
+      height: 3px; border-radius: 2px;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+      transition: width 1s cubic-bezier(.22,.68,0,1.2);
+      margin-top: 2px;
+    }
+
+    /* ── 헤더 카운트다운 링 ── */
+    .mkt-countdown-wrap {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .mkt-countdown-ring {
+      position: relative; width: 20px; height: 20px;
+    }
+    .mkt-countdown-ring svg {
+      width: 20px; height: 20px;
+      transform: rotate(-90deg);
+    }
+    .mkt-countdown-ring circle {
+      fill: none;
+      stroke-width: 2.5;
+    }
+    .mkt-ring-bg   { stroke: rgba(255,255,255,.08); }
+    .mkt-ring-fill {
+      stroke: var(--accent-green);
+      stroke-dasharray: 50.26;   /* 2π×8 */
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1s linear, stroke .5s;
+      stroke-linecap: round;
+    }
+    .mkt-countdown-sec {
+      font-size: .68rem; font-weight: 700;
+      color: var(--accent-green);
+      font-family: 'Inter';
+      min-width: 14px; text-align: center;
+    }
+
+    /* ── LIVE 뱃지 (펄스) ── */
+    .mkt-live-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 3px 9px; border-radius: 20px;
+      background: rgba(0,229,160,.1);
+      border: 1px solid rgba(0,229,160,.25);
+      font-size: .64rem; font-weight: 700;
+      color: var(--accent-green);
+      letter-spacing: .06em;
+    }
+    .mkt-live-dot {
+      display: inline-block; width: 6px; height: 6px;
+      border-radius: 50%; background: var(--accent-green);
+      box-shadow: 0 0 5px var(--accent-green);
+      animation: mktblink 1.2s ease-in-out infinite;
+    }
+    @keyframes mktblink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.3;transform:scale(.7)} }
+
+    /* ── 업데이트 플래시 오버레이 ── */
+    @keyframes gridFlash {
+      0%   { opacity:.18; }
+      100% { opacity:0; }
+    }
+    .mkt-flash-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg,rgba(0,229,160,.12),rgba(0,212,255,.08));
+      border-radius: inherit;
+      pointer-events: none;
+      z-index: 5;
+      animation: gridFlash .6s ease forwards;
+    }
+
+    /* ── 하단 상태 바 ── */
+    .mkt-footer {
+      padding: 12px 16px 14px;
+      border-top: 1px solid var(--border-default);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .mkt-footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .mkt-footer-text { font-size: .66rem; color: var(--text-muted); }
+    /* 데이터 제공사 로고 배지 */
+    .mkt-provider-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .mkt-provider-label {
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.28);
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .mkt-provider-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px 3px 7px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.04);
+      font-size: 0.64rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      transition: border-color 0.2s, background 0.2s, color 0.2s;
+    }
+    .mkt-provider-badge:hover {
+      border-color: rgba(255,255,255,0.22);
+      background: rgba(255,255,255,0.07);
+      color: rgba(255,255,255,0.78);
+    }
+    .mkt-provider-badge svg {
+      flex-shrink: 0;
+    }
+    .mkt-live-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .mkt-live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: rgba(0,229,160,0.08);
+      border: 1px solid rgba(0,229,160,0.2);
+      font-size: 0.62rem;
+      font-weight: 800;
+      color: var(--accent-green);
+      letter-spacing: 0.05em;
+    }
+    .mkt-live-pill-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      animation: mktblink 1.2s ease-in-out infinite;
+    }
+    .mkt-update-text {
+      font-size: 0.62rem;
+      color: rgba(255,255,255,0.3);
+    }
+    .mkt-footer-disclaimer {
+      font-size: 0.6rem;
+      color: rgba(255,255,255,0.2);
+      text-align: right;
+      line-height: 1.5;
+    }
+    @media(max-width: 600px) {
+      .mkt-footer-disclaimer { text-align: left; }
+    }
+
+    /* ── 로딩 스켈레톤 ── */
+    .mkt-skeleton {
+      display: grid; grid-template-columns: repeat(6,1fr); gap: 1px;
+      background: var(--border-default);
+    }
+    @media(max-width:900px){ .mkt-skeleton{ grid-template-columns: repeat(3,1fr); } }
+    @media(max-width:600px){ .mkt-skeleton{ grid-template-columns: repeat(2,1fr); } }
+    .mkt-skel-card {
+      background: var(--bg-card);
+      padding: 14px; display: flex; flex-direction: column; gap: 8px;
+    }
+    .skel-line {
+      height: 10px; border-radius: 4px;
+      background: linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.09) 50%,rgba(255,255,255,.04) 75%);
+      background-size: 200% 100%;
+      animation: skelShimmer 1.4s ease infinite;
+    }
+    @keyframes skelShimmer { to { background-position: -200% 0; } }
+  </style>
+</head>
+<body>
+  <!-- Nav -->
+  <nav class="vie-nav">
+    <div class="vie-nav-inner">
+      <div class="vie-nav-brand">
+        <a href="index.html" style="display:flex;align-items:center;gap:8px;text-decoration:none">
+          <span class="vie-nav-logo">D.Quant 9.0</span>
+          <span class="vie-nav-badge">V.I.E</span>
+        </a>
+      </div>
+      <div class="vie-nav-links">
+        <a href="dashboard.html" class="vie-nav-link active"><i class="fa-solid fa-chart-line"></i> 대시보드</a>
+        <a href="reports.html"   class="vie-nav-link"><i class="fa-solid fa-file-lines"></i> 리포트</a>
+        <a href="consult.html"   class="vie-nav-link"><i class="fa-solid fa-handshake"></i> 상담</a>
+        <a href="benchmark.html" class="vie-nav-link benchmark"><i class="fa-solid fa-chart-column"></i> 벤치마크</a>
+        <a href="mypage.html"    class="vie-nav-link"><i class="fa-solid fa-user"></i> My</a>
+        <a href="login.html"     class="vie-nav-link" id="nav-login-btn"><i class="fa-solid fa-right-to-bracket"></i> 로그인</a>
+      </div>
+      <div class="vie-nav-hamburger" onclick="vieNavToggle(this)" aria-label="메뉴">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </nav>
+  <nav class="vie-nav-mobile" id="vie-nav-mobile">
+    <a href="dashboard.html" class="vie-nav-link active"><i class="fa-solid fa-chart-line"></i> 대시보드</a>
+    <a href="reports.html"   class="vie-nav-link"><i class="fa-solid fa-file-lines"></i> 리포트</a>
+    <a href="consult.html"   class="vie-nav-link"><i class="fa-solid fa-handshake"></i> 상담</a>
+    <a href="benchmark.html" class="vie-nav-link benchmark"><i class="fa-solid fa-chart-column"></i> 벤치마크</a>
+    <a href="mypage.html"    class="vie-nav-link"><i class="fa-solid fa-user"></i> My</a>
+    <a href="login.html"     class="vie-nav-link" id="nav-login-btn-m"><i class="fa-solid fa-right-to-bracket"></i> 로그인</a>
+  </nav>
+
+  <!-- Page -->
+  <div class="page-wrapper">
+    <!-- App Bar -->
+    <div class="dash-appbar">
+      <div style="max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div class="welcome-msg">안녕하세요 👋</div>
+          <div class="welcome-name" id="welcome-name">사용자님</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--space-sm)">
+          <button class="notif-btn" onclick="window.location.href='reports.html'">
+            <i class="fa-solid fa-bell"></i>
+            <span class="notif-dot" id="notif-dot"></span>
+          </button>
+          <button class="notif-btn" onclick="window.location.href='mypage.html'">
+            <i class="fa-solid fa-user"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-content">
+
+      <!-- Invest Summary Bar -->
+      <div class="invest-bar fade-in" id="invest-bar">
+        <div class="invest-bar-left">
+          <div class="ib-item">
+            <div class="ib-label">선택 포트폴리오</div>
+            <div class="ib-value" id="ib-portfolios">—</div>
+          </div>
+          <div style="width:1px;height:28px;background:var(--border-default)"></div>
+          <div class="ib-item">
+            <div class="ib-label">파트너</div>
+            <div class="ib-value" id="ib-partner">—</div>
+          </div>
+          <div style="width:1px;height:28px;background:var(--border-default)"></div>
+          <div class="ib-item">
+            <div class="ib-label">운용 개시일</div>
+            <div class="ib-value" id="ib-start">—</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:var(--space-sm)">
+          <div class="algo-status">모든 시스템 ACTIVE</div>
+        </div>
+      </div>
+
+      <!-- Algorithm Badges -->
+      <div id="algo-badges-area" style="display:flex;flex-wrap:wrap;gap:var(--space-md);margin-bottom:var(--space-lg)">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- KPI Row -->
+      <div class="kpi-row fade-in">
+
+        <!-- 1) 총 포트폴리오 금액 (맨 왼쪽) -->
+        <div class="kpi-card">
+          <div class="kpi-label"><i class="fa-solid fa-briefcase" style="color:var(--accent-gold)"></i> 총 포트폴리오 금액</div>
+          <div class="kpi-value" id="kpi-principal">—</div>
+          <div class="kpi-usdt">
+            <i class="fa-brands fa-ethereum" style="font-size:0.7rem"></i>
+            <span id="kpi-principal-usdt">— USDT</span>
+            <span class="kpi-usdt-badge">USDT</span>
+          </div>
+          <div class="kpi-pf-breakdown" id="kpi-pf-breakdown">
+            <!-- JS로 채움 -->
+          </div>
+        </div>
+
+        <!-- 2) 운용 기간 -->
+        <div class="kpi-card">
+          <div class="kpi-label"><i class="fa-solid fa-clock" style="color:var(--accent-blue)"></i> 운용 기간</div>
+          <div class="kpi-value" id="kpi-days">— 일</div>
+          <div class="kpi-duration-sub" id="kpi-duration-sub">
+            <div class="kpi-dur-item"><span class="kpi-dur-val" id="kpi-dur-h">—</span><span class="kpi-dur-label">시간</span></div>
+            <div class="kpi-dur-item"><span class="kpi-dur-val" id="kpi-dur-m">—</span><span class="kpi-dur-label">분</span></div>
+            <div class="kpi-dur-item"><span class="kpi-dur-val" id="kpi-dur-mo">—</span><span class="kpi-dur-label">차월</span></div>
+          </div>
+          <div style="margin-top:6px;font-size:0.7rem;color:var(--text-muted)"><span id="kpi-signup-date">—</span> 시작</div>
+        </div>
+
+        <!-- 3) 당월 이익 배당금 (지급완료 + 지급예정) -->
+        <div class="kpi-card">
+          <div class="kpi-label" id="kpi-monthly-label">
+            <i class="fa-solid fa-hand-holding-dollar" style="color:#a78bfa"></i> <span id="kpi-monthly-label-text">지급 예정 이익금</span>
+          </div>
+
+          <!-- 지급 완료 구역 -->
+          <div style="margin-top:8px;padding:8px 10px;background:rgba(0,229,160,0.06);border:1px solid rgba(0,229,160,0.18);border-radius:8px;">
+            <div style="font-size:0.62rem;font-weight:700;color:rgba(0,229,160,0.7);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:3px">
+              <i class="fa-solid fa-circle-check" style="font-size:0.6rem;margin-right:3px"></i>지급 완료
+            </div>
+            <div style="font-size:1.05rem;font-weight:900;color:#00e5a0;line-height:1" id="kpi-paid-profit">—</div>
+            <div style="font-size:0.65rem;color:rgba(0,229,160,0.5);margin-top:2px">
+              <i class="fa-brands fa-ethereum" style="font-size:0.6rem"></i>
+              <span id="kpi-paid-usdt">— USDT</span>
+            </div>
+          </div>
+
+          <!-- 지급 예정 구역 -->
+          <div style="margin-top:6px;padding:8px 10px;background:rgba(167,139,250,0.06);border:1px solid rgba(167,139,250,0.18);border-radius:8px;">
+            <div style="font-size:0.62rem;font-weight:700;color:rgba(167,139,250,0.7);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:3px">
+              <i class="fa-solid fa-calendar-clock" style="font-size:0.6rem;margin-right:3px"></i>지급 예정
+            </div>
+            <div style="font-size:1.05rem;font-weight:900;color:#a78bfa;line-height:1" id="kpi-monthly">—</div>
+            <div style="font-size:0.65rem;color:rgba(167,139,250,0.5);margin-top:2px">
+              <i class="fa-brands fa-ethereum" style="font-size:0.6rem"></i>
+              <span id="kpi-monthly-usdt">— USDT</span>
+            </div>
+            <!-- 정산일 표시: M월 D일 (요일) -->
+            <div style="margin-top:5px;font-size:0.68rem;color:rgba(245,166,35,0.9);font-weight:700;display:flex;align-items:center;gap:4px">
+              <i class="fa-solid fa-calendar-day" style="font-size:0.6rem"></i>
+              <span id="kpi-monthly-sub-date">정산일 산출 중...</span>
+            </div>
+            <div id="kpi-monthly-sub-fri" style="font-size:0.62rem;color:rgba(255,255,255,0.3);padding-left:14px;margin-top:1px"></div>
+          </div>
+        </div>
+
+        <!-- 4) 누적 지급완료 이익금 -->
+        <div class="kpi-card">
+          <div class="kpi-label"><i class="fa-solid fa-coins" style="color:var(--accent-green)"></i> 누적 지급완료 이익금</div>
+          <div class="kpi-value text-green" id="kpi-profit">—</div>
+          <div class="kpi-usdt">
+            <i class="fa-brands fa-ethereum" style="font-size:0.7rem"></i>
+            <span id="kpi-profit-usdt">— USDT</span>
+            <span class="kpi-usdt-badge">USDT</span>
+          </div>
+          <div class="kpi-change neutral" style="margin-top:6px;color:var(--text-muted);flex-wrap:wrap;align-items:flex-start;line-height:1.6">
+            <i class="fa-solid fa-chart-line" style="font-size:0.7rem;margin-top:2px;flex-shrink:0"></i>
+            <span id="kpi-rate-sub" style="flex:1;font-size:0.75rem">누적 수익률 —</span>
+          </div>
+          <!-- 총자산 = 원금 + 누적이익 -->
+          <div class="kpi-total-asset" id="kpi-total-asset-wrap" style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,229,160,0.15)">
+            <div style="font-size:0.62rem;font-weight:700;color:rgba(0,229,160,0.55);letter-spacing:0.07em;text-transform:uppercase;margin-bottom:3px">
+              <i class="fa-solid fa-layer-group" style="font-size:0.6rem;margin-right:3px"></i>총 자산 (원금 + 누적이익)
+            </div>
+            <div class="kpi-total-asset-val" id="kpi-total-asset">—</div>
+            <div style="font-size:0.65rem;color:rgba(0,229,160,0.45);margin-top:2px">
+              <i class="fa-brands fa-ethereum" style="font-size:0.6rem"></i>
+              <span id="kpi-total-asset-usdt">— USDT</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Real-time Counter (Pool) -->
+      <div class="realtime-counter fade-in fade-in-delay-1" id="pool-counter-block" style="margin-bottom:var(--space-lg);padding:0">
+        <!-- 상단 타이틀 바 -->
+        <div style="text-align:center;padding:18px 24px 10px;border-bottom:1px solid var(--border-default)">
+          <div style="display:inline-flex;align-items:center;gap:8px;margin-bottom:4px">
+            <i class="fa-solid fa-wave-square" style="color:var(--accent-blue);font-size:0.9rem"></i>
+            <span class="counter-label" style="margin:0">현재까지 생성된 총 변동성 수익</span>
+          </div>
+        </div>
+        <!-- 참여 메타 정보 — 크게, 센터 정렬 -->
+        <div class="pool-meta-bar">
+          <div class="pool-meta-item">
+            <div class="pool-meta-label"><i class="fa-solid fa-users" style="margin-right:4px"></i>참여 인원</div>
+            <div class="pool-meta-val accent-blue">9명</div>
+            <div class="pool-meta-sub">투자자 그룹</div>
+          </div>
+          <div class="pool-meta-item">
+            <div class="pool-meta-label"><i class="fa-solid fa-vault" style="margin-right:4px"></i>총 원금 (KRW)</div>
+            <div class="pool-meta-val accent-green">3억 5,200만원</div>
+            <div class="pool-meta-sub" id="pool-principal-usdt" style="color:#26a17b">— USDT</div>
+          </div>
+          <div class="pool-meta-item">
+            <div class="pool-meta-label"><i class="fa-solid fa-calendar-star" style="margin-right:4px"></i>운용 시작</div>
+            <div class="pool-meta-val">2025.11.01</div>
+            <div class="pool-meta-sub" id="pool-elapsed-label">경과: — 일</div>
+          </div>
+          <div class="pool-meta-item">
+            <div class="pool-meta-label"><i class="fa-solid fa-percent" style="margin-right:4px"></i>적용 수익률</div>
+            <div class="pool-meta-val accent-gold">10.4% / 월</div>
+            <div class="pool-meta-sub">8.5% ~ 12.3% 범위</div>
+          </div>
+        </div>
+
+        <!-- ══ 메인 수치 영역 : 운용수익합계 ══ -->
+        <div style="border-top:1px solid var(--border-default)">
+
+          <!-- 표제어 -->
+          <div style="text-align:center;padding:14px 24px 4px">
+            <div style="display:inline-flex;align-items:center;gap:7px;
+              background:rgba(38,161,123,0.08);border:1px solid rgba(38,161,123,0.25);
+              border-radius:20px;padding:5px 18px">
+              <i class="fa-solid fa-chart-pie" style="color:#26a17b;font-size:0.8rem"></i>
+              <span style="font-size:0.72rem;font-weight:800;letter-spacing:0.14em;color:#26a17b;text-transform:uppercase">운용수익합계</span>
+            </div>
+          </div>
+
+          <!-- USDT(좌) · KRW(우) — USDT 우선 부각 -->
+          <div style="display:grid;grid-template-columns:1fr 1px 1fr;align-items:stretch">
+
+            <!-- ★ USDT 영역 (좌, 더 크게 강조) -->
+            <div style="padding:18px 24px 16px;text-align:center;position:relative;
+              background:linear-gradient(135deg,rgba(38,161,123,0.07) 0%,transparent 80%)">
+              <!-- LIVE 배지 -->
+              <div style="position:absolute;top:14px;right:16px">
+                <span id="rt-usdt-badge" style="font-size:0.58rem;padding:2px 7px;border-radius:20px;
+                  background:rgba(38,161,123,0.2);color:#26a17b;
+                  border:1px solid rgba(38,161,123,0.4);font-weight:800;letter-spacing:0.06em">LIVE</span>
+              </div>
+              <div style="font-size:0.65rem;font-weight:800;letter-spacing:0.16em;color:#26a17b;
+                margin-bottom:6px;text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:5px">
+                <span style="font-size:1rem">₮</span> Tether USDT
+              </div>
+              <div id="rt-counter-usdt" style="font-size:2.2rem;font-weight:900;color:#26a17b;
+                font-variant-numeric:tabular-nums;letter-spacing:-0.02em;line-height:1;
+                text-shadow:0 0 20px rgba(38,161,123,0.35)">
+                계산 중...
+              </div>
+              <div style="font-size:0.7rem;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:5px">
+                <span style="color:rgba(255,255,255,0.38)">KRW/USDT</span>
+                <span id="rt-usdtkrw-rate" style="color:#26a17b;font-weight:700">로딩 중</span>
+              </div>
+            </div>
+
+            <!-- 구분선 -->
+            <div style="background:var(--border-default)"></div>
+
+            <!-- KRW 영역 (우, 보조) -->
+            <div style="padding:18px 24px 16px;text-align:center">
+              <div style="font-size:0.65rem;font-weight:700;letter-spacing:0.14em;
+                color:var(--text-muted);margin-bottom:6px;text-transform:uppercase">
+                ₩ Korean Won
+              </div>
+              <div id="rt-counter-krw" style="font-size:1.85rem;font-weight:800;
+                color:var(--accent-green);font-variant-numeric:tabular-nums;
+                letter-spacing:-0.02em;line-height:1.1">
+                계산 중...
+              </div>
+              <div style="font-size:0.68rem;color:var(--text-muted);margin-top:8px" id="rt-rate-krw">
+                월 수익률 적용 중
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══ 수익 배분 3분할 블록 ══ -->
+        <div class="profit-dist-wrap">
+
+          <!-- 시각화 바 -->
+          <div class="profit-dist-bar-row">
+            <div class="profit-dist-bar-label">수익 배분 구조</div>
+            <div class="profit-dist-bar">
+              <div class="profit-dist-seg" style="flex:41.7;background:linear-gradient(90deg,#4a90e2,#6db3f2)"
+                title="투자자 이익 배당금 41.7%"></div>
+              <div class="profit-dist-seg" style="flex:31.5;background:linear-gradient(90deg,#00e5a0,#00b87a)"
+                title="회사 운용 수익금 31.5%"></div>
+              <div class="profit-dist-seg" style="flex:26.8;background:linear-gradient(90deg,#f5a623,#e07b00)"
+                title="지급준비금 26.8%"></div>
+            </div>
+            <div class="profit-dist-bar-legend">
+              <span style="color:#4a90e2"><i class="fa-solid fa-circle" style="font-size:0.5rem"></i> 투자자 배당 41.7%</span>
+              <span style="color:#00e5a0"><i class="fa-solid fa-circle" style="font-size:0.5rem"></i> 운용 수익금 31.5%</span>
+              <span style="color:#f5a623"><i class="fa-solid fa-circle" style="font-size:0.5rem"></i> 지급준비금 26.8%</span>
+            </div>
+          </div>
+
+          <!-- 카드 3개 -->
+          <div class="profit-dist-cards">
+
+            <!-- 1) 투자자 이익 배당금 41.7% -->
+            <div class="profit-dist-card" style="--dc:#4a90e2;--dc-rgb:74,144,226">
+              <div class="pdc-header">
+                <div class="pdc-icon"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                <div class="pdc-ratio">41.7%</div>
+              </div>
+              <div class="pdc-title">투자자 이익 배당금</div>
+              <div class="pdc-usdt" id="dist-usdt-investor">— USDT</div>
+              <div class="pdc-krw" id="dist-krw-investor">— 원</div>
+              <!-- 제휴 은행 로고 -->
+              <div class="pdc-logo-row">
+                <div class="pdc-logo-label">배당 출금 은행</div>
+                <div class="pdc-logos">
+                  <!-- KEB하나은행 -->
+                  <div class="pdc-logo-item" title="KEB하나은행">
+                    <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" width="30" height="30">
+                      <rect width="44" height="44" rx="9" fill="#009B77"/>
+                      <!-- 하나은행 하트 심볼 스타일 -->
+                      <path d="M22 34 C22 34 10 26 10 19 C10 14.5 13.5 11 17.5 11 C19.8 11 21.8 12.2 22 13 C22.2 12.2 24.2 11 26.5 11 C30.5 11 34 14.5 34 19 C34 26 22 34 22 34Z" fill="white" opacity="0.92"/>
+                    </svg>
+                    <span class="pdc-logo-name">하나</span>
+                  </div>
+                  <!-- IBK기업은행 -->
+                  <div class="pdc-logo-item" title="IBK기업은행">
+                    <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" width="30" height="30">
+                      <rect width="44" height="44" rx="9" fill="#003D91"/>
+                      <text x="22" y="25" font-size="10" font-weight="900" fill="white" text-anchor="middle" font-family="'Arial Black',Arial,sans-serif">IBK</text>
+                      <text x="22" y="34" font-size="6.5" font-weight="700" fill="rgba(255,255,255,0.7)" text-anchor="middle" font-family="Arial,sans-serif">기업은행</text>
+                    </svg>
+                    <span class="pdc-logo-name">기업</span>
+                  </div>
+                  <!-- KB국민은행 -->
+                  <div class="pdc-logo-item" title="KB국민은행">
+                    <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" width="30" height="30">
+                      <rect width="44" height="44" rx="9" fill="#FFB400"/>
+                      <!-- KB 별표 심볼 근사 -->
+                      <circle cx="22" cy="18" r="7" fill="#3D3D3D" opacity="0.85"/>
+                      <text x="22" y="22" font-size="9" font-weight="900" fill="#FFB400" text-anchor="middle" font-family="'Arial Black',Arial,sans-serif">KB</text>
+                      <text x="22" y="35" font-size="6" font-weight="700" fill="#3D3D3D" text-anchor="middle" font-family="Arial,sans-serif">국민은행</text>
+                    </svg>
+                    <span class="pdc-logo-name">국민</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2) 회사 운용 수익금 31.5% -->
+            <div class="profit-dist-card" style="--dc:#00e5a0;--dc-rgb:0,229,160">
+              <div class="pdc-header">
+                <div class="pdc-icon"><i class="fa-solid fa-building-columns"></i></div>
+                <div class="pdc-ratio">31.5%</div>
+              </div>
+              <div class="pdc-title">회사 운용 수익금</div>
+              <div class="pdc-usdt" id="dist-usdt-company">— USDT</div>
+              <div class="pdc-krw" id="dist-krw-company">— 원</div>
+              <!-- 거래소 로고 -->
+              <div class="pdc-logo-row">
+                <div class="pdc-logo-label">운용 거래소</div>
+                <div class="pdc-logos">
+                  <!-- 업비트 -->
+                  <div class="pdc-logo-item" title="Upbit – 국내 1위 가상자산 거래소">
+                    <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" width="32" height="32">
+                      <rect width="44" height="44" rx="9" fill="#072144"/>
+                      <!-- 업비트 U 심볼 -->
+                      <path d="M14 12 L14 26 Q14 34 22 34 Q30 34 30 26 L30 12 L25 12 L25 26 Q25 29 22 29 Q19 29 19 26 L19 12 Z" fill="#00A5E0"/>
+                      <text x="22" y="41" font-size="5.5" font-weight="700" fill="#00A5E0" text-anchor="middle" font-family="Arial,sans-serif">UPBIT</text>
+                    </svg>
+                    <span class="pdc-logo-name">업비트</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3) 지급준비금 26.8% -->
+            <div class="profit-dist-card" style="--dc:#f5a623;--dc-rgb:245,166,35">
+              <div class="pdc-header">
+                <div class="pdc-icon"><i class="fa-solid fa-vault"></i></div>
+                <div class="pdc-ratio">26.8%</div>
+              </div>
+              <div class="pdc-title">지급준비금</div>
+              <div class="pdc-usdt" id="dist-usdt-reserve">— USDT</div>
+              <div class="pdc-krw" id="dist-krw-reserve">— 원</div>
+              <!-- 거래소 로고 -->
+              <div class="pdc-logo-row">
+                <div class="pdc-logo-label">USDT 보관 거래소</div>
+                <div class="pdc-logos">
+                  <!-- 업비트 -->
+                  <div class="pdc-logo-item" title="Upbit – 국내 1위 가상자산 거래소">
+                    <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" width="30" height="30">
+                      <rect width="44" height="44" rx="9" fill="#072144"/>
+                      <path d="M14 12 L14 26 Q14 34 22 34 Q30 34 30 26 L30 12 L25 12 L25 26 Q25 29 22 29 Q19 29 19 26 L19 12 Z" fill="#00A5E0"/>
+                    </svg>
+                    <span class="pdc-logo-name">업비트</span>
+                  </div>
+                  <!-- 바이낸스 -->
+                  <div class="pdc-logo-item" title="Binance – 세계 1위 가상자산 거래소">
+                    <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" width="30" height="30">
+                      <rect width="44" height="44" rx="9" fill="#181A1F"/>
+                      <!-- 바이낸스 다이아몬드 로고 -->
+                      <polygon points="22,7 26,11 22,15 18,11" fill="#F0B90B"/>
+                      <polygon points="13,15 17,19 13,23 9,19"  fill="#F0B90B"/>
+                      <polygon points="31,15 35,19 31,23 27,19" fill="#F0B90B"/>
+                      <polygon points="18,19 22,23 26,19 22,15" fill="#F0B90B"/>
+                      <polygon points="18,27 22,31 26,27 22,23" fill="#F0B90B"/>
+                      <polygon points="22,31 26,35 22,39 18,35" fill="#F0B90B"/>
+                    </svg>
+                    <span class="pdc-logo-name">바이낸스</span>
+                  </div>
+                  <!-- 비트겟 -->
+                  <div class="pdc-logo-item" title="Bitget – 글로벌 Top 3 파생상품 거래소">
+                    <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" width="30" height="30">
+                      <defs>
+                        <linearGradient id="bgGrad" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+                          <stop offset="0%" stop-color="#00C6CC"/>
+                          <stop offset="100%" stop-color="#1A73E8"/>
+                        </linearGradient>
+                      </defs>
+                      <rect width="44" height="44" rx="9" fill="url(#bgGrad)"/>
+                      <!-- 비트겟 B 심볼 -->
+                      <path d="M13 10 L13 34 L24 34 Q32 34 32 27 Q32 23 27 22 Q31 21 31 16 Q31 10 23 10 Z M18 14 L22 14 Q26 14 26 17 Q26 20 22 20 L18 20 Z M18 23 L23 23 Q28 23 28 27 Q28 30 23 30 L18 30 Z" fill="white"/>
+                    </svg>
+                    <span class="pdc-logo-name">비트겟</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 하단 정보 바 -->
+        <div style="border-top:1px solid var(--border-default);padding:10px 24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px">
+          <div style="font-size:0.7rem;color:var(--text-muted)">
+            실시간 누적 흐름 · 시장 변동성 기반 시뮬레이션 반영
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <span style="font-size:0.68rem;color:var(--text-muted)">
+              월 수익률 범위: <strong style="color:var(--accent-green)">8.5% ~ 12.3%</strong>
+            </span>
+            <span style="font-size:0.68rem;color:var(--text-muted)">
+              운용 기간: <strong style="color:var(--text-primary)" id="rt-elapsed-days">— 일</strong>
+            </span>
+            <span id="rt-last-update" style="font-size:0.65rem;color:var(--text-muted)">환율 업데이트: —</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ CRYPTO MARKET SECTION ══ -->
+      <div class="mkt-section fade-in fade-in-delay-2" id="mkt-section">
+
+        <!-- 탭 헤더 -->
+        <div class="mkt-tab-bar">
+          <div class="mkt-tab active" onclick="mktSwitchTab('volume',this)">
+            <span class="tab-dot"></span> 거래량 TOP 12
+          </div>
+          <div class="mkt-tab" onclick="mktSwitchTab('vol1y',this)">
+            <span class="tab-dot"></span> 1년 변동성 TOP 12
+          </div>
+          <div class="mkt-tab" onclick="mktSwitchTab('vol3m',this)">
+            <span class="tab-dot"></span> 3개월 변동성 TOP 12
+          </div>
+          <div class="mkt-tab" onclick="mktSwitchTab('vol1m',this)">
+            <span class="tab-dot"></span> 1개월 변동성 TOP 12
+          </div>
+          <!-- LIVE 배지 + 카운트다운 링 -->
+          <div style="display:flex;align-items:center;gap:8px;margin-left:auto;padding:0 12px;flex-shrink:0">
+            <div class="mkt-live-badge">
+              <span class="mkt-live-dot"></span> LIVE
+            </div>
+            <div class="mkt-countdown-wrap" title="다음 자동 갱신까지">
+              <div class="mkt-countdown-ring">
+                <svg viewBox="0 0 20 20">
+                  <circle class="mkt-ring-bg"  cx="10" cy="10" r="8"/>
+                  <circle class="mkt-ring-fill" cx="10" cy="10" r="8" id="mkt-ring-fill"/>
+                </svg>
+              </div>
+              <span class="mkt-countdown-sec" id="mkt-countdown-sec">10</span>
+            </div>
+            <button class="mkt-refresh-btn" onclick="mktRefresh(this)" title="수동 새로고침" style="margin-left:2px">
+              <i class="fa-solid fa-rotate-right" id="mkt-refresh-icon"></i>
+              <span id="mkt-last-time">—</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 코인 카드 영역 -->
+        <div id="mkt-body" style="position:relative">
+          <!-- 스켈레톤 로더 -->
+          <div class="mkt-skeleton" id="mkt-skeleton">
+            <div class="mkt-skel-card"><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:80%"></div><div class="skel-line" style="width:45%"></div></div>
+            <div class="mkt-skel-card"><div class="skel-line" style="width:55%"></div><div class="skel-line" style="width:75%"></div><div class="skel-line" style="width:50%"></div></div>
+            <div class="mkt-skel-card"><div class="skel-line" style="width:65%"></div><div class="skel-line" style="width:70%"></div><div class="skel-line" style="width:40%"></div></div>
+            <div class="mkt-skel-card"><div class="skel-line" style="width:50%"></div><div class="skel-line" style="width:80%"></div><div class="skel-line" style="width:55%"></div></div>
+            <div class="mkt-skel-card"><div class="skel-line" style="width:70%"></div><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:45%"></div></div>
+            <div class="mkt-skel-card"><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:85%"></div><div class="skel-line" style="width:35%"></div></div>
+            <div class="mkt-skel-card"><div class="skel-line" style="width:55%"></div><div class="skel-line" style="width:75%"></div><div class="skel-line" style="width:50%"></div></div>
+            <div class="mkt-skel-card"><div class="skel-line" style="width:65%"></div><div class="skel-line" style="width:70%"></div><div class="skel-line" style="width:40%"></div></div>
+            <div class="mkt-skel-card"><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:80%"></div><div class="skel-line" style="width:45%"></div></div>
+            <div class="mkt-skel-card"><div class="skel-line" style="width:50%"></div><div class="skel-line" style="width:75%"></div><div class="skel-line" style="width:55%"></div></div>
+            <div class="mkt-skel-card"><div class="skel-line" style="width:70%"></div><div class="skel-line" style="width:65%"></div><div class="skel-line" style="width:48%"></div></div>
+            <div class="mkt-skel-card"><div class="skel-line" style="width:60%"></div><div class="skel-line" style="width:80%"></div><div class="skel-line" style="width:42%"></div></div>
+          </div>
+        </div>
+
+        <!-- 푸터 -->
+        <div class="mkt-footer">
+
+          <!-- 상단: 실시간 상태 + 업데이트 시각 -->
+          <div class="mkt-footer-top">
+            <div class="mkt-live-info">
+              <!-- LIVE 배지 -->
+              <div class="mkt-live-pill">
+                <div class="mkt-live-pill-dot"></div>
+                LIVE
+              </div>
+              <!-- 시세 · 지수 실시간 안내 -->
+              <span class="mkt-update-text">
+                시세 &amp; 지수 데이터 실시간 자동 업데이트
+                &nbsp;·&nbsp; 최종: <span id="mkt-update-time" style="color:rgba(255,255,255,0.45)">로딩 중...</span>
+                &nbsp;·&nbsp; <span style="color:rgba(0,229,160,0.6);font-weight:700">10초 주기 갱신</span>
+              </span>
+            </div>
+            <!-- 면책 -->
+            <div class="mkt-footer-disclaimer">
+              ※ 본 데이터는 시장 참고용이며 실제 투자 권유가 아닙니다
+            </div>
+          </div>
+
+          <!-- 하단: 데이터 제공사 로고 배지 -->
+          <div class="mkt-provider-row">
+            <span class="mkt-provider-label">Powered by</span>
+
+            <!-- CoinGecko -->
+            <a href="https://www.coingecko.com" target="_blank" rel="noopener" class="mkt-provider-badge">
+              <!-- CoinGecko 도마뱀 아이콘 SVG -->
+              <svg width="14" height="14" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="48" fill="#8DC63F"/>
+                <ellipse cx="50" cy="58" rx="28" ry="22" fill="#F9F3E3"/>
+                <circle cx="38" cy="44" r="8" fill="white"/>
+                <circle cx="62" cy="44" r="8" fill="white"/>
+                <circle cx="38" cy="44" r="4" fill="#1a1a1a"/>
+                <circle cx="62" cy="44" r="4" fill="#1a1a1a"/>
+                <path d="M42 65 Q50 72 58 65" stroke="#8DC63F" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+              </svg>
+              CoinGecko
+            </a>
+
+            <!-- 구분 -->
+            <span style="color:rgba(255,255,255,0.15);font-size:0.7rem">&amp;</span>
+
+            <!-- TradingView -->
+            <a href="https://www.tradingview.com" target="_blank" rel="noopener" class="mkt-provider-badge">
+              <!-- TradingView 로고 SVG -->
+              <svg width="14" height="14" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="100" height="100" rx="16" fill="#131722"/>
+                <!-- TV 차트 바 아이콘 -->
+                <rect x="15" y="62" width="14" height="23" rx="3" fill="#2962FF"/>
+                <rect x="35" y="48" width="14" height="37" rx="3" fill="#2962FF"/>
+                <rect x="55" y="38" width="14" height="47" rx="3" fill="#2962FF"/>
+                <rect x="75" y="25" width="14" height="60" rx="3" fill="#2962FF"/>
+                <!-- 상승선 -->
+                <polyline points="22,55 42,40 62,30 82,18" stroke="#00BCD4" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              TradingView
+            </a>
+
+            <span style="font-size:0.6rem;color:rgba(255,255,255,0.2);margin-left:4px">
+              공개 API 기반 · 시세 및 지수 데이터 실시간 제공
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ══ Analyst Report ══ -->
+      <div id="analyst-report-block" class="analyst-report fade-in fade-in-delay-2">
+        <!-- JS로 렌더링 -->
+      </div>
+
+      <!-- Chart -->
+      <div class="chart-section fade-in fade-in-delay-2">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">일일 누적 수익 곡선</div>
+            <div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px">선택하신 전략 기준으로 일일 성과 흐름이 반영됩니다</div>
+          </div>
+          <div class="chart-period-btns">
+            <button class="period-btn active" data-period="30" onclick="switchPeriod(30, this)">30일</button>
+            <button class="period-btn" data-period="60" onclick="switchPeriod(60, this)">60일</button>
+            <button class="period-btn" data-period="90" onclick="switchPeriod(90, this)">90일</button>
+          </div>
+        </div>
+        <div class="chart-wrapper">
+          <canvas id="profit-chart"></canvas>
+        </div>
+        <!-- Chart annotations -->
+        <div style="display:flex;flex-wrap:wrap;gap:var(--space-lg);margin-top:var(--space-md);padding-top:var(--space-md);border-top:1px solid var(--border-default)">
+          <div>
+            <div style="font-size:0.72rem;color:var(--text-muted)">오늘 수익</div>
+            <div style="font-size:0.95rem;font-weight:700;color:var(--accent-green)" id="chart-today">—</div>
+          </div>
+          <div>
+            <div style="font-size:0.72rem;color:var(--text-muted)">최근 3일 증가</div>
+            <div style="font-size:0.95rem;font-weight:700;color:var(--accent-blue)" id="chart-3d">—</div>
+          </div>
+          <div>
+            <div style="font-size:0.72rem;color:var(--text-muted)">이번 달 누적</div>
+            <div style="font-size:0.95rem;font-weight:700;color:var(--accent-purple)" id="chart-month">—</div>
+          </div>
+          <div>
+            <div style="font-size:0.72rem;color:var(--text-muted)">알고리즘 상태</div>
+            <div class="algo-status" style="font-size:0.72rem;display:inline-flex">ACTIVE</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Portfolio Detail Cards -->
+      <div id="pf-detail-area" class="pf-detail-grid fade-in fade-in-delay-3">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Settlement Banner -->
+      <div class="settlement-banner fade-in">
+        <div class="sb-icon"><i class="fa-solid fa-vault"></i></div>
+        <div style="flex:1">
+          <div style="font-size:0.85rem;font-weight:700;color:var(--text-primary)">월간 정산이 <span id="settlement-days" style="color:var(--accent-gold)">곧</span> 예정되어 있습니다</div>
+          <div style="font-size:0.78rem;color:var(--text-muted);margin-top:3px">약속된 수익이 안전하게 적립됩니다. 안전자산 조성비가 별도 적립 중입니다.</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:0.72rem;color:var(--text-muted)">예상 정산액</div>
+          <div style="font-size:1.05rem;font-weight:700;color:var(--accent-gold)" id="est-settlement">—</div>
+        </div>
+      </div>
+
+      <!-- Notification Snapshot -->
+      <div class="notif-snapshot fade-in">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-md)">
+          <div style="font-size:0.95rem;font-weight:700;color:var(--text-primary)">최근 알림</div>
+          <a href="reports.html" class="btn btn-ghost btn-sm">전체 보기 <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        <div id="notif-snapshot-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Bottom spacer for fixed CTA -->
+      <div style="height:120px"></div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav (Mobile) -->
+  <nav class="bottom-nav">
+    <div class="bottom-nav-items">
+      <div class="bottom-nav-item active" data-page="dashboard" data-href="dashboard.html">
+        <i class="fa-solid fa-chart-line"></i><span>대시보드</span>
+      </div>
+      <div class="bottom-nav-item" data-page="reports" data-href="reports.html">
+        <i class="fa-solid fa-file-lines"></i><span>리포트</span>
+      </div>
+      <div class="bottom-nav-item" data-page="consult" data-href="consult.html">
+        <i class="fa-solid fa-handshake"></i><span>상담</span>
+      </div>
+      <div class="bottom-nav-item" data-page="mypage" data-href="mypage.html">
+        <i class="fa-solid fa-user"></i><span>My</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Fixed CTA -->
+  <div class="dash-fixed-cta">
+    <div class="dash-cta-inner">
+      <button class="btn btn-cta" style="width:100%;max-width:440px;font-size:0.95rem" onclick="window.location.href='consult.html'">
+        <i class="fa-solid fa-handshake"></i>
+        직접 투자 상담 받기
+      </button>
+      <div class="dash-cta-sub">가상 투자 경험을 바탕으로 실제 운용 구조를 안내받을 수 있습니다.</div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container"></div>
+
+  <script src="js/vie-app.js"></script>
+  <script>
+    /* ---- Auth Guard ---- */
+    if (!VieAuth.isLoggedIn()) {
+      window.location.href = 'login.html';
+      throw new Error('Not authenticated');
+    }
+
+    const user = VieAuth.getUser() || {};
+    const portfolios = user.selected_portfolios || ['Growth'];
+
+    /* ---- Welcome Bar ---- */
+    document.getElementById('welcome-name').textContent = (user.name || '사용자') + '님';
+
+    /* ---- Invest Bar ---- */
+    document.getElementById('ib-portfolios').textContent = portfolios.join(' + ');
+    document.getElementById('ib-partner').textContent = user.partner_name || '밸류앤코어스';
+    const signupDate = user.signup_date ? new Date(user.signup_date) : new Date();
+    document.getElementById('ib-start').textContent = VieFmt.date(signupDate.toISOString());
+
+    /* ---- Algorithm Badges ---- */
+    const algoArea = document.getElementById('algo-badges-area');
+    const uniqueAlgos = [...new Set(portfolios.map(t => VIE_CONFIG.PORTFOLIOS[t]?.algo).filter(Boolean))];
+    algoArea.innerHTML = uniqueAlgos.map(algo => ViePortfolioUI.buildAlgoBadge(algo)).join('');
+
+    /* 알고리즘 배지 터치 이벤트 (모바일 툴팁) */
+    algoArea.querySelectorAll('.algo-badge-wrap').forEach(wrap => {
+      wrap.addEventListener('touchstart', (e) => {
+        e.stopPropagation();
+        const isOpen = wrap.classList.contains('touch-show');
+        // 다른 모든 닫기
+        algoArea.querySelectorAll('.algo-badge-wrap').forEach(w => w.classList.remove('touch-show'));
+        if (!isOpen) wrap.classList.add('touch-show');
+      }, { passive: true });
+    });
+    document.addEventListener('touchstart', (e) => {
+      if (!e.target.closest('.algo-badge-wrap')) {
+        algoArea.querySelectorAll('.algo-badge-wrap').forEach(w => w.classList.remove('touch-show'));
+      }
+    }, { passive: true });
+
+    /* ---- Days Elapsed & Duration (개인 투자 시작일 기준) ---- */
+    // daysSince: 성과 계산용 (소수점 1자리)
+    const daysSince = VieSimulator.daysSince(signupDate.toISOString());
+
+    // 소수점 1자리 포맷 헬퍼
+    function fmtDays(d) {
+      return d.toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' 일';
+    }
+
+    // 투자 시작일 텍스트 표시
+    document.getElementById('kpi-signup-date').textContent = VieFmt.date(signupDate.toISOString());
+
+    // KPI 카드 초기값 (0.8s 루프에서 갱신되나, 즉시 표시용)
+    {
+      const initSec  = Math.max(0, (Date.now() - signupDate.getTime()) / 1000);
+      const initDays = Math.round((initSec / 86400) * 10) / 10;
+      const initH    = Math.floor(initSec / 3600);
+      const initM    = Math.floor((initSec % 3600) / 60);
+      const initMo   = Math.floor(initDays / 30) + 1;
+      const elKpiD = document.getElementById('kpi-days');
+      const elKpiH = document.getElementById('kpi-dur-h');
+      const elKpiM = document.getElementById('kpi-dur-m');
+      const elKpiMo= document.getElementById('kpi-dur-mo');
+      if (elKpiD)  elKpiD.textContent  = initDays.toFixed(1) + ' 일';
+      if (elKpiH)  elKpiH.textContent  = initH.toLocaleString('ko-KR');
+      if (elKpiM)  elKpiM.textContent  = initM;
+      if (elKpiMo) elKpiMo.textContent = initMo + '차';
+    }
+
+    /* ---- Calculate Performance ---- */
+    let totalPrincipal = 0, totalProfit = 0, totalMonthlyProfit = 0;
+    portfolios.forEach(tier => {
+      const pf = VIE_CONFIG.PORTFOLIOS[tier];
+      if (!pf) return;
+      totalPrincipal += pf.principal;
+      totalProfit    += VieSimulator.profitAfterDays(pf.principal, pf.rate, daysSince);
+      totalMonthlyProfit += pf.principal * pf.rate;
+    });
+    const totalRate = totalPrincipal > 0 ? (totalProfit / totalPrincipal) * 100 : 0;
+
+    /* USDT 초기값(환율 로드 전 추정치 사용) — 환율 로드 후 갱신됨 */
+    let kpiUsdtRate = 1370;
+    // Settlement 블록에서 결정 후 updateKpiUsdt에서 참조하는 공유 변수
+    let displayMonthlyProfit = 0; // 지급 예정 금액 (만원)
+    let paidProfit = 0;           // 지급 완료 금액 (만원)
+
+    function updateKpiUsdt(rate) {
+      kpiUsdtRate = rate;
+      // ※ 모든 금액 변수는 만원 단위
+      //   USDT = 만원 × 10,000 ÷ 환율
+      const toUsdt = (manwon) => (manwon * 10000) / rate;
+
+      const principalUsdt  = toUsdt(totalPrincipal);
+      const profitUsdt     = toUsdt(Math.round(totalProfit));
+      const pendingUsdt    = toUsdt(Math.round(displayMonthlyProfit));  // 지급예정
+      const paidUsdt       = toUsdt(paidProfit);                        // 지급완료
+      const totalAssetUsdt = toUsdt(totalPrincipal + Math.round(totalProfit));
+
+      const el1 = document.getElementById('kpi-principal-usdt');
+      const el2 = document.getElementById('kpi-profit-usdt');
+      const el3 = document.getElementById('kpi-monthly-usdt');   // 지급예정 USDT
+      const el3b= document.getElementById('kpi-paid-usdt');      // 지급완료 USDT
+      const el4 = document.getElementById('pool-principal-usdt');
+      const el5 = document.getElementById('kpi-total-asset-usdt');
+      if (el1)  el1.textContent  = principalUsdt.toLocaleString('ko-KR', {maximumFractionDigits:1}) + ' USDT';
+      if (el2)  el2.textContent  = profitUsdt.toLocaleString('ko-KR', {maximumFractionDigits:2}) + ' USDT';
+      if (el3)  el3.textContent  = pendingUsdt.toLocaleString('ko-KR', {maximumFractionDigits:2}) + ' USDT';
+      if (el3b) el3b.textContent = paidUsdt.toLocaleString('ko-KR', {maximumFractionDigits:2}) + ' USDT';
+      if (el4)  el4.textContent  = (352_000_000 / rate).toFixed(1) + ' USDT';
+      if (el5)  el5.textContent  = totalAssetUsdt.toLocaleString('ko-KR', {maximumFractionDigits:1}) + ' USDT';
+    }
+
+    /* 포트폴리오별 금액 분해표 — 개별 수익률 포함
+       ※ pf.principal 단위: 만원 (예: 1000 = 1,000만원)
+          VieFmt.manwon()은 만원 단위 입력을 받아 한국식 표기 반환 */
+    const breakdownEl = document.getElementById('kpi-pf-breakdown');
+    if (breakdownEl) {
+      let rows = portfolios.map(tier => {
+        const pf = VIE_CONFIG.PORTFOLIOS[tier];
+        if (!pf) return '';
+        // pf.principal은 만원 단위 → VieFmt.manwon 직접 사용
+        const amtStr  = VieFmt.manwon(pf.principal);
+        const rateStr = '+' + (pf.rate * 100).toFixed(1) + '%';
+        return `<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+          <span style="font-size:0.72rem;color:rgba(255,255,255,0.5)">${tier}</span>
+          <span style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:0.75rem;font-weight:800;color:var(--accent-gold)">${rateStr}/월</span>
+            <span style="font-size:0.75rem;font-weight:700;color:rgba(255,255,255,0.75)">${amtStr}</span>
+          </span>
+        </div>`;
+      }).join('');
+      if (portfolios.length > 1) {
+        // 가중평균 월 수익률 = 총 월수익 / 총 원금 (만원 단위끼리 계산)
+        const weightedRate = totalPrincipal > 0
+          ? (totalMonthlyProfit / totalPrincipal * 100).toFixed(2)
+          : '0.00';
+        // totalPrincipal 만원 단위 → VieFmt.manwon
+        rows += `<div style="display:flex;align-items:center;justify-content:space-between;margin-top:5px;padding-top:5px;border-top:1px solid rgba(245,166,35,0.2)">
+          <span style="font-size:0.7rem;color:rgba(255,255,255,0.4)">합계 (가중평균 <span style="color:#f5a623;font-weight:900">+${weightedRate}%</span>)</span>
+          <span style="font-size:0.75rem;font-weight:800;color:rgba(255,255,255,0.85)">${VieFmt.manwon(totalPrincipal)}</span>
+        </div>`;
+      }
+      breakdownEl.innerHTML = rows;
+    }
+
+    /* ── KPI 값 표시 ── */
+    const principalEl = document.getElementById('kpi-principal');
+    if (principalEl) principalEl.textContent = VieFmt.manwon(totalPrincipal);
+
+    document.getElementById('kpi-profit').textContent  = VieFmt.manwon(Math.round(totalProfit));
+    // kpi-monthly는 아래 Settlement 블록에서 차수 계산 후 설정
+
+    /* 누적 수익률: 포트폴리오 1개 → 단독, 2개 → 개별 수익률 각각 표시 */
+    const rateSubEl = document.getElementById('kpi-rate-sub');
+    if (portfolios.length <= 1) {
+      rateSubEl.textContent = '누적 수익률 ' + VieFmt.pct(totalRate);
+    } else {
+      // 개별 포트폴리오별 누적 수익률 표시
+      const indivRates = portfolios.map(tier => {
+        const pf = VIE_CONFIG.PORTFOLIOS[tier];
+        if (!pf) return '';
+        const indivProfit = VieSimulator.profitAfterDays(pf.principal, pf.rate, daysSince);
+        const indivRate   = pf.principal > 0 ? (indivProfit / pf.principal) * 100 : 0;
+        return `<span style="white-space:nowrap">${tier}: <strong style="color:var(--accent-green)">+${indivRate.toFixed(2)}%</strong></span>`;
+      }).join('<span style="color:rgba(255,255,255,0.25);margin:0 3px">|</span>');
+      rateSubEl.innerHTML = indivRates;
+    }
+
+    /* ── 총자산 = 원금 + 누적이익 ── */
+    const totalAsset = Math.round(totalPrincipal + totalProfit);
+    const totalAssetEl = document.getElementById('kpi-total-asset');
+    if (totalAssetEl) totalAssetEl.textContent = VieFmt.manwon(totalAsset);
+
+    /* pool-elapsed-label */
+    const elapsedLabel = document.getElementById('pool-elapsed-label');
+    if (elapsedLabel) elapsedLabel.textContent = '경과: ' + fmtDays(daysSince);
+
+    /* Today / 3-day / Monthly figures */
+    let todayProfit = 0, threeDayProfit = 0, monthProfit = 0;
+    portfolios.forEach(tier => {
+      const pf = VIE_CONFIG.PORTFOLIOS[tier];
+      if (!pf) return;
+      todayProfit    += VieSimulator.profitAfterDays(pf.principal, pf.rate, 1);
+      threeDayProfit += VieSimulator.profitAfterDays(pf.principal, pf.rate, 3);
+      monthProfit    += pf.principal * pf.rate;
+    });
+    document.getElementById('chart-today').textContent  = '+' + VieFmt.manwon(Math.round(todayProfit));
+    document.getElementById('chart-3d').textContent     = '+' + VieFmt.manwon(Math.round(threeDayProfit));
+    document.getElementById('chart-month').textContent  = '+' + VieFmt.manwon(Math.round(monthProfit));
+
+    /* ================================================================
+       Settlement 계산 — 당월 이익 배당금 (지급완료 / 지급예정)
+       ■ 정산 기준: 매월 마지막 주 금요일
+       ■ 지급예정 금액 계산 공식:
+           가입일 ~ 정산일 까지의 날수 / 30 × 월 수익금
+           (월 수익금 = 원금 × 월수익률)
+       ■ 지급완료 = 이미 지난 정산일에 지급된 누적 금액
+       ■ 정산일 표기: M월 D일 (요일) 형식
+    ================================================================ */
+    const now = new Date();
+    const KO_DAYS = ['일','월','화','수','목','금','토'];
+
+    // 해당 월의 마지막 주 금요일 반환 (자정 기준)
+    function getLastFridayOfMonth(year, month) {
+      const lastDay = new Date(year, month + 1, 0);
+      const dow = lastDay.getDay();
+      const d = new Date(lastDay);
+      d.setDate(lastDay.getDate() - ((dow - 5 + 7) % 7));
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
+
+    // 정산일 표기 문자열: "M월 D일 (요일)"
+    function fmtSettlDate(d) {
+      if (!d) return '—';
+      return `${d.getMonth()+1}월 ${d.getDate()}일 (${KO_DAYS[d.getDay()]}요일)`;
+    }
+
+    // 가입일 자정 기준
+    const signupDay = new Date(signupDate);
+    signupDay.setHours(0, 0, 0, 0);
+
+    const nowDay = new Date(now);
+    nowDay.setHours(0, 0, 0, 0);
+
+    // 가입일 이후 도래하는 모든 마지막 주 금요일 목록 (최대 24개월)
+    function listSettlements(fromDate, count) {
+      const result = [];
+      let y = fromDate.getFullYear();
+      let m = fromDate.getMonth();
+      while (result.length < count) {
+        const lf = getLastFridayOfMonth(y, m);
+        if (lf > fromDate) result.push(lf);
+        m++;
+        if (m > 11) { m = 0; y++; }
+      }
+      return result;
+    }
+
+    // 가입 후 도래하는 정산일 목록 (1차, 2차, ...)
+    const allSettlements = listSettlements(signupDay, 24);
+
+    // 이미 지난 정산일 (완료된 정산)
+    const pastSettlements  = allSettlements.filter(d => d < nowDay);
+    // 아직 안 지난 정산일 중 가장 빠른 것 (다음 예정 정산일)
+    const futureSettlements = allSettlements.filter(d => d >= nowDay);
+    const nextSettlDate    = futureSettlements[0] || null;
+    const nextSettlNth     = pastSettlements.length + 1; // 1-indexed 차수
+
+    /* ── 지급 예정 금액 계산
+         공식: Σ (원금_i × 월수익률_i × 가입일~정산일날수 / 30)
+         단, 2차 이후는 이전정산일~이번정산일 날수 / 30 */
+    function calcSettlProfit(fromDate, toDate) {
+      if (!fromDate || !toDate) return 0;
+      const opDays = Math.max(0,
+        (toDate.getTime() - fromDate.getTime()) / (1000*60*60*24));
+      let profit = 0;
+      portfolios.forEach(tier => {
+        const pf = VIE_CONFIG.PORTFOLIOS[tier];
+        if (!pf) return;
+        // 월 수익금 × (날수/30)
+        profit += (pf.principal * pf.rate) * (opDays / 30);
+      });
+      return Math.round(profit);
+    }
+
+    // 이번 예정 정산의 기준 시작일
+    // - 1차: 가입일
+    // - N차(N≥2): 이전 정산일
+    const prevSettlDate = pastSettlements.length > 0
+      ? pastSettlements[pastSettlements.length - 1]
+      : null;
+    const nextSettlFromDate = prevSettlDate || signupDay;
+
+    // 지급 예정 금액 (가입일 또는 이전 정산일 ~ 다음 정산일, 날수 비례)
+    const pendingProfit = nextSettlDate
+      ? calcSettlProfit(nextSettlFromDate, nextSettlDate)
+      : 0;
+
+    /* ── 지급 완료 금액 계산
+         각 완료 정산일마다 해당 기간의 날수 비례 수익 합산 */
+    paidProfit = 0; // 상단 공유 변수에 대입 (let 없이)
+    pastSettlements.forEach((sd, idx) => {
+      const from = idx === 0 ? signupDay : pastSettlements[idx - 1];
+      paidProfit += calcSettlProfit(from, sd);
+    });
+
+    /* ── 정산일까지 남은 일수 */
+    const daysToNextSettl = nextSettlDate
+      ? Math.ceil((nextSettlDate - now) / (1000*60*60*24))
+      : 0;
+
+    /* ── DOM 업데이트 ── */
+
+    // 지급 완료
+    const paidEl = document.getElementById('kpi-paid-profit');
+    if (paidEl) paidEl.textContent = VieFmt.manwon(paidProfit);
+
+    // 지급 예정
+    displayMonthlyProfit = pendingProfit;
+    document.getElementById('kpi-monthly').textContent = VieFmt.manwon(pendingProfit);
+
+    // ── 카드 레이블: N차월 지급 예정 이익금 (동적)
+    // nextSettlNth = 1이면 "1차월 지급 예정 이익금", N이면 "N차월 지급 예정 이익금"
+    const monthlyLabelTextEl = document.getElementById('kpi-monthly-label-text');
+    if (monthlyLabelTextEl) {
+      monthlyLabelTextEl.textContent = nextSettlNth + '차월 지급 예정 이익금';
+    }
+
+    // 정산일 표기 (요일 포함)
+    const subDateEl = document.getElementById('kpi-monthly-sub-date');
+    const subFriEl  = document.getElementById('kpi-monthly-sub-fri');
+    if (subDateEl) {
+      subDateEl.textContent = nextSettlDate
+        ? `${nextSettlNth}차 정산일 : ${fmtSettlDate(nextSettlDate)}`
+        : '정산일 산출 중...';
+    }
+    if (subFriEl) subFriEl.textContent = '매월 마지막 주 금요일';
+
+    // settlement-days
+    const settlDaysEl = document.getElementById('settlement-days');
+    if (settlDaysEl) {
+      settlDaysEl.textContent = daysToNextSettl > 0 ? daysToNextSettl + '일 후' : '오늘';
+    }
+
+    // est-settlement (하단 정산 예상 영역)
+    const estEl = document.getElementById('est-settlement');
+    if (estEl) estEl.textContent = '+' + VieFmt.manwon(pendingProfit);
+
+    /* 초기 USDT 병기 렌더 — Settlement 계산 완료 후 호출 */
+    updateKpiUsdt(kpiUsdtRate);
+
+    /* ================================================================
+       POOL REAL-TIME COUNTER
+       - 참여 인원 9명
+       - 총 원금: 352,000,000원 (3억 5,200만원)
+       - 운용 시작: 2025-11-01
+       - 월 수익률 범위: 8.5% ~ 12.3% → 중간값 10.4% 적용
+       - 초당 증가분 = 원금 × 월수익률 / (30 × 24 × 3600)
+       - USDT 환율: CoinGecko API 실시간 조회 (fallback: 1370원)
+    ================================================================ */
+    const POOL = {
+      PRINCIPAL_KRW: 352_000_000,  // 3억 5,200만원
+      RATE_MIN:  0.085,            // 8.5%
+      RATE_MAX:  0.123,            // 12.3%
+      RATE_MID:  0.104,            // 중간값 10.4%
+      START_DATE: new Date('2025-11-01T09:00:00+09:00'),
+      MEMBERS: 9
+    };
+
+    // 초당 증가액 (원)
+    const POOL_PER_SEC = POOL.PRINCIPAL_KRW * POOL.RATE_MID / (30 * 24 * 3600);
+
+    // 현재까지 경과 초
+    function elapsedSec() {
+      return Math.max(0, (Date.now() - POOL.START_DATE.getTime()) / 1000);
+    }
+
+    // 현재 누적 수익 (원)
+    function poolProfitKRW() {
+      return Math.floor(POOL_PER_SEC * elapsedSec());
+    }
+
+    // 환율 상태
+    let usdtKrwRate = 1370; // fallback
+    let lastRateUpdate = null;
+
+    // CoinGecko에서 USDT/KRW 환율 조회
+    async function fetchUSDTRate() {
+      try {
+        const res = await fetch(
+          'https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=krw',
+          { signal: AbortSignal.timeout(5000) }
+        );
+        const data = await res.json();
+        if (data?.tether?.krw) {
+          usdtKrwRate = data.tether.krw;
+          lastRateUpdate = new Date();
+          document.getElementById('rt-usdtkrw-rate').textContent =
+            '1 USDT = ₩' + usdtKrwRate.toLocaleString('ko-KR');
+          document.getElementById('rt-last-update').textContent =
+            '환율 업데이트: ' + lastRateUpdate.toLocaleTimeString('ko-KR', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+          /* KPI USDT 병기 갱신 */
+          updateKpiUsdt(usdtKrwRate);
+        }
+      } catch(e) {
+        document.getElementById('rt-usdtkrw-rate').textContent =
+          '1 USDT ≈ ₩' + usdtKrwRate.toLocaleString('ko-KR');
+        document.getElementById('rt-last-update').textContent = '환율: 근사값 적용 중';
+      }
+    }
+
+    // KRW 포맷: 억/만 단위 분리
+    function fmtKRW(won) {
+      const abs = Math.abs(Math.floor(won));
+      const uk  = Math.floor(abs / 100_000_000);          // 억
+      const man = Math.floor((abs % 100_000_000) / 10_000); // 만
+      const won_r = abs % 10_000;                           // 원
+      let parts = [];
+      if (uk  > 0) parts.push(uk.toLocaleString('ko-KR') + '억');
+      if (man > 0) parts.push(man.toLocaleString('ko-KR') + '만');
+      if (parts.length === 0) parts.push('0만');
+      // 원 단위는 4자리 0패딩
+      const wonStr = won_r.toString().padStart(4, '0');
+      return parts.join(' ') + ' ' + wonStr + '원';
+    }
+
+    // USDT 포맷
+    function fmtUSDT(val) {
+      if (val >= 1_000_000) return (val / 1_000_000).toFixed(3) + 'M USDT';
+      if (val >= 1_000)     return (val / 1_000).toFixed(3) + 'K USDT';
+      return val.toFixed(2) + ' USDT';
+    }
+
+    // ── 개인 투자 시작일 기준 경과 초 계산 ──────────────────────
+    // signupDate = 온보딩 완료 시 저장된 user.signup_date (투자 시작일)
+    function investElapsedSec() {
+      return Math.max(0, (Date.now() - signupDate.getTime()) / 1000);
+    }
+
+    // 운용 기간 KPI 카드 갱신 (개인 투자 시작일 기준, 소수점 1자리, 실시간)
+    function updateElapsedDays() {
+      // ── 1) 개인 투자 기간 (KPI 카드 전용) ──
+      const invSec  = investElapsedSec();
+      const invDays = Math.round((invSec / 86400) * 10) / 10;
+
+      // 일수 (소수점 1자리)
+      const elKpiDays = document.getElementById('kpi-days');
+      if (elKpiDays) elKpiDays.textContent = invDays.toFixed(1) + ' 일';
+
+      // 총 시간 (가입 이후 누적 시간)
+      const invHours = Math.floor(invSec / 3600);
+      const invMins  = Math.floor((invSec % 3600) / 60);
+      const elH = document.getElementById('kpi-dur-h');
+      const elM = document.getElementById('kpi-dur-m');
+      if (elH) elH.textContent = invHours.toLocaleString('ko-KR');
+      if (elM) elM.textContent = invMins;
+
+      // 차월: 시작월 = 1차월, 이후 30일마다 +1
+      const invMo = Math.floor(invDays / 30) + 1;
+      const elMo  = document.getElementById('kpi-dur-mo');
+      if (elMo) elMo.textContent = invMo + '차';
+
+      // ── 2) POOL 전체 경과일 (pool 섹션 전용, POOL.START_DATE 기준) ──
+      const poolRawDays = elapsedSec() / 86400;
+      const poolDays    = Math.round(poolRawDays * 10) / 10;
+
+      const elPoolLabel = document.getElementById('pool-elapsed-label');
+      if (elPoolLabel) elPoolLabel.textContent = '경과: ' + poolDays.toFixed(1) + ' 일';
+
+      const el = document.getElementById('rt-elapsed-days');
+      if (el) el.textContent = poolDays.toFixed(1) + ' 일';
+    }
+
+    // 수익 배분 비율 (총 누적 수익금 기준)
+    const DIST = {
+      investor: 0.417,  // 투자자 이익 배당금 41.7%
+      company:  0.315,  // 회사 운용 수익금  31.5%
+      reserve:  0.268   // 지급준비금        26.8%
+    };
+
+    // 카운터 렌더링
+    let _poolAnimFrame = null;
+    function renderPoolCounter() {
+      const krw  = poolProfitKRW();
+      const usdt = krw / usdtKrwRate;
+
+      const elKRW  = document.getElementById('rt-counter-krw');
+      const elUSDT = document.getElementById('rt-counter-usdt');
+      const elRate = document.getElementById('rt-rate-krw');
+
+      if (elKRW)  elKRW.textContent  = fmtKRW(krw);
+      if (elUSDT) elUSDT.textContent = fmtUSDT(usdt);
+      if (elRate) {
+        const pct = ((krw / POOL.PRINCIPAL_KRW) * 100).toFixed(4);
+        elRate.textContent = '누적 수익률 +' + pct + '% · 월 ' + (POOL.RATE_MID * 100).toFixed(1) + '% 적용';
+      }
+
+      // ── 배분 금액 실시간 업데이트 ──
+      const distData = [
+        { key: 'investor', ratio: DIST.investor },
+        { key: 'company',  ratio: DIST.company  },
+        { key: 'reserve',  ratio: DIST.reserve  }
+      ];
+      distData.forEach(({ key, ratio }) => {
+        const distKrw  = Math.floor(krw * ratio);
+        const distUsdt = distKrw / usdtKrwRate;
+        const elU = document.getElementById('dist-usdt-' + key);
+        const elK = document.getElementById('dist-krw-'  + key);
+        if (elU) elU.textContent = fmtUSDT(distUsdt);
+        if (elK) elK.textContent = fmtKRW(distKrw);
+      });
+
+      updateElapsedDays();
+      _poolAnimFrame = setTimeout(renderPoolCounter, 800); // 0.8초마다 갱신
+    }
+
+    // 환율 최초 조회 후 5분마다 갱신
+    fetchUSDTRate();
+    setInterval(fetchUSDTRate, 5 * 60 * 1000);
+
+    // 카운터 시작
+    renderPoolCounter();
+
+    /* ---- Chart ---- */
+    let currentChart = null;
+    function buildChartData(days) {
+      const maxDays = Math.min(days, daysSince + days);
+      const labels  = [];
+      for (let i = 0; i <= maxDays; i += Math.ceil(maxDays / 10)) {
+        labels.push('D+' + i);
+      }
+
+      const datasets = portfolios.map(tier => {
+        const pf = VIE_CONFIG.PORTFOLIOS[tier];
+        if (!pf) return null;
+        const algoInfo = VIE_CONFIG.ALGORITHMS[pf.algo] || {};
+        const dataPoints = labels.map(l => {
+          const d = parseInt(l.replace('D+', ''));
+          return Math.round((pf.principal + VieSimulator.profitAfterDays(pf.principal, pf.rate, d)) * 10) / 10;
+        });
+        return VieChart.datasetStyle(tier, dataPoints, algoInfo.color || '#00d4ff');
+      }).filter(Boolean);
+
+      return { labels, datasets };
+    }
+
+    function drawChart(days) {
+      const { labels, datasets } = buildChartData(days);
+      if (currentChart) { currentChart.destroy(); currentChart = null; }
+      currentChart = VieChart.createLineChart('profit-chart', labels, datasets);
+    }
+
+    function switchPeriod(days, btn) {
+      document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      drawChart(days);
+    }
+
+    drawChart(30);
+
+    /* ---- Portfolio Detail Cards ---- */
+    const pfArea = document.getElementById('pf-detail-area');
+    pfArea.innerHTML = portfolios.map(tier => {
+      const pf = VIE_CONFIG.PORTFOLIOS[tier];
+      if (!pf) return '';
+      const profit  = VieSimulator.profitAfterDays(pf.principal, pf.rate, daysSince);
+      const rate    = VieSimulator.returnRate(pf.principal, pf.rate, daysSince);
+      const monthly = pf.principal * pf.rate;
+      const algoInfo = VIE_CONFIG.ALGORITHMS[pf.algo] || {};
+      const cls = ViePortfolioUI.tierClass(tier);
+      return `
+        <div class="pf-detail-card ${cls}">
+          <div class="pf-detail-top">
+            <div>
+              <div style="font-size:0.72rem;color:var(--text-muted);letter-spacing:0.08em">${tier.toUpperCase()}</div>
+              <div style="font-size:1.1rem;font-weight:800;color:var(--text-primary)">${VieFmt.manwon(pf.principal)}</div>
+            </div>
+            <div class="algo-status" style="font-size:0.68rem">ACTIVE</div>
+          </div>
+          <div class="pf-detail-profit">+${VieFmt.manwon(Math.round(profit))}</div>
+          <div style="font-size:0.8rem;color:var(--accent-green);margin-top:2px">누적 수익 (+${rate.toFixed(2)}%)</div>
+          <div class="progress-bar" style="margin:var(--space-md) 0">
+            <div class="progress-fill" style="width:${Math.min(rate * 5, 100)}%;background:${pf.color}"></div>
+          </div>
+          <div class="pf-detail-rows">
+            <div class="pf-detail-row">
+              <span class="pf-detail-row-label">알고리즘</span>
+              <span class="pf-detail-row-val">
+                <i class="fa-solid ${algoInfo.icon}" style="color:${algoInfo.color}"></i> ${pf.algo}
+              </span>
+            </div>
+            <div class="pf-detail-row">
+              <span class="pf-detail-row-label">월 시뮬레이션</span>
+              <span class="pf-detail-row-val text-green">+${VieFmt.manwon(monthly)} (+${(pf.rate * 100).toFixed(1)}%)</span>
+            </div>
+            <div class="pf-detail-row">
+              <span class="pf-detail-row-label">운용 성향</span>
+              <span class="pf-detail-row-val">${(VIE_CONFIG.PORTFOLIOS[tier] || {}).strategy_style || pf.strategy_style || '—'}</span>
+            </div>
+            <div class="pf-detail-row">
+              <span class="pf-detail-row-label">운용 기간</span>
+              <span class="pf-detail-row-val">${daysSince}일</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    /* ---- Notification Snapshot ---- */
+    const notifData = VieSimulator.generateReports(user).slice(0, 3);
+    const notifList = document.getElementById('notif-snapshot-list');
+    const typeInfo  = {
+      onboarding:        { label: 'ONBOARDING',  icon: 'fa-star',       cls: 'onboarding' },
+      performance_3d:    { label: '3일 성과',     icon: 'fa-chart-line', cls: 'performance' },
+      monthly_settlement:{ label: '월간 정산',    icon: 'fa-vault',      cls: 'settlement' }
+    };
+
+    if (!notifData.length) {
+      notifList.innerHTML = '<div style="text-align:center;padding:var(--space-xl);color:var(--text-muted);font-size:0.85rem">아직 알림이 없습니다.</div>';
+    } else {
+      notifList.innerHTML = notifData.map(r => {
+        const ti = typeInfo[r.report_type] || typeInfo.onboarding;
+        return `
+          <div class="notif-item ${!r.is_read ? 'unread' : ''}" onclick="window.location.href='reports.html'">
+            <div class="report-icon ${ti.cls}"><i class="fa-solid ${ti.icon}"></i></div>
+            <div style="flex:1">
+              <div style="display:flex;align-items:center;gap:var(--space-xs);margin-bottom:2px">
+                <span style="font-size:0.7rem;color:var(--text-muted);letter-spacing:0.06em">${ti.label}</span>
+                ${!r.is_read ? '<span style="width:6px;height:6px;border-radius:50%;background:var(--accent-blue);flex-shrink:0"></span>' : ''}
+              </div>
+              <div style="font-size:0.88rem;font-weight:600;color:var(--text-primary)">${r.message_body?.slice(0, 50) || ''}</div>
+            </div>
+            <div style="font-size:0.72rem;color:var(--text-muted);flex-shrink:0">${VieFmt.reltime(r.sent_at)}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* Notification dot */
+    const unread = notifData.filter(r => !r.is_read).length;
+    if (!unread) document.getElementById('notif-dot')?.remove();
+
+    /* ================================================================
+       ANALYST REPORT — 일일 애널리스트 분석 리포트
+       · 포트폴리오(알고리즘)별 분석 텍스트 풀
+       · 매일 오전 7시 기준 날짜 사용 (자정~오전7시는 전날 기준)
+       · 날짜 시드로 텍스트 순환 → 하루 동일 문장 유지
+    ================================================================ */
+    const ANALYST_REPORTS = {
+      'D-Grouping': [
+        'D-Grouping 엔진이 장 초반 변동성 구간을 감지하고 방어 포지션을 선제 배치했습니다. 리스크 노출을 최소화한 상태에서 복리 누적이 순조롭게 진행 중이며, 오늘 예상 수익은 목표 범위 내에서 안정적으로 확보되고 있습니다.',
+        '전일 시장의 단기 급락 구간에서 D-Grouping이 자동 방어를 실행했습니다. 손실 없이 구간을 통과한 뒤 반등 초입에서 재진입이 이루어졌으며, 누적 수익 흐름은 월 목표선 위에서 지속되고 있습니다.',
+        '글로벌 매크로 변수의 영향으로 변동성이 다소 확대된 구간이었으나, D-Grouping 방어 필터가 정상 작동하며 보수적 포지션을 유지했습니다. 안정 지향 전략 특성상 오늘 수익 속도는 완만하지만 복리 기반이 견고하게 쌓이고 있습니다.',
+        'D-Grouping 엔진이 횡보 장세를 감지하고 포지션 규모를 적정 수준으로 조정했습니다. 변동성이 제한된 구간에서도 소폭 수익을 지속 축적 중이며, 월간 기준 누적 수익률은 목표 구간 내에서 안정적으로 움직이고 있습니다.',
+        '새벽 시간대 아시아 시장에서 단기 급등 이벤트가 발생했으며, D-Grouping이 해당 구간을 포착해 수익을 부분 확보했습니다. 과도한 리스크 없이 수익을 쌓아가는 오늘의 운용 흐름은 전략 목표에 부합하고 있습니다.',
+      ],
+      'D-Grid': [
+        'D-Grid 엔진이 오늘 주요 변동성 구간에서 격자 진입을 4회 실행하며 수익을 분할 확보했습니다. 시장이 등락을 반복하는 구간일수록 D-Grid 전략의 특성이 최대로 발휘되며, 누적 수익은 월 목표선 위에서 순항 중입니다.',
+        '전일 대비 거래량이 증가한 구간에서 D-Grid가 격자 포지션을 자동 확장했습니다. 반복 포착 횟수가 늘면서 일일 수익이 평균보다 다소 높게 형성되고 있으며, 이는 월간 누적 복리 효과에 긍정적으로 작용하고 있습니다.',
+        'BTC 기준 시장 변동성이 일시 수축된 구간에서 D-Grid 격자 간격이 자동 재조정되었습니다. 좁은 변동폭에서도 수익 구간을 세분화해 꾸준히 누적하고 있으며, 오늘 포착 횟수는 정상 범위 내에서 운용되고 있습니다.',
+        'D-Grid 엔진이 장중 급등락 반복 구간에서 양방향 포착 로직을 실행했습니다. 상승과 하락 모두에서 수익을 확보하는 오늘의 운용 패턴은 전략 본연의 강점을 잘 보여주고 있으며, 누적 수익 곡선은 우상향 추세를 유지 중입니다.',
+        '다중 레이어 격자 구조를 활용해 오늘 시장의 중단기 변동성 이벤트에 대응했습니다. 각 레이어가 독립적으로 수익을 확보하면서 전체 누적 수익이 안정적으로 증가했으며, 현재 월 목표 수익률 달성 경로에 정렬되어 있습니다.',
+      ],
+      'D-Hybrid': [
+        'D-Hybrid 엔진이 오늘 방어 모드와 확장 모드를 병행 실행하며 시장 국면에 최적화된 포지션을 유지했습니다. 하이브리드 전략 특성상 상승장과 횡보장 모두에서 수익 확보가 이루어지고 있으며, 누적 자산은 꾸준히 성장하고 있습니다.',
+        '전일 대비 시장 국면이 전환되는 구간에서 D-Hybrid가 자동으로 전략 비중을 재배분했습니다. 방어 포지션이 낙폭을 제한하는 동시에 확장 포지션이 반등 수익을 확보하며, 복합 전략의 균형이 오늘도 효과적으로 작동하고 있습니다.',
+        '대형 자본 운용에 최적화된 D-Hybrid가 오늘 기관 매매 흐름을 감지하고 대응 포지션을 설정했습니다. 시장 방향성이 불명확한 구간에서도 리스크를 관리하며 안정적인 수익을 누적 중이며, 월 목표 수익률 달성이 순조롭게 진행되고 있습니다.',
+        'D-Hybrid의 멀티 알고리즘 레이어가 오늘 시장의 단기 변동성 이벤트에 복수 대응했습니다. 각 레이어에서 독립적으로 수익이 확보되면서 전체 누적 수익률이 상승했으며, 현재 전략은 월간 목표 상단을 향해 안정적으로 운용되고 있습니다.',
+        '글로벌 불확실성이 높은 오늘 장세에서 D-Hybrid 방어 레이어가 우선 작동하며 원금 보전에 집중했습니다. 확장 레이어는 안전한 구간에서만 선별적으로 포지션을 취하며 균형 잡힌 수익 흐름을 이어가고 있습니다.',
+      ]
+    };
+
+    /* 오전 7시 기준 날짜 시드 계산 */
+    function getReportDateSeed() {
+      const now = new Date();
+      const cutoff = new Date(now);
+      cutoff.setHours(7, 0, 0, 0);
+      // 오전 7시 이전이면 전날 기준
+      if (now < cutoff) cutoff.setDate(cutoff.getDate() - 1);
+      return cutoff;
+    }
+
+    /* 오전 7시 기준 업데이트 날짜 문자열 */
+    function getReportUpdateLabel() {
+      const d = getReportDateSeed();
+      const mm = (d.getMonth() + 1).toString().padStart(2, '0');
+      const dd = d.getDate().toString().padStart(2, '0');
+      const yy = d.getFullYear();
+      return `${yy}.${mm}.${dd} 07:00 업데이트`;
+    }
+
+    /* 날짜 숫자 시드로 배열 순환 선택 */
+    function pickByDate(arr, dateObj) {
+      const seed = dateObj.getFullYear() * 10000
+                 + (dateObj.getMonth() + 1) * 100
+                 + dateObj.getDate();
+      return arr[seed % arr.length];
+    }
+
+    /* Analyst Report 렌더링 */
+    function renderAnalystReport() {
+      const container = document.getElementById('analyst-report-block');
+      if (!container) return;
+
+      // 유저 포트폴리오 기반 알고리즘 결정 (복수 포트폴리오 → 우선 알고 사용)
+      const algoList = [...new Set(
+        portfolios.map(t => VIE_CONFIG.PORTFOLIOS[t]?.algo).filter(Boolean)
+      )];
+      const primaryAlgo = algoList[0] || 'D-Grid';
+      const secondAlgo  = algoList[1] || null;
+
+      const pf        = VIE_CONFIG.PORTFOLIOS[portfolios[0]] || {};
+      const algoInfo  = VIE_CONFIG.ALGORITHMS[primaryAlgo]   || {};
+      const reportSeed = getReportDateSeed();
+
+      // 주 알고리즘 리포트 본문
+      const pool   = ANALYST_REPORTS[primaryAlgo] || ANALYST_REPORTS['D-Grid'];
+      const body1  = pickByDate(pool, reportSeed);
+
+      // 복수 포트폴리오인 경우 두번째 알고 한 문장 추가
+      let body2 = '';
+      if (secondAlgo && secondAlgo !== primaryAlgo) {
+        const pool2 = ANALYST_REPORTS[secondAlgo] || [];
+        if (pool2.length) {
+          const raw = pickByDate(pool2, reportSeed);
+          // 앞 부분만 한 문장으로 잘라서 보조 코멘트로 사용
+          body2 = raw.split('. ')[0] + '.';
+        }
+      }
+
+      // 알고 컬러 결정
+      const accentColor = algoInfo.color || '#00e5a0';
+
+      container.innerHTML = `
+        <div class="ar-header">
+          <div class="ar-title-row">
+            <div class="ar-icon" style="background:rgba(${hexToRgb(accentColor)},0.12);border-color:rgba(${hexToRgb(accentColor)},0.3)">
+              <i class="fa-solid fa-chart-line" style="color:${accentColor}"></i>
+            </div>
+            <div>
+              <div class="ar-title">Analyst Report</div>
+              <div class="ar-subtitle">${portfolios.join(' + ')} · ${algoList.join(' + ')} 기반 일일 분석</div>
+            </div>
+          </div>
+          <div class="ar-update-badge">
+            <i class="fa-solid fa-clock" style="font-size:0.6rem"></i>
+            ${getReportUpdateLabel()}
+          </div>
+        </div>
+        <div class="ar-body">
+          <p class="ar-paragraph">${body1}</p>
+          ${body2 ? `<p class="ar-paragraph ar-paragraph-secondary">${body2}</p>` : ''}
+        </div>
+        <div class="ar-footer">
+          <span class="ar-algo-tag" style="color:${accentColor};border-color:rgba(${hexToRgb(accentColor)},0.3);background:rgba(${hexToRgb(accentColor)},0.08)">
+            <i class="fa-solid ${algoInfo.icon || 'fa-microchip'}" style="font-size:0.6rem"></i>
+            ${primaryAlgo}
+          </span>
+          ${secondAlgo && secondAlgo !== primaryAlgo ? `
+          <span class="ar-algo-tag" style="color:${VIE_CONFIG.ALGORITHMS[secondAlgo]?.color||'#aaa'};border-color:rgba(${hexToRgb(VIE_CONFIG.ALGORITHMS[secondAlgo]?.color||'#aaa')},0.3);background:rgba(${hexToRgb(VIE_CONFIG.ALGORITHMS[secondAlgo]?.color||'#aaa')},0.08)">
+            <i class="fa-solid ${VIE_CONFIG.ALGORITHMS[secondAlgo]?.icon||'fa-microchip'}" style="font-size:0.6rem"></i>
+            ${secondAlgo}
+          </span>` : ''}
+          <span class="ar-disclaimer">본 리포트는 알고리즘 시뮬레이션 기반 정보입니다.</span>
+        </div>
+      `;
+    }
+
+    /* hex → "r,g,b" 변환 헬퍼 */
+    function hexToRgb(hex) {
+      const r = parseInt(hex.slice(1,3),16);
+      const g = parseInt(hex.slice(3,5),16);
+      const b = parseInt(hex.slice(5,7),16);
+      return `${r},${g},${b}`;
+    }
+
+    renderAnalystReport();
+  </script>
+
+  <!-- Crypto Market Script -->
+  <script src="js/vie-market.js"></script>
+  <script>
+  (function() {
+    /* ════════════════════════════════════════
+       상태 변수
+    ════════════════════════════════════════ */
+    let mktData      = [];       // 최신 데이터
+    let prevData     = {};       // 이전 데이터 맵 { id: coin }
+    let activeTab    = 'volume';
+    let isFirstLoad  = true;
+
+    const REFRESH_SEC = 10;      // 자동 갱신 주기 (초)
+    let countdown    = REFRESH_SEC;
+    let cdTimer      = null;     // 카운트다운 인터벌
+    let fetchTimer   = null;     // 데이터 갱신 타임아웃
+
+    /* ════════════════════════════════════════
+       카운트다운 링 제어
+    ════════════════════════════════════════ */
+    const CIRCUMFERENCE = 2 * Math.PI * 8; // r=8 → ≈50.26
+
+    function setRing(sec) {
+      const fill = document.getElementById('mkt-ring-fill');
+      const secEl= document.getElementById('mkt-countdown-sec');
+      if (!fill || !secEl) return;
+      // dashoffset: 0=full, CIRCUMFERENCE=empty
+      const offset = CIRCUMFERENCE * (1 - sec / REFRESH_SEC);
+      fill.style.strokeDashoffset = offset;
+      // 색상: 남은 시간 적을수록 주황 → 빨강
+      if (sec <= 3)      fill.style.stroke = '#f43f5e';
+      else if (sec <= 5) fill.style.stroke = '#f5a623';
+      else               fill.style.stroke = 'var(--accent-green)';
+      secEl.textContent = sec;
+      secEl.style.color = sec <= 3 ? '#f43f5e' : sec <= 5 ? '#f5a623' : 'var(--accent-green)';
+    }
+
+    function startCountdown() {
+      if (cdTimer) clearInterval(cdTimer);
+      countdown = REFRESH_SEC;
+      setRing(countdown);
+      cdTimer = setInterval(() => {
+        countdown--;
+        setRing(countdown);
+        if (countdown <= 0) {
+          clearInterval(cdTimer);
+        }
+      }, 1000);
+    }
+
+    /* ════════════════════════════════════════
+       데이터 갱신 루프 (10초)
+    ════════════════════════════════════════ */
+    async function mktInit(forceRefresh = false) {
+      if (forceRefresh) VieMarket._lastFetch = 0;
+      const newData = await VieMarket.fetchAll();
+      if (!newData.length) return;
+
+      // prevData 스냅샷 저장
+      const prevMap = {};
+      mktData.forEach(c => { prevMap[c.id] = c; });
+
+      mktData = newData;
+
+      if (isFirstLoad) {
+        renderMktTab(activeTab, true); // 최초: 전체 렌더
+        isFirstLoad = false;
+      } else {
+        updateMktInPlace(prevMap);    // 이후: in-place 업데이트
+      }
+      updateMktTime();
+      startCountdown();
+
+      // 다음 갱신 예약
+      if (fetchTimer) clearTimeout(fetchTimer);
+      fetchTimer = setTimeout(() => mktInit(), REFRESH_SEC * 1000);
+    }
+    mktInit();
+
+    /* ════════════════════════════════════════
+       in-place 업데이트 (DOM 재사용)
+    ════════════════════════════════════════ */
+    function updateMktInPlace(prevMap) {
+      const cards = document.querySelectorAll('#mkt-body .coin-card');
+      if (!cards.length) { renderMktTab(activeTab, true); return; }
+
+      const period = activeTab === 'vol1y' ? '1y' : activeTab === 'vol3m' ? '3m' : activeTab === 'vol1m' ? '1m' : null;
+
+      // 현재 탭의 코인 순서 재계산
+      let coins;
+      if (!period) {
+        coins = [...mktData].sort((a,b) => (b.total_volume||0)-(a.total_volume||0)).slice(0,12);
+      } else {
+        coins = [...mktData].sort((a,b) => VieMarket.volatilityScore(b,period)-VieMarket.volatilityScore(a,period)).slice(0,12);
+      }
+
+      // 카드 수 불일치 → 전체 재렌더
+      if (cards.length !== coins.length) { renderMktTab(activeTab, true); return; }
+
+      coins.forEach((c, i) => {
+        const card    = cards[i];
+        const prev    = prevMap[c.id];
+        const meta    = MARKET_META[c.id] || {};
+        const chg24h  = c.price_change_percentage_24h;
+        const chgCls  = chg24h > 0 ? 'up' : chg24h < 0 ? 'down' : 'flat';
+
+        // ── 가격 업데이트 + flash ──
+        const priceEl = card.querySelector('.coin-price');
+        if (priceEl) {
+          const newPrice  = VieMarket.fmtPrice(c.current_price);
+          const prevPrice = prev ? VieMarket.fmtPrice(prev.current_price) : null;
+          if (prevPrice && prevPrice !== newPrice) {
+            const dir = c.current_price > (prev?.current_price || 0) ? 'up' : 'down';
+            priceEl.classList.remove('flash-up','flash-down');
+            void priceEl.offsetWidth; // reflow
+            priceEl.classList.add(`flash-${dir}`);
+            // 카드 좌측 컬러 라인
+            card.classList.remove('flash-up','flash-down');
+            void card.offsetWidth;
+            card.classList.add(`flash-${dir}`);
+            setTimeout(() => card.classList.remove('flash-up','flash-down'), 1500);
+          }
+          priceEl.textContent = newPrice;
+        }
+
+        // ── 등락 배지 업데이트 + pulse ──
+        const changeEl = card.querySelector('.coin-change');
+        if (changeEl) {
+          const prevChg = prev?.price_change_percentage_24h;
+          changeEl.className = `coin-change ${chgCls}`;
+          changeEl.innerHTML = `<i class="fa-solid fa-arrow-${chg24h>=0?'up':'down'}" style="font-size:.55rem"></i>${VieMarket.fmtChange(chg24h)}`;
+          // 등락률 변화가 0.1% 이상이면 pulse
+          if (prev && Math.abs((chg24h||0)-(prevChg||0)) >= 0.1) {
+            changeEl.classList.add(`pulse-${chgCls === 'up' ? 'up' : 'down'}`);
+            setTimeout(() => changeEl.classList.remove('pulse-up','pulse-down'), 800);
+          }
+        }
+
+        // ── 거래량 바 업데이트 (volume 탭) ──
+        if (!period) {
+          const maxVol = Math.max(...coins.map(cc => cc.total_volume||0));
+          const volPct = maxVol > 0 ? ((c.total_volume||0)/maxVol*100).toFixed(1) : '0';
+          const volBar = card.querySelector('.vol-volume-bar');
+          if (volBar) volBar.style.width = volPct + '%';
+          const volTxt = card.querySelector('[data-vol-text]');
+          if (volTxt) volTxt.textContent = '거래량 ' + VieMarket.fmtVolume(c.total_volume);
+        }
+        // ── 변동성 바 업데이트 ──
+        else {
+          const maxScore = Math.max(...coins.map(cc => VieMarket.volatilityScore(cc,period)));
+          const score    = VieMarket.volatilityScore(c, period);
+          const volBars  = card.querySelectorAll('.vol-bar');
+          const volVals  = card.querySelectorAll('.vol-val');
+          const chg7d    = c.price_change_percentage_7d_in_currency;
+          const chg30d   = c.price_change_percentage_30d_in_currency;
+          const chg1y    = c.price_change_percentage_1y_in_currency;
+          const rows = period === '1y'
+            ? [chg1y,chg30d,chg7d]
+            : period === '3m'
+            ? [chg30d!=null?chg30d*3:null,chg30d,chg7d]
+            : [chg30d,chg7d,chg24h];
+          rows.forEach((val,ri) => {
+            if (val==null || !volBars[ri]) return;
+            const pct = maxScore > 0 ? Math.min((Math.abs(val)/maxScore)*100,100).toFixed(1) : '0';
+            const cls = val >= 0 ? 'up' : 'down';
+            volBars[ri].style.width = pct + '%';
+            volBars[ri].className = `vol-bar ${cls}`;
+            if (volVals[ri]) {
+              volVals[ri].className = `vol-val ${cls}`;
+              volVals[ri].textContent = VieMarket.fmtChange(val);
+            }
+          });
+          const scoreEl = card.querySelector('[data-score-text]');
+          if (scoreEl) scoreEl.innerHTML = `<b style="color:#f5a623">${score.toFixed(1)}%</b>`;
+        }
+      });
+
+      // 그리드 플래시 오버레이
+      flashGridOverlay();
+    }
+
+    /* ════════════════════════════════════════
+       전체 렌더
+    ════════════════════════════════════════ */
+    function renderMktTab(tab, animate = false) {
+      const body = document.getElementById('mkt-body');
+      document.getElementById('mkt-skeleton')?.remove();
+
+      if (!mktData.length) {
+        body.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text-muted);font-size:.85rem">
+          <i class="fa-solid fa-triangle-exclamation" style="color:#f5a623;margin-bottom:8px;display:block;font-size:1.5rem"></i>
+          시세 데이터를 불러오는 중입니다. 잠시 후 다시 시도해 주세요.</div>`;
+        return;
+      }
+
+      let coins;
+      if (tab === 'volume') {
+        coins = [...mktData].sort((a,b)=>(b.total_volume||0)-(a.total_volume||0)).slice(0,12);
+        body.innerHTML = buildVolumeGrid(coins);
+      } else {
+        const period = tab==='vol1y'?'1y':tab==='vol3m'?'3m':'1m';
+        coins = [...mktData].sort((a,b)=>VieMarket.volatilityScore(b,period)-VieMarket.volatilityScore(a,period)).slice(0,12);
+        body.innerHTML = buildVolatilityGrid(coins, period);
+      }
+
+      if (animate) {
+        // stagger 진입 애니메이션
+        document.querySelectorAll('#mkt-body .coin-card').forEach((card, i) => {
+          card.style.animationDelay = (i * 35) + 'ms';
+          card.classList.add('anim-in');
+        });
+      }
+    }
+
+    /* ════════════════════════════════════════
+       그리드 플래시 오버레이
+    ════════════════════════════════════════ */
+    function flashGridOverlay() {
+      const body = document.getElementById('mkt-body');
+      const overlay = document.createElement('div');
+      overlay.className = 'mkt-flash-overlay';
+      body.appendChild(overlay);
+      setTimeout(() => overlay.remove(), 700);
+    }
+
+    /* ════════════════════════════════════════
+       탭 전환
+    ════════════════════════════════════════ */
+    window.mktSwitchTab = function(tab, el) {
+      activeTab = tab;
+      document.querySelectorAll('.mkt-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      renderMktTab(tab, true);
+    };
+
+    /* ════════════════════════════════════════
+       수동 새로고침
+    ════════════════════════════════════════ */
+    window.mktRefresh = async function(btn) {
+      if (btn.disabled) return;
+      btn.disabled = true;
+      btn.classList.add('spinning');
+      if (fetchTimer) clearTimeout(fetchTimer);
+      if (cdTimer)    clearInterval(cdTimer);
+      await mktInit(true);
+      setTimeout(() => { btn.classList.remove('spinning'); btn.disabled = false; }, 800);
+    };
+
+    /* ════════════════════════════════════════
+       그리드 HTML 빌더
+    ════════════════════════════════════════ */
+    function buildVolumeGrid(coins) {
+      const maxVol = Math.max(...coins.map(c => c.total_volume||0));
+      return `<div class="mkt-grid">${coins.map((c,i) => {
+        const meta   = MARKET_META[c.id] || {};
+        const chg24h = c.price_change_percentage_24h;
+        const chgCls = chg24h > 0 ? 'up' : chg24h < 0 ? 'down' : 'flat';
+        const volPct = maxVol > 0 ? ((c.total_volume||0)/maxVol*100).toFixed(1) : '0';
+        return `
+          <div class="coin-card">
+            <div class="coin-top">
+              ${logoHTML(c, meta)}
+              <div class="coin-names">
+                <div class="coin-symbol">${meta.symbol||c.symbol?.toUpperCase()}</div>
+                <div class="coin-name">${meta.name||c.name}</div>
+              </div>
+              <div class="coin-rank">#${c.market_cap_rank||i+1}</div>
+            </div>
+            <div class="coin-price">${VieMarket.fmtPrice(c.current_price)}</div>
+            <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+              <span class="coin-change ${chgCls}">
+                <i class="fa-solid fa-arrow-${chg24h>=0?'up':'down'}" style="font-size:.55rem"></i>
+                ${VieMarket.fmtChange(chg24h)}
+              </span>
+              <span style="font-size:.62rem;color:var(--text-muted)">24h</span>
+            </div>
+            <div style="font-size:.62rem;color:var(--text-muted);margin-top:2px" data-vol-text>
+              거래량 ${VieMarket.fmtVolume(c.total_volume)}
+            </div>
+            <div class="vol-volume-bar" style="width:${volPct}%"></div>
+          </div>`;
+      }).join('')}</div>`;
+    }
+
+    function buildVolatilityGrid(coins, period) {
+      const labelMap = { '1y':'1년','3m':'3개월','1m':'1개월' };
+      const maxScore = Math.max(...coins.map(c => VieMarket.volatilityScore(c,period)));
+      return `<div class="mkt-grid">${coins.map((c,i) => {
+        const meta  = MARKET_META[c.id]||{};
+        const chg24h= c.price_change_percentage_24h;
+        const chg7d = c.price_change_percentage_7d_in_currency;
+        const chg30d= c.price_change_percentage_30d_in_currency;
+        const chg1y = c.price_change_percentage_1y_in_currency;
+        const score = VieMarket.volatilityScore(c,period);
+        const rows  = period==='1y'
+          ? [['1y',chg1y],['30d',chg30d],['7d',chg7d]]
+          : period==='3m'
+          ? [['3m',chg30d!=null?chg30d*3:null],['30d',chg30d],['7d',chg7d]]
+          : [['30d',chg30d],['7d',chg7d],['24h',chg24h]];
+        return `
+          <div class="coin-card">
+            <div class="coin-top">
+              ${logoHTML(c,meta)}
+              <div class="coin-names">
+                <div class="coin-symbol">${meta.symbol||c.symbol?.toUpperCase()}</div>
+                <div class="coin-name">${meta.name||c.name}</div>
+              </div>
+              <div class="coin-rank" style="background:rgba(245,166,35,.1);color:#f5a623">V${i+1}</div>
+            </div>
+            <div class="coin-price">${VieMarket.fmtPrice(c.current_price)}</div>
+            <div class="coin-change ${chg24h>0?'up':chg24h<0?'down':'flat'}" style="display:none"></div>
+            <div class="coin-volatility-bars">
+              ${rows.map(([lbl,val])=>{
+                if(val==null)return'';
+                const abs=Math.abs(val);
+                const pct=maxScore>0?Math.min((abs/maxScore)*100,100).toFixed(1):'0';
+                const cls=val>=0?'up':'down';
+                return `<div class="vol-row">
+                  <span class="vol-label">${lbl}</span>
+                  <div class="vol-bar-wrap"><div class="vol-bar ${cls}" style="width:${pct}%"></div></div>
+                  <span class="vol-val ${cls}">${VieMarket.fmtChange(val)}</span>
+                </div>`;
+              }).join('')}
+            </div>
+            <div style="font-size:.6rem;color:var(--text-muted);margin-top:4px" data-score-text>
+              ${labelMap[period]} 변동성 지수: <b style="color:#f5a623">${score.toFixed(1)}%</b>
+            </div>
+          </div>`;
+      }).join('')}</div>`;
+    }
+
+    /* ════════════════════════════════════════
+       공통 유틸
+    ════════════════════════════════════════ */
+    function logoHTML(coin, meta) {
+      const src = meta.logo || coin.image;
+      if (src) return `<img class="coin-logo" src="${src}" alt="${meta.symbol||''}"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="coin-logo-fallback" style="display:none">${(meta.symbol||'?').slice(0,2)}</div>`;
+      return `<div class="coin-logo-fallback">${(meta.symbol||'?').slice(0,2)}</div>`;
+    }
+
+    function updateMktTime() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+      const el1 = document.getElementById('mkt-update-time');
+      const el2 = document.getElementById('mkt-last-time');
+      if (el1) el1.textContent = '최종 업데이트: ' + timeStr;
+      if (el2) el2.textContent = timeStr;
+    }
+  })();
+  </script>
+</body>
+</html>

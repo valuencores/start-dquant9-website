@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>파트너 상담 — D.Quant 9.0 V.I.E</title>
+  <meta name="description" content="D.Quant 9.0 V.I.E 전문 운용사 상담. 가상 투자 경험을 바탕으로 실제 투자 전략을 안내받으세요.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="D.Quant 9.0 V.I.E">
+  <meta property="og:title" content="투자 상담 — D.Quant 9.0 V.I.E">
+  <meta property="og:description" content="밸류앤코어스 전문 운용사와 1:1 투자 상담. 가상 투자 체험 후 실제 알고리즘 운용 전략을 안내받으세요.">
+  <meta property="og:image" content="images/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="images/og-image.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/vie.css">
+  <style>
+    /* Consult hero */
+    .consult-hero {
+      background: linear-gradient(135deg, rgba(0,212,255,0.05), rgba(0,229,160,0.03));
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: var(--radius-xl);
+      padding: var(--space-2xl);
+      margin-bottom: var(--space-xl);
+      text-align: center;
+    }
+    .consult-hero-icon {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(0,229,160,0.15));
+      border: 2px solid rgba(0,212,255,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      color: var(--accent-blue);
+      margin: 0 auto var(--space-lg);
+    }
+
+    /* Value cards row */
+    .value-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-md);
+      margin-bottom: var(--space-xl);
+    }
+    .vc-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      text-align: center;
+    }
+    .vc-icon { font-size: 1.5rem; margin-bottom: var(--space-sm); }
+    .vc-title { font-size: 0.88rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+    .vc-desc  { font-size: 0.75rem; color: var(--text-muted); line-height: 1.5; }
+
+    /* Partner info */
+    .partner-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-xl);
+      margin-bottom: var(--space-xl);
+      display: flex;
+      align-items: center;
+      gap: var(--space-xl);
+    }
+    .partner-avatar {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      color: #fff;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .partner-info h4 { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+    .partner-info p  { font-size: 0.82rem; color: var(--text-secondary); margin: 0; }
+    .partner-meta { margin-left: auto; text-align: right; flex-shrink: 0; }
+    .partner-avail {
+      font-size: 0.78rem;
+      color: var(--accent-green);
+      background: rgba(0,229,160,0.08);
+      border: 1px solid rgba(0,229,160,0.2);
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      display: inline-block;
+      margin-bottom: 4px;
+    }
+    .partner-time { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* Consult method cards */
+    .method-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-md);
+      margin-bottom: var(--space-xl);
+    }
+    .method-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border-default);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      cursor: pointer;
+      text-align: center;
+      transition: all var(--transition-base);
+    }
+    .method-card:hover { transform: translateY(-2px); }
+    .method-card.selected {
+      border-color: var(--accent-blue);
+      background: rgba(0,212,255,0.05);
+    }
+    .method-icon  { font-size: 1.6rem; margin-bottom: var(--space-sm); }
+    .method-title { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+    .method-desc  { font-size: 0.75rem; color: var(--text-muted); }
+
+    /* Form card */
+    .form-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      padding: var(--space-2xl);
+      margin-bottom: var(--space-xl);
+    }
+
+    /* Performance summary */
+    .perf-summary {
+      background: linear-gradient(135deg, rgba(0,229,160,0.06), rgba(0,212,255,0.04));
+      border: 1px solid rgba(0,229,160,0.15);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      margin-bottom: var(--space-xl);
+    }
+    .perf-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border-default);
+    }
+    .perf-row:last-child { border-bottom: none; }
+
+    /* FAQ */
+    .faq-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-sm);
+      overflow: hidden;
+    }
+    .faq-q {
+      padding: var(--space-md) var(--space-lg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      transition: background var(--transition-fast);
+    }
+    .faq-q:hover { background: rgba(255,255,255,0.03); }
+    .faq-a {
+      padding: 0 var(--space-lg);
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height var(--transition-slow), padding var(--transition-base);
+    }
+    .faq-item.open .faq-a { max-height: 200px; padding: 0 var(--space-lg) var(--space-md); }
+    .faq-arrow { transition: transform var(--transition-base); color: var(--text-muted); }
+    .faq-item.open .faq-arrow { transform: rotate(180deg); color: var(--accent-blue); }
+
+    /* Success state */
+    .submit-success {
+      text-align: center;
+      padding: var(--space-3xl);
+      display: none;
+    }
+    .submit-success.show { display: block; }
+    .success-icon {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: rgba(0,229,160,0.12);
+      border: 2px solid rgba(0,229,160,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; color: var(--accent-green);
+      margin: 0 auto var(--space-xl);
+      animation: pulseScale 1s ease;
+    }
+    @keyframes pulseScale {
+      0% { transform: scale(0); opacity: 0; }
+      70% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* ── Consult Responsive ── */
+    @media (max-width: 1024px) {
+      .value-grid  { grid-template-columns: repeat(2, 1fr); }
+      .method-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .value-grid   { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .method-grid  { grid-template-columns: 1fr; }
+      .partner-card { flex-direction: column; text-align: center; gap: var(--space-md); }
+      .partner-meta { margin-left: 0; text-align: center; }
+      .consult-form-section { padding: var(--space-xl) var(--space-md); }
+      .consult-form { padding: var(--space-md); }
+    }
+    @media (max-width: 480px) {
+      .value-grid  { grid-template-columns: 1fr 1fr; gap: 6px; }
+      .value-card  { padding: var(--space-md); }
+      .method-card { padding: var(--space-md); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Nav -->
+  <nav class="vie-nav">
+    <div class="vie-nav-inner">
+      <div class="vie-nav-brand">
+        <a href="index.html" style="display:flex;align-items:center;gap:8px;text-decoration:none">
+          <span class="vie-nav-logo">D.Quant 9.0</span>
+          <span class="vie-nav-badge">V.I.E</span>
+        </a>
+      </div>
+      <div class="vie-nav-links">
+        <a href="dashboard.html" class="vie-nav-link"><i class="fa-solid fa-chart-line"></i> 대시보드</a>
+        <a href="reports.html"   class="vie-nav-link"><i class="fa-solid fa-file-lines"></i> 리포트</a>
+        <a href="consult.html"   class="vie-nav-link active"><i class="fa-solid fa-handshake"></i> 상담</a>
+        <a href="benchmark.html" class="vie-nav-link benchmark"><i class="fa-solid fa-chart-column"></i> 벤치마크</a>
+        <a href="mypage.html"    class="vie-nav-link"><i class="fa-solid fa-user"></i> My</a>
+        <a href="login.html"     class="vie-nav-link" id="nav-login-btn"><i class="fa-solid fa-right-to-bracket"></i> 로그인</a>
+      </div>
+      <div class="vie-nav-hamburger" onclick="vieNavToggle(this)" aria-label="메뉴">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </nav>
+  <nav class="vie-nav-mobile" id="vie-nav-mobile">
+    <a href="dashboard.html" class="vie-nav-link"><i class="fa-solid fa-chart-line"></i> 대시보드</a>
+    <a href="reports.html"   class="vie-nav-link"><i class="fa-solid fa-file-lines"></i> 리포트</a>
+    <a href="consult.html"   class="vie-nav-link active"><i class="fa-solid fa-handshake"></i> 상담</a>
+    <a href="benchmark.html" class="vie-nav-link benchmark"><i class="fa-solid fa-chart-column"></i> 벤치마크</a>
+    <a href="mypage.html"    class="vie-nav-link"><i class="fa-solid fa-user"></i> My</a>
+    <a href="login.html"     class="vie-nav-link" id="nav-login-btn-m"><i class="fa-solid fa-right-to-bracket"></i> 로그인</a>
+  </nav>
+
+  <div class="page-wrapper">
+    <div class="page-content" style="max-width:800px">
+
+      <!-- Consult Hero -->
+      <div class="consult-hero fade-in">
+        <div class="consult-hero-icon"><i class="fa-solid fa-handshake"></i></div>
+        <div class="section-eyebrow" style="display:block;margin-bottom:var(--space-sm)">PARTNER CONSULTATION</div>
+        <h2 style="margin-bottom:var(--space-md)">밸류앤코어스와 실제 투자 구조를<br>상담해보세요</h2>
+        <p>
+          지금까지 경험하신 가상 투자 흐름을 기반으로<br>
+          실제 운용 방식과 전환 절차를 안내받을 수 있습니다.
+        </p>
+      </div>
+
+      <!-- Value Grid -->
+      <div class="value-grid fade-in fade-in-delay-1">
+        <div class="vc-card">
+          <div class="vc-icon">📋</div>
+          <div class="vc-title">실제 운용 구조 설명</div>
+          <div class="vc-desc">알고리즘 운용 방식과 수익 구조 전반 안내</div>
+        </div>
+        <div class="vc-card">
+          <div class="vc-icon">🎯</div>
+          <div class="vc-title">포트폴리오 맞춤 상담</div>
+          <div class="vc-desc">선택 등급 기반 맞춤형 투자 전략 안내</div>
+        </div>
+        <div class="vc-card">
+          <div class="vc-icon">🔐</div>
+          <div class="vc-title">전환 절차 안내</div>
+          <div class="vc-desc">가상 → 실제 투자 전환 과정 상세 설명</div>
+        </div>
+        <div class="vc-card">
+          <div class="vc-icon">💎</div>
+          <div class="vc-title">IRT 시스템 혜택</div>
+          <div class="vc-desc">실제 투자 전환 시 특별 혜택 포인트 안내</div>
+        </div>
+      </div>
+
+      <!-- My Performance Summary -->
+      <div class="perf-summary fade-in fade-in-delay-2" id="perf-summary">
+        <div style="font-size:0.8rem;font-weight:700;color:var(--text-secondary);margin-bottom:var(--space-md);letter-spacing:0.06em">
+          <i class="fa-solid fa-chart-line" style="color:var(--accent-green)"></i>
+          내 가상 투자 경험 요약 (상담 참고용)
+        </div>
+        <div id="perf-rows">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Partner Card -->
+      <div class="partner-card fade-in fade-in-delay-2">
+        <div class="partner-avatar" id="partner-initial">?</div>
+        <div class="partner-info">
+          <h4 id="partner-name-display">밸류앤코어스</h4>
+          <p id="partner-id-display">파트너 코드: —</p>
+          <p style="margin-top:4px;font-size:0.78rem;color:var(--accent-blue)">
+            <i class="fa-solid fa-certificate"></i> D.Quant 9.0 공인 운용사
+          </p>
+        </div>
+        <div class="partner-meta">
+          <div class="partner-avail"><i class="fa-solid fa-circle" style="font-size:0.5rem"></i> 상담 가능</div>
+          <div class="partner-time">평일 09:00 – 18:00</div>
+        </div>
+      </div>
+
+      <!-- Consult Method -->
+      <div class="form-card fade-in fade-in-delay-3" id="main-form-card">
+        <div id="form-section">
+          <h3 style="margin-bottom:var(--space-md)">상담 신청</h3>
+
+          <!-- Method Selection -->
+          <div style="margin-bottom:var(--space-lg)">
+            <div class="form-label" style="margin-bottom:var(--space-md)">상담 방식 선택</div>
+            <div class="method-grid">
+              <div class="method-card selected" data-method="phone" onclick="selectMethod(this)">
+                <div class="method-icon">📞</div>
+                <div class="method-title">전화 상담</div>
+                <div class="method-desc">밸류앤코어스가 직접 연락드립니다</div>
+              </div>
+              <div class="method-card" data-method="kakao" onclick="selectMethod(this)">
+                <div class="method-icon">💬</div>
+                <div class="method-title">카카오 상담</div>
+                <div class="method-desc">카카오 채널로 실시간 상담</div>
+              </div>
+              <div class="method-card" data-method="meeting" onclick="selectMethod(this)">
+                <div class="method-icon">🤝</div>
+                <div class="method-title">미팅 요청</div>
+                <div class="method-desc">대면 또는 화상 미팅 예약</div>
+              </div>
+              <div class="method-card" data-method="info_request" onclick="selectMethod(this)">
+                <div class="method-icon">📄</div>
+                <div class="method-title">자료 요청</div>
+                <div class="method-desc">상세 안내 자료를 이메일로</div>
+              </div>
+            </div>
+            <input type="hidden" id="f-method" value="phone">
+          </div>
+
+          <hr class="divider">
+
+          <!-- Form Fields -->
+          <div class="grid-2" style="margin-top:var(--space-lg)">
+            <div class="form-group">
+              <label class="form-label">이름 *</label>
+              <input type="text" class="form-input" id="c-name" placeholder="홍길동">
+              <span class="form-error hidden" id="e-cname"><i class="fa-solid fa-circle-xmark"></i> 이름을 입력해 주세요.</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">연락처 *</label>
+              <input type="tel" class="form-input" id="c-phone" placeholder="010-0000-0000">
+              <span class="form-error hidden" id="e-cphone"><i class="fa-solid fa-circle-xmark"></i> 연락처를 입력해 주세요.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">희망 상담 시간</label>
+            <select class="form-select" id="c-time">
+              <option value="">선택해 주세요</option>
+              <option>오전 10시 – 12시</option>
+              <option>오후 2시 – 4시</option>
+              <option>오후 4시 – 6시</option>
+              <option>저녁 7시 이후</option>
+              <option>언제든지 가능</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">관심 포트폴리오</label>
+            <select class="form-select" id="c-portfolio">
+              <option value="">선택해 주세요</option>
+              <option>Core (1,000만원)</option>
+              <option>Growth (3,000만원)</option>
+              <option>Premium (5,000만원)</option>
+              <option>Strategy A (1억원)</option>
+              <option>Strategy B (2억원)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">문의 내용</label>
+            <textarea class="form-textarea" id="c-message" placeholder="궁금하신 내용을 자유롭게 입력해 주세요. 현재 가상 투자 경험을 기반으로 실제 투자 구조에 대해 문의하실 수 있습니다." style="min-height:100px"></textarea>
+          </div>
+
+          <label class="checkbox-group" style="margin-bottom:var(--space-lg)">
+            <input type="checkbox" id="c-agree">
+            <span style="font-size:0.82rem;color:var(--text-secondary)">
+              상담 목적의 <a href="#" style="color:var(--accent-blue)">개인정보 수집·이용</a>에 동의합니다. (필수)
+            </span>
+          </label>
+          <span class="form-error hidden" id="e-cagree"><i class="fa-solid fa-circle-xmark"></i> 개인정보 동의가 필요합니다.</span>
+
+          <button class="btn btn-cta btn-full btn-xl" style="margin-top:var(--space-lg)" id="submit-btn" onclick="submitConsult()">
+            <span id="submit-text"><i class="fa-solid fa-paper-plane"></i> 상담 신청하기</span>
+            <span id="submit-spinner" class="hidden"><i class="fa-solid fa-spinner fa-spin"></i></span>
+          </button>
+
+          <p class="form-hint text-center mt-md">상담 신청 후 밸류앤코어스가 직접 연락드립니다. 부담 없이 신청해 주세요.</p>
+        </div>
+
+        <!-- Success State -->
+        <div class="submit-success" id="submit-success">
+          <div class="success-icon"><i class="fa-solid fa-check"></i></div>
+          <div class="section-eyebrow" style="display:block;margin-bottom:var(--space-md)">신청 완료</div>
+          <h2 style="margin-bottom:var(--space-md)">상담 신청이 접수되었습니다</h2>
+          <p style="margin-bottom:var(--space-xl)">
+            밸류앤코어스 담당자가 빠른 시간 내에 연락드리겠습니다.<br>
+            상담 전에 대시보드에서 최신 성과 현황을 확인해 두시면 도움이 됩니다.
+          </p>
+          <div style="display:flex;flex-direction:column;gap:var(--space-sm);max-width:340px;margin:0 auto">
+            <button class="btn btn-primary btn-full btn-lg" onclick="window.location.href='dashboard.html'">
+              <i class="fa-solid fa-chart-line"></i> 대시보드로 이동
+            </button>
+            <button class="btn btn-ghost btn-full" onclick="window.location.href='reports.html'">
+              리포트 확인하기
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <div class="fade-in" style="margin-bottom:var(--space-xl)">
+        <h3 style="margin-bottom:var(--space-lg)">자주 묻는 질문</h3>
+        <div id="faq-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <div style="height:40px"></div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <div class="bottom-nav-items">
+      <div class="bottom-nav-item" data-page="dashboard" data-href="dashboard.html"><i class="fa-solid fa-chart-line"></i><span>대시보드</span></div>
+      <div class="bottom-nav-item" data-page="reports" data-href="reports.html"><i class="fa-solid fa-file-lines"></i><span>리포트</span></div>
+      <div class="bottom-nav-item active" data-page="consult" data-href="consult.html"><i class="fa-solid fa-handshake"></i><span>상담</span></div>
+      <div class="bottom-nav-item" data-page="mypage" data-href="mypage.html"><i class="fa-solid fa-user"></i><span>My</span></div>
+    </div>
+  </nav>
+
+  <div class="toast-container"></div>
+
+  <script src="js/vie-app.js"></script>
+  <script>
+    /* ── 로그인 여부와 무관하게 페이지 열람 가능 (비로그인 허용) ── */
+    const isLoggedIn = VieAuth.isLoggedIn();
+    const user = VieAuth.getUser() || {};
+    const portfolios = user.selected_portfolios || [];
+
+    /* ---- Partner Info ---- */
+    const pname = user?.partner_name || '밸류앤코어스';
+    document.getElementById('partner-name-display').textContent = pname;
+    document.getElementById('partner-id-display').textContent   = '파트너 코드: ' + (user?.partner_id || '—');
+    document.getElementById('partner-initial').textContent = pname === '밸류앤코어스' ? '밸' : pname.charAt(0);
+
+    /* ---- Pre-fill form (로그인 시에만) ---- */
+    if (isLoggedIn) {
+      if (user?.name)  document.getElementById('c-name').value  = user.name;
+      if (user?.phone) document.getElementById('c-phone').value = user.phone;
+      if (portfolios.length) {
+        const pfNames = { Core:'Core (1,000만원)', Growth:'Growth (3,000만원)', Premium:'Premium (5,000만원)', 'Strategy A':'Strategy A (1억원)', 'Strategy B':'Strategy B (2억원)' };
+        document.getElementById('c-portfolio').value = pfNames[portfolios[0]] || '';
+      }
+    }
+
+    /* ---- Performance Summary ---- */
+    const perfEl = document.getElementById('perf-rows');
+    if (isLoggedIn && portfolios.length) {
+      const signupDate = user?.signup_date || new Date().toISOString();
+      const daysSince  = VieSimulator.daysSince(signupDate);
+      let totalPrincipal = 0, totalProfit = 0;
+      portfolios.forEach(t => {
+        const pf = VIE_CONFIG.PORTFOLIOS[t];
+        if (pf) { totalPrincipal += pf.principal; totalProfit += VieSimulator.profitAfterDays(pf.principal, pf.rate, daysSince); }
+      });
+      const totalRate = totalPrincipal > 0 ? (totalProfit / totalPrincipal) * 100 : 0;
+      perfEl.innerHTML = `
+        <div class="perf-row"><span style="color:var(--text-muted)">선택 포트폴리오</span><strong style="color:var(--text-primary)">${portfolios.join(' + ')}</strong></div>
+        <div class="perf-row"><span style="color:var(--text-muted)">가상 운용 기간</span><strong style="color:var(--text-primary)">${daysSince}일</strong></div>
+        <div class="perf-row"><span style="color:var(--text-muted)">누적 수익률</span><strong style="color:var(--accent-green)">+${totalRate.toFixed(2)}%</strong></div>
+        <div class="perf-row"><span style="color:var(--text-muted)">누적 수익금 (가상)</span><strong style="color:var(--accent-green)">${VieFmt.manwon(Math.round(totalProfit))}</strong></div>
+        <div class="perf-row"><span style="color:var(--text-muted)">운용 시작일</span><strong style="color:var(--text-primary)">${VieFmt.date(signupDate)}</strong></div>
+      `;
+    } else {
+      /* 비로그인 상태: 간단한 안내 표시 */
+      perfEl.innerHTML = `
+        <div class="perf-row" style="flex-direction:column;align-items:flex-start;gap:6px">
+          <span style="color:var(--text-muted);font-size:0.82rem"><i class="fa-solid fa-circle-info" style="color:var(--accent-blue)"></i> 로그인 후 가상 투자 실적이 자동으로 표시됩니다.</span>
+          <a href="login.html" style="font-size:0.82rem;color:var(--accent-blue);font-weight:600;text-decoration:none"><i class="fa-solid fa-right-to-bracket"></i> 로그인하기</a>
+        </div>
+      `;
+    }
+
+    /* ---- Method Selection ---- */
+    function selectMethod(card) {
+      document.querySelectorAll('.method-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      document.getElementById('f-method').value = card.getAttribute('data-method');
+    }
+
+    /* ---- Submit ---- */
+    async function submitConsult() {
+      const name    = document.getElementById('c-name').value.trim();
+      const phone   = document.getElementById('c-phone').value.trim();
+      const agree   = document.getElementById('c-agree').checked;
+      let ok = true;
+
+      document.getElementById('e-cname').classList.toggle('hidden', !!name);  if (!name)  ok = false;
+      document.getElementById('e-cphone').classList.toggle('hidden', !!phone); if (!phone) ok = false;
+      document.getElementById('e-cagree').classList.toggle('hidden', agree);   if (!agree) ok = false;
+
+      if (!ok) return;
+
+      const btn = document.getElementById('submit-btn');
+      const txt = document.getElementById('submit-text');
+      const spn = document.getElementById('submit-spinner');
+      btn.disabled = true;
+      txt.classList.add('hidden');
+      spn.classList.remove('hidden');
+
+      try {
+        const payload = {
+          id: 'consult-' + Date.now(),
+          user_id: user?.id || 'anon',
+          user_name: name,
+          phone,
+          preferred_time: document.getElementById('c-time').value,
+          interest_portfolio: document.getElementById('c-portfolio').value,
+          inquiry_message: document.getElementById('c-message').value,
+          consult_method: document.getElementById('f-method').value,
+          partner_id: user?.partner_id || '',
+          status: 'submitted',
+          submitted_at: new Date().toISOString()
+        };
+        try {
+          await VieAPI.post(VIE_CONFIG.TABLES.CONSULTATIONS, payload);
+        } catch(e) {}
+
+        // Update user record
+        if (user?.id) {
+          try { await VieAPI.patch(VIE_CONFIG.TABLES.USERS, user.id, { consult_requested: true }); } catch(e) {}
+          user.consult_requested = true;
+          VieAuth.setUser(user);
+        }
+
+        // Show success
+        document.getElementById('form-section').style.display = 'none';
+        document.getElementById('submit-success').classList.add('show');
+        VieToast.success('상담 신청이 완료되었습니다!');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch(e) {
+        VieToast.error('오류가 발생했습니다. 다시 시도해 주세요.');
+        console.error(e);
+      } finally {
+        btn.disabled = false;
+        txt.classList.remove('hidden');
+        spn.classList.add('hidden');
+      }
+    }
+
+    /* ---- FAQ ---- */
+    const faqs = [
+      { q: '실제 투자는 어떻게 진행되나요?', a: '파트너와 상담 후, 실제 투자 계획과 운용 구조를 함께 확인합니다. 투자 개시 전 계약서 및 운용 지침을 제공하며, 월별 정산과 성과 보고를 받으실 수 있습니다.' },
+      { q: '지금 보고 있는 성과는 무엇을 기준으로 하나요?', a: 'D.Quant 9.0 V.I.E는 가상 투자 경험 시뮬레이션입니다. 실제 시장 데이터와 D.Quant 알고리즘 운용 로직을 기반으로 설계되었으나, 실제 투자 결과와 차이가 있을 수 있습니다.' },
+      { q: '상담 후 바로 결정해야 하나요?', a: '아닙니다. 상담은 정보 제공 목적이며, 결정은 충분히 검토하신 후 자유롭게 하실 수 있습니다. 부담 없이 궁금한 사항을 질문해 주세요.' },
+      { q: 'IRT 시스템이란 무엇인가요?', a: 'IRT(Investment Return Transfer)는 실제 투자 전환 시 누릴 수 있는 D.Quant만의 특별 수익 연동 혜택 시스템입니다. 자세한 내용은 파트너 상담을 통해 안내받으실 수 있습니다.' },
+      { q: '파트너는 어떻게 연결되나요?', a: '가입 시 입력하신 초대 코드와 연결된 파트너가 자동으로 배정됩니다. 상담 신청 후 해당 파트너가 직접 연락드립니다.' }
+    ];
+
+    document.getElementById('faq-list').innerHTML = faqs.map((f, i) => `
+      <div class="faq-item" id="faq-${i}">
+        <div class="faq-q" onclick="toggleFaq(${i})">
+          <span>${f.q}</span>
+          <i class="fa-solid fa-chevron-down faq-arrow"></i>
+        </div>
+        <div class="faq-a">${f.a}</div>
+      </div>
+    `).join('');
+
+    function toggleFaq(i) {
+      const el = document.getElementById('faq-' + i);
+      el.classList.toggle('open');
+    }
+  </script>
+</body>
+</html>

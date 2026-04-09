@@ -1,0 +1,3411 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>벤치마크 — D.Quant 9.0 V.I.E</title>
+  <meta name="description" content="D.Quant 9.0 V.I.E 실시간 벤치마크. 투자자별 실제 운용 성과를 실시간으로 확인하세요.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="D.Quant 9.0 V.I.E">
+  <meta property="og:title" content="실시간 벤치마크 — D.Quant 9.0 V.I.E">
+  <meta property="og:description" content="D.Quant 알고리즘 실제 운용 성과 공개. 투자자별 누적 수익과 USDT 환산 수익을 실시간으로 확인하세요.">
+  <meta property="og:image" content="images/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="images/og-image.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <link rel="stylesheet" href="css/vie.css">
+  <style>
+    /* ── 전체 배경 ──────────────────────────────── */
+    body {
+      background: #030712;
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(245,166,35,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(74,144,226,0.07) 0%, transparent 50%),
+        radial-gradient(ellipse 50% 40% at 10% 60%, rgba(139,92,246,0.06) 0%, transparent 50%);
+      min-height: 100vh;
+    }
+
+    /* 배경 애니메이션 그리드 */
+    .bm-bg-grid {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(245,166,35,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245,166,35,0.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridDrift 25s linear infinite;
+    }
+    @keyframes gridDrift { from{transform:translateY(0)} to{transform:translateY(60px)} }
+
+    .bm-bg-glow {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background: radial-gradient(ellipse 90% 40% at 50% 0%, rgba(245,166,35,0.08) 0%, transparent 55%);
+    }
+
+    /* ── 레이아웃 ──────────────────────────────── */
+    .bm-topbar {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px var(--space-xl);
+      background: rgba(3,7,18,0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(245,166,35,0.15);
+      box-shadow: 0 1px 0 rgba(245,166,35,0.08), 0 4px 24px rgba(0,0,0,0.4);
+    }
+    .bm-brand { display: flex; align-items: center; gap: 10px; }
+    .bm-brand-name { font-size: 1rem; font-weight: 900; color: #fff; letter-spacing: -0.01em; }
+    .bm-brand-tag {
+      font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em;
+      background: linear-gradient(90deg,#f5a623,#e07b00);
+      color: #000; padding: 2px 8px; border-radius: 12px;
+      box-shadow: 0 0 12px rgba(245,166,35,0.4);
+    }
+    .bm-usdt-pill {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px; padding: 5px 14px;
+      font-size: 0.8rem; color: rgba(255,255,255,0.7);
+    }
+    .bm-usdt-val { font-weight: 700; color: #fee500; text-shadow: 0 0 8px rgba(254,229,0,0.4); }
+    .bm-live-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #00e5a0;
+      box-shadow: 0 0 6px #00e5a0;
+      animation: blink 1.4s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .bm-wrap { max-width: 1300px; margin: 0 auto; padding: var(--space-xl) var(--space-lg); padding-top: calc(64px + var(--space-xl)); position: relative; z-index: 1; }
+
+    /* ── 헤더 ──────────────────────────────────── */
+    .bm-header {
+      text-align: center;
+      padding: var(--space-2xl) 0 var(--space-xl);
+      position: relative;
+    }
+    .bm-header::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 200px; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(245,166,35,0.4), transparent);
+    }
+    .bm-eyebrow {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.72rem; font-weight: 800; letter-spacing: 0.18em;
+      color: #f5a623; text-transform: uppercase; margin-bottom: var(--space-md);
+      background: rgba(245,166,35,0.08);
+      border: 1px solid rgba(245,166,35,0.2);
+      padding: 4px 14px; border-radius: 20px;
+      text-shadow: 0 0 12px rgba(245,166,35,0.5);
+    }
+    .bm-title {
+      font-size: 2.4rem; font-weight: 900;
+      background: linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.85) 50%, #f5a623 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: var(--space-sm);
+      line-height: 1.2;
+      text-shadow: none;
+    }
+    .bm-subtitle {
+      font-size: 0.92rem;
+      color: rgba(255,255,255,0.65);
+      letter-spacing: 0.02em;
+    }
+    .bm-period-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(245,166,35,0.1);
+      border: 1px solid rgba(245,166,35,0.3);
+      border-radius: 20px; padding: 6px 18px;
+      font-size: 0.82rem; color: #f5c55a; font-weight: 700;
+      margin-top: var(--space-md);
+      box-shadow: 0 0 20px rgba(245,166,35,0.1);
+    }
+
+    /* ── 탭 ────────────────────────────────────── */
+    .bm-tab-bar {
+      display: flex; gap: 4px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 5px;
+      margin-bottom: var(--space-xl);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .bm-tab-bar::-webkit-scrollbar { display:none; }
+    .bm-tab {
+      padding: 8px 16px;
+      font-size: 0.82rem; font-weight: 700;
+      color: rgba(255,255,255,0.45);
+      border-radius: 10px;
+      cursor: pointer; white-space: nowrap;
+      transition: all 0.25s;
+      border: 1px solid transparent;
+    }
+    .bm-tab:hover { color: rgba(255,255,255,0.75); background: rgba(255,255,255,0.05); }
+    .bm-tab.active {
+      color: #f5a623;
+      background: rgba(245,166,35,0.12);
+      border-color: rgba(245,166,35,0.25);
+      box-shadow: 0 0 12px rgba(245,166,35,0.15);
+    }
+
+    /* ── 투자자 카드 — 2단 레이아웃 ───────────── */
+    .inv-grid {
+      display: grid; grid-template-columns: repeat(4,1fr);
+      gap: var(--space-md); margin-bottom: var(--space-xl);
+    }
+    @media(max-width:1100px){ .inv-grid{ grid-template-columns: repeat(2,1fr); } }
+    @media(max-width:560px) { .inv-grid{ grid-template-columns: 1fr; } }
+
+    .inv-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.3s cubic-bezier(.22,.68,0,1.4), border-color 0.25s, box-shadow 0.25s, background 0.25s;
+      backdrop-filter: blur(10px);
+      display: flex; flex-direction: column;
+    }
+    /* 좌측 컬러 액센트 바 */
+    .inv-card::before {
+      content:''; position:absolute; top:0; left:0; bottom:0; width:3px;
+      background: linear-gradient(180deg, var(--inv-c), rgba(var(--inv-rgb),0.2));
+    }
+    .inv-card::after {
+      content:''; position:absolute; bottom:-20px; left:0; right:0; height:80px;
+      background: var(--inv-c); filter: blur(40px); opacity:0;
+      transition: opacity 0.35s; pointer-events:none;
+    }
+    .inv-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(var(--inv-rgb),0.35);
+      background: rgba(var(--inv-rgb),0.04);
+      box-shadow: 0 16px 48px rgba(var(--inv-rgb),0.18), 0 0 0 1px rgba(var(--inv-rgb),0.15);
+    }
+    .inv-card:hover::after { opacity:0.3; }
+    .inv-card.selected {
+      border-color: rgba(var(--inv-rgb),0.45);
+      background: rgba(var(--inv-rgb),0.06);
+      box-shadow: 0 0 0 1px rgba(var(--inv-rgb),0.25), 0 8px 30px rgba(var(--inv-rgb),0.12);
+    }
+
+    /* ══════════════════════════════════════════
+       페르소나 그리드 (상단 요약 카드 4개)
+    ══════════════════════════════════════════ */
+    /* ── 섹션 구분 제목 ── */
+    .bm-section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: var(--space-md);
+      padding-bottom: var(--space-sm);
+    }
+    .bm-section-header .bm-section-label {
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .bm-section-header .bm-section-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+    .bm-section-header .bm-section-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 99px;
+      margin-left: auto;
+    }
+    .bm-section-divider {
+      height: 1px;
+      margin: 0 0 var(--space-md);
+      background: linear-gradient(90deg, var(--div-c, rgba(255,255,255,0.10)) 0%, transparent 100%);
+    }
+    /* 섹션 래퍼 — 배경 + 테두리로 두 영역 시각 분리 */
+    .bm-section-block {
+      border-radius: 16px;
+      padding: var(--space-lg);
+      margin-bottom: var(--space-xl);
+    }
+    .bm-section-block.persona-section {
+      background: rgba(255,255,255,0.018);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+    .bm-section-block.inv-section {
+      background: rgba(245,166,35,0.025);
+      border: 1px solid rgba(245,166,35,0.13);
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+
+    .persona-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-md);
+    }
+    @media(max-width:1100px){ .persona-grid{ grid-template-columns: repeat(2,1fr); } }
+    @media(max-width:560px) { .persona-grid{ grid-template-columns: 1fr; } }
+
+    .persona-card {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 18px 16px 14px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      transition: transform 0.28s cubic-bezier(.22,.68,0,1.4), border-color 0.25s, box-shadow 0.25s;
+    }
+    /* 좌측 컬러 라인 */
+    .persona-card::before {
+      content:''; position:absolute; top:0; left:0; bottom:0; width:3px;
+      background: linear-gradient(180deg, var(--inv-c), rgba(var(--inv-rgb),0.15));
+      border-radius:3px 0 0 3px;
+    }
+    /* 배경 글로우 */
+    .persona-card::after {
+      content:''; position:absolute; top:-30px; right:-30px; width:120px; height:120px;
+      background: radial-gradient(circle, rgba(var(--inv-rgb),0.12), transparent 70%);
+      pointer-events: none;
+    }
+    .persona-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(var(--inv-rgb),0.35);
+      box-shadow: 0 14px 40px rgba(var(--inv-rgb),0.18);
+    }
+
+    /* 상단 아바타 + 메타 */
+    .persona-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .persona-avatar {
+      width: 46px; height: 46px;
+      border-radius: 50%;
+      border: 2px solid;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.05rem; font-weight: 900;
+      flex-shrink: 0;
+      letter-spacing: 0;
+    }
+    .persona-header-info { flex: 1; min-width: 0; }
+    .persona-id-row {
+      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 4px; flex-wrap: wrap;
+    }
+    .persona-id-badge {
+      font-size: 0.72rem; font-weight: 900;
+      color: rgba(255,255,255,0.85);
+      letter-spacing: 0.06em;
+    }
+    .persona-age-badge {
+      font-size: 0.6rem; font-weight: 700;
+      padding: 2px 8px; border-radius: 20px;
+      border: 1px solid;
+    }
+    .persona-job {
+      font-size: 0.68rem; color: rgba(255,255,255,0.5);
+      display: flex; align-items: center; gap: 5px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* 투자 목적 */
+    .persona-purpose {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.75rem; font-weight: 700;
+      color: rgba(255,255,255,0.82);
+      margin-bottom: 7px;
+      line-height: 1.35;
+    }
+    .persona-emoji { font-size: 1rem; flex-shrink: 0; }
+
+    /* 키워드 태그 */
+    .persona-keywords {
+      display: flex; flex-wrap: wrap; gap: 5px;
+      margin-bottom: 12px;
+    }
+    .persona-kw {
+      font-size: 0.6rem; font-weight: 700;
+      padding: 2px 8px; border-radius: 20px;
+      border: 1px solid;
+      background: transparent;
+    }
+
+    /* 구분선 */
+    .persona-divider {
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+      margin-bottom: 12px;
+    }
+
+    /* 패키지명 + 월 수익률 행 */
+    .persona-portfolio-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .persona-pkg { display: flex; align-items: baseline; gap: 6px; }
+    .persona-pkg-name {
+      font-size: 0.78rem; font-weight: 900;
+      letter-spacing: 0.08em;
+    }
+    .persona-pkg-amount {
+      font-size: 1.15rem; font-weight: 900;
+      color: #fff; letter-spacing: -.02em;
+    }
+    .persona-rate-pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: 20px;
+      font-size: 0.7rem; font-weight: 800;
+      border: 1px solid;
+    }
+
+    /* 실시간 자산 / 수익 */
+    .persona-live-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 7px; margin-bottom: 8px;
+    }
+    .persona-live-block {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    .persona-live-label {
+      font-size: 0.6rem; font-weight: 700;
+      color: rgba(255,255,255,0.38);
+      letter-spacing: .07em; text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .persona-live-val {
+      font-size: 0.88rem; font-weight: 900;
+      color: rgba(255,255,255,0.88);
+      letter-spacing: -.01em; line-height: 1;
+    }
+
+    /* USDT 소계 */
+    .persona-usdt {
+      font-size: 0.62rem; color: rgba(255,255,255,0.28);
+      display: flex; align-items: center; gap: 3px;
+    }
+
+    /* ══════════════════════════════════════════
+       inv-card 내부 페르소나 밴드
+    ══════════════════════════════════════════ */
+    .inv-persona-band {
+      padding: 14px 18px 12px 20px;
+      background: rgba(var(--inv-rgb), 0.04);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .inv-persona-row {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 10px;
+    }
+    .inv-persona-avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%; border: 2px solid;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.95rem; font-weight: 900;
+      flex-shrink: 0;
+    }
+    .inv-persona-meta { flex: 1; min-width: 0; }
+    .inv-persona-id-row {
+      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 3px;
+    }
+    .inv-persona-id {
+      font-size: 0.7rem; font-weight: 900;
+      color: var(--inv-c); letter-spacing: .06em;
+    }
+    .inv-persona-age {
+      font-size: 0.58rem; font-weight: 700;
+      padding: 1px 7px; border-radius: 20px;
+      border: 1px solid;
+    }
+    .inv-persona-job {
+      font-size: 0.65rem; color: rgba(255,255,255,0.48);
+      display: flex; align-items: center; gap: 4px;
+    }
+    .inv-persona-purpose {
+      font-size: 0.72rem; font-weight: 700;
+      color: rgba(255,255,255,0.78);
+      margin-bottom: 6px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .inv-persona-quote {
+      font-size: 0.64rem; color: rgba(255,255,255,0.38);
+      font-style: italic; line-height: 1.5;
+      margin-bottom: 8px;
+      padding-left: 10px;
+      border-left: 2px solid rgba(var(--inv-rgb),0.25);
+    }
+    .inv-persona-kws {
+      display: flex; flex-wrap: wrap; gap: 5px;
+    }
+    .inv-pkw {
+      font-size: 0.58rem; font-weight: 700;
+      padding: 2px 7px; border-radius: 20px;
+      border: 1px solid;
+    }
+
+    /* ── 카드 상단 (투자 개시일 + 원금) ── */
+    .inv-top-band {
+      padding: 14px 18px 12px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(var(--inv-rgb),0.05);
+    }
+    .inv-top-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+    .inv-name {
+      font-size:0.72rem; font-weight:900; letter-spacing:0.1em;
+      color: var(--inv-c); text-transform:uppercase;
+      text-shadow: 0 0 10px rgba(var(--inv-rgb),.4);
+    }
+    .inv-badge {
+      font-size:0.62rem; font-weight:700; padding:2px 8px;
+      border-radius:10px; background: rgba(var(--inv-rgb),.12);
+      color: var(--inv-c); border:1px solid rgba(var(--inv-rgb),.25);
+    }
+    .inv-startdate {
+      font-size:0.68rem; color:rgba(255,255,255,0.4);
+      margin-bottom:4px; letter-spacing:.04em;
+    }
+    .inv-principal {
+      font-size:1.55rem; font-weight:900; color:#fff;
+      letter-spacing:-.02em; line-height:1;
+    }
+    .inv-strategy {
+      font-size:0.7rem; color:rgba(255,255,255,0.4);
+      margin-top:4px; display:flex; align-items:center; gap:4px;
+    }
+
+    /* ── 카드 하단 (수익률/수익금) ── */
+    .inv-bottom-band {
+      padding: 14px 18px 16px 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    /* 월 고정 수익률 + 누적 수익률 헤더 행 */
+    .inv-rate-row {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .inv-fixed-rate-pill {
+      display:inline-flex; align-items:center; gap:5px;
+      background: rgba(var(--inv-rgb),.1);
+      border: 1px solid rgba(var(--inv-rgb),.25);
+      border-radius:20px; padding:3px 10px;
+      font-size:0.7rem; font-weight:800;
+      color: var(--inv-c);
+    }
+    .inv-fixed-rate-pill i { font-size:.6rem; }
+    .inv-cumrate {
+      display:inline-flex; align-items:center; gap:4px;
+      background: rgba(0,229,160,.08);
+      border: 1px solid rgba(0,229,160,.2);
+      border-radius:20px; padding:3px 10px;
+      font-size:0.7rem; font-weight:800;
+      color:#00e5a0;
+    }
+    .inv-cumrate i { font-size:.6rem; }
+
+    /* 당월/누적 수익 구분 블록 */
+    .inv-profit-blocks {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .inv-profit-block {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    .inv-profit-block.accent {
+      background: rgba(0,229,160,0.05);
+      border-color: rgba(0,229,160,0.15);
+    }
+    .inv-block-label {
+      font-size:0.6rem; font-weight:800;
+      color:rgba(255,255,255,0.4);
+      letter-spacing:.08em; text-transform:uppercase;
+      margin-bottom:4px;
+    }
+    .inv-profit-block.accent .inv-block-label { color:rgba(0,229,160,0.6); }
+    .inv-block-value {
+      font-size:1.05rem; font-weight:900;
+      color:rgba(255,255,255,0.9);
+      letter-spacing:-.01em; line-height:1;
+    }
+    .inv-profit-block.accent .inv-block-value {
+      font-size:1.2rem;
+      color:#00e5a0;
+      text-shadow: 0 0 10px rgba(0,229,160,.3);
+    }
+    .inv-block-sub {
+      font-size:0.62rem; color:rgba(255,255,255,0.3);
+      margin-top:3px;
+    }
+    .inv-profit-block.accent .inv-block-sub { color:rgba(0,229,160,0.4); }
+
+    .inv-usdt {
+      font-size:0.66rem; color:rgba(255,255,255,0.3);
+      margin-bottom:8px;
+      display:flex; align-items:center; gap:4px;
+    }
+
+    /* ── 코멘트 ── */
+    .inv-desc {
+      font-size:0.68rem; color:rgba(255,255,255,0.38);
+      line-height:1.6;
+      padding-top:8px;
+      border-top:1px solid rgba(255,255,255,0.05);
+      margin-top: auto;
+    }
+
+    /* ── 현재 총 자산 전체너비 블록 ── */
+    .inv-asset-full {
+      background: rgba(var(--inv-rgb),0.06);
+      border: 1px solid rgba(var(--inv-rgb),0.18);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+    }
+    .inv-asset-val {
+      font-size: 1.55rem; font-weight: 900;
+      color: var(--inv-c);
+      letter-spacing: -.02em; line-height: 1.1;
+      text-shadow: 0 0 12px rgba(var(--inv-rgb),.35);
+    }
+
+    /* ── 통계 2열 행 ── */
+    .inv-stat-row {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .inv-stat-item {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px;
+      padding: 7px 10px;
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .inv-stat-label {
+      font-size: 0.6rem; font-weight: 700;
+      color: rgba(255,255,255,0.38);
+      letter-spacing: .06em; text-transform: uppercase;
+    }
+    .inv-stat-val {
+      font-size: 0.82rem; font-weight: 800;
+      color: rgba(255,255,255,0.8);
+    }
+
+    /* ═══════════════════════════════════════
+       SPECIAL REPORT — 런치 버튼
+    ═══════════════════════════════════════ */
+    .sr-launch-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, rgba(245,166,35,0.15) 0%, rgba(245,100,0,0.1) 100%);
+      border: 1px solid rgba(245,166,35,0.45);
+      border-radius: 12px;
+      padding: 10px 20px;
+      color: #f5c55a;
+      font-size: 0.85rem; font-weight: 800;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: all 0.25s;
+      box-shadow: 0 0 20px rgba(245,166,35,0.12), inset 0 1px 0 rgba(255,255,255,0.08);
+      position: relative; overflow: hidden;
+    }
+    .sr-launch-btn::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(245,166,35,0.08), transparent);
+      opacity: 0; transition: opacity 0.25s;
+    }
+    .sr-launch-btn:hover {
+      border-color: rgba(245,166,35,0.7);
+      box-shadow: 0 0 32px rgba(245,166,35,0.25), 0 4px 16px rgba(0,0,0,0.3);
+      transform: translateY(-1px);
+      color: #fff;
+    }
+    .sr-launch-btn:hover::before { opacity: 1; }
+    .sr-launch-badge {
+      background: linear-gradient(90deg,#f5a623,#e07b00);
+      color: #000; font-size: 0.62rem; font-weight: 900;
+      padding: 2px 7px; border-radius: 8px;
+      letter-spacing: 0.06em;
+    }
+
+    /* ═══════════════════════════════════════
+       SPECIAL REPORT — 모달 오버레이
+    ═══════════════════════════════════════ */
+    .sr-overlay {
+      position: fixed; inset: 0; z-index: 9000;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .sr-overlay.open { opacity: 1; pointer-events: all; }
+
+    .sr-modal {
+      width: 100%; max-width: 1080px;
+      background: linear-gradient(145deg, #0d1117 0%, #111827 60%, #0d1829 100%);
+      border: 1px solid rgba(245,166,35,0.25);
+      border-radius: 24px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(245,166,35,0.1);
+      display: flex; flex-direction: column;
+      max-height: 92vh;
+      overflow: hidden;
+      transform: scale(0.95) translateY(20px);
+      transition: transform 0.3s cubic-bezier(.22,.68,0,1.2);
+    }
+    .sr-overlay.open .sr-modal {
+      transform: scale(1) translateY(0);
+    }
+
+    /* 모달 헤더 */
+    .sr-modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 28px 16px;
+      border-bottom: 1px solid rgba(245,166,35,0.15);
+      background: rgba(245,166,35,0.04);
+      flex-shrink: 0;
+    }
+    .sr-header-left { display: flex; align-items: center; gap: 14px; }
+    .sr-header-icon {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg,rgba(245,166,35,0.2),rgba(245,100,0,0.15));
+      border: 1px solid rgba(245,166,35,0.35);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; color: #f5a623;
+    }
+    .sr-header-title {
+      font-size: 1.05rem; font-weight: 900;
+      color: #fff; letter-spacing: -0.01em;
+    }
+    .sr-header-sub {
+      font-size: 0.72rem; color: rgba(255,255,255,0.5);
+      margin-top: 2px;
+    }
+    .sr-header-right { display: flex; align-items: center; gap: 10px; }
+    .sr-dl-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: linear-gradient(135deg,#f5a623,#e07b00);
+      color: #000; font-size: 0.8rem; font-weight: 900;
+      padding: 9px 18px; border-radius: 10px;
+      cursor: pointer; border: none;
+      transition: all 0.2s;
+      box-shadow: 0 4px 14px rgba(245,166,35,0.4);
+    }
+    .sr-dl-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245,166,35,0.5); }
+    .sr-dl-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .sr-close-btn {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: rgba(255,255,255,0.6);
+      font-size: 1rem; transition: all 0.2s;
+    }
+    .sr-close-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+    /* 모달 바디 — 슬라이드 뷰어 */
+    .sr-modal-body {
+      flex: 1; overflow-y: auto; padding: 24px 28px;
+      scrollbar-width: thin; scrollbar-color: rgba(245,166,35,0.3) transparent;
+    }
+    .sr-modal-body::-webkit-scrollbar { width: 4px; }
+    .sr-modal-body::-webkit-scrollbar-thumb { background: rgba(245,166,35,0.3); border-radius: 4px; }
+
+    /* 슬라이드 네비게이션 */
+    .sr-slide-nav {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .sr-slide-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: rgba(255,255,255,0.15);
+      cursor: pointer; transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+    .sr-slide-dot.active {
+      background: #f5a623;
+      box-shadow: 0 0 8px rgba(245,166,35,0.6);
+      width: 24px; border-radius: 4px;
+    }
+    .sr-slide-nav-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px; padding: 6px 12px;
+      color: rgba(255,255,255,0.7); font-size: 0.78rem;
+      cursor: pointer; transition: all 0.2s;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .sr-slide-nav-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .sr-slide-counter {
+      font-size: 0.78rem; color: rgba(255,255,255,0.4);
+      padding: 0 8px;
+    }
+
+    /* ── PPT 슬라이드 — 가로형 16:9 ── */
+    .sr-slide-wrapper {
+      width: 100%;
+    }
+    .sr-slide {
+      display: none;
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: linear-gradient(145deg, #070d1a 0%, #0b1628 50%, #060f1e 100%);
+      border: 1px solid rgba(245,166,35,0.2);
+      border-radius: 18px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+      /* 16:9 강제 적용 */
+      contain: layout size;
+    }
+    .sr-slide.active { display: block; }
+
+    /* 슬라이드 배경 장식 */
+    .sr-slide-bg-grid {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(245,166,35,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245,166,35,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    .sr-slide-bg-glow {
+      position: absolute; pointer-events: none;
+      border-radius: 50%;
+    }
+
+    /* 슬라이드 공통 패딩 */
+    .sr-slide-inner {
+      position: absolute; z-index: 2;
+      inset: 0;
+      padding: 3.5% 5% 6%;  /* 하단 6% — 푸터바 공간 확보 */
+      display: flex; flex-direction: column;
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+
+    /* 슬라이드 헤더 라인 */
+    .sr-sl-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 2.5%;
+      border-bottom: 1px solid rgba(245,166,35,0.2);
+      padding-bottom: 1.5%;
+      flex-shrink: 0;
+    }
+    .sr-sl-eyebrow {
+      font-size: clamp(0.45rem, 1.1vw, 0.72rem);
+      font-weight: 800; letter-spacing: 0.15em;
+      color: #f5a623; text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .sr-sl-title {
+      font-size: clamp(0.85rem, 2.2vw, 1.5rem);
+      font-weight: 900; color: #fff;
+      letter-spacing: -0.02em; line-height: 1.15;
+    }
+    .sr-sl-title span { color: #f5a623; }
+    .sr-sl-meta {
+      text-align: right;
+      font-size: clamp(0.42rem, 0.9vw, 0.64rem);
+      color: rgba(255,255,255,0.4);
+      line-height: 1.6;
+    }
+    .sr-sl-pg {
+      font-size: clamp(1rem, 2.8vw, 2rem);
+      font-weight: 900; color: rgba(245,166,35,0.25);
+      font-family: 'Inter', sans-serif;
+      letter-spacing: -0.04em;
+    }
+
+    /* 슬라이드 바디 flex */
+    .sr-sl-body {
+      flex: 1; display: flex; gap: 2.5%;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* KPI 타일 */
+    .sr-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4,1fr);
+      gap: 1.2%;
+      margin-bottom: 1.2%;
+      flex-shrink: 0;
+    }
+    .sr-kpi-tile {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 10px;
+      padding: 2% 2.5%;
+      position: relative; overflow: hidden;
+    }
+    .sr-kpi-tile::before {
+      content:''; position:absolute; top:0;left:0;right:0; height:2px;
+      background: var(--tc, #f5a623);
+      opacity: 0.7;
+    }
+    .sr-kpi-label {
+      font-size: clamp(0.42rem, 0.85vw, 0.62rem);
+      font-weight: 700; color: rgba(255,255,255,0.4);
+      letter-spacing: .08em; text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .sr-kpi-val {
+      font-size: clamp(0.75rem, 1.8vw, 1.3rem);
+      font-weight: 900; color: #fff;
+      letter-spacing: -0.02em; line-height: 1;
+    }
+    .sr-kpi-sub {
+      font-size: clamp(0.38rem, 0.75vw, 0.56rem);
+      color: rgba(255,255,255,0.3); margin-top: 2px;
+    }
+
+    /* 2단 컬럼 */
+    .sr-col { flex: 1; display: flex; flex-direction: column; gap: 2%; min-width: 0; overflow: hidden; }
+    .sr-col-wide { flex: 1.6; }
+    .sr-col-narrow { flex: 1; }
+
+    /* 섹션 타이틀 */
+    .sr-sec-title {
+      font-size: clamp(0.5rem, 1vw, 0.72rem);
+      font-weight: 800; color: #f5a623;
+      letter-spacing: .1em; text-transform: uppercase;
+      margin-bottom: 1.5%;
+      display: flex; align-items: center; gap: 5px;
+    }
+
+    /* 테이블 슬라이드용 */
+    .sr-table {
+      width: 100%; border-collapse: collapse;
+      font-size: clamp(0.42rem, 0.9vw, 0.68rem);
+    }
+    .sr-table th {
+      background: rgba(245,166,35,0.1);
+      color: #f5a623; font-weight: 800;
+      padding: 2% 2.5%; text-align: right;
+      border-bottom: 1px solid rgba(245,166,35,0.2);
+      letter-spacing: .04em;
+    }
+    .sr-table th:first-child { text-align: left; }
+    .sr-table td {
+      padding: 1.5% 2.5%; text-align: right;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.8);
+      font-variant-numeric: tabular-nums;
+    }
+    .sr-table td:first-child { text-align: left; color: rgba(255,255,255,0.55); font-weight:600; }
+    .sr-table tr:hover td { background: rgba(255,255,255,0.025); }
+    .sr-table .sr-td-green { color: #00e5a0; font-weight: 800; }
+    .sr-table .sr-td-blue { color: #4a90e2; font-weight: 800; }
+    .sr-table .sr-td-gold { color: #f5a623; font-weight: 800; }
+    .sr-table .sr-tr-current td { background: rgba(245,166,35,0.06); }
+    .sr-table .sr-tr-q { background: rgba(245,166,35,0.03); }
+
+    /* 차트 래퍼 슬라이드용 */
+    .sr-chart-wrap {
+      flex: 1; min-height: 0; position: relative;
+      overflow: hidden;
+    }
+    .sr-chart-wrap canvas {
+      display: block !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    /* 바 (성과 시각화) */
+    .sr-bar-list { display: flex; flex-direction: column; gap: 4%; flex: 1; }
+    .sr-bar-row { display: flex; align-items: center; gap: 3%; }
+    .sr-bar-label {
+      font-size: clamp(0.42rem, 0.85vw, 0.62rem);
+      color: rgba(255,255,255,0.55); font-weight:700;
+      width: 14%; flex-shrink:0; text-align:right;
+    }
+    .sr-bar-track {
+      flex: 1; height: clamp(4px, 1.2vh, 10px);
+      background: rgba(255,255,255,0.06);
+      border-radius: 99px; overflow: hidden;
+    }
+    .sr-bar-fill {
+      height: 100%; border-radius: 99px;
+      transition: width 0.8s cubic-bezier(.22,.68,0,1.2);
+    }
+    .sr-bar-val {
+      font-size: clamp(0.42rem, 0.85vw, 0.65rem);
+      font-weight: 800; width: 18%;
+      text-align: right; white-space: nowrap;
+    }
+
+    /* 배지 행 */
+    .sr-badge-row {
+      display: flex; gap: 2%; flex-wrap: wrap; margin-bottom: 2%;
+    }
+    .sr-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 2% 3.5%; border-radius: 8px;
+      font-size: clamp(0.42rem, 0.85vw, 0.65rem);
+      font-weight: 800; border: 1px solid;
+    }
+
+    /* 코멘트 박스 */
+    .sr-comment-box {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-left: 3px solid var(--cc, #f5a623);
+      border-radius: 8px;
+      padding: 3% 3.5%;
+      font-size: clamp(0.4rem, 0.85vw, 0.64rem);
+      color: rgba(255,255,255,0.65);
+      line-height: 1.65;
+    }
+    .sr-comment-box strong { color: #f5c55a; }
+    .sr-comment-title {
+      font-size: clamp(0.45rem, 0.9vw, 0.66rem);
+      font-weight: 800; color: var(--cc, #f5a623);
+      letter-spacing: .06em; text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    /* 강조 숫자 */
+    .sr-big-num {
+      font-size: clamp(1.4rem, 4vw, 3rem);
+      font-weight: 900; letter-spacing: -0.04em;
+      line-height: 1;
+    }
+
+    /* 표지 슬라이드 */
+    .sr-cover-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; height: 100%; gap: 0; }
+    .sr-cover-logo {
+      font-size: clamp(0.65rem, 1.6vw, 1.1rem);
+      font-weight: 900; letter-spacing: 0.12em;
+      color: #f5a623; margin-bottom: 2%;
+    }
+    .sr-cover-title {
+      font-size: clamp(1.4rem, 4vw, 3rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,.85) 40%, #f5a623 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.15; margin-bottom: 1.5%;
+    }
+    .sr-cover-sub {
+      font-size: clamp(0.6rem, 1.4vw, 0.95rem);
+      color: rgba(255,255,255,0.55); margin-bottom: 3%;
+    }
+    .sr-cover-pills {
+      display: flex; gap: 2%; justify-content: center; flex-wrap: wrap;
+      margin-bottom: 3%;
+    }
+    .sr-cover-pill {
+      padding: 1.5% 3%; border-radius: 99px;
+      font-size: clamp(0.42rem, 0.9vw, 0.68rem);
+      font-weight: 800; border: 1px solid;
+    }
+    .sr-cover-disclaimer {
+      font-size: clamp(0.38rem, 0.75vw, 0.56rem);
+      color: rgba(255,255,255,0.25); line-height: 1.7;
+      max-width: 70%; margin: 0 auto;
+    }
+
+    /* 푸터 라인 */
+    .sr-slide-footer {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, rgba(245,166,35,0.5), rgba(245,166,35,0.9), rgba(245,166,35,0.5), transparent);
+    }
+    .sr-slide-footer-bar {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      height: 5.5%;  /* 슬라이드 높이의 5.5% */
+      padding: 0 4%;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: clamp(0.32rem, 0.65vw, 0.5rem);
+      color: rgba(255,255,255,0.25);
+      z-index: 3;
+      background: linear-gradient(to top, rgba(6,15,30,0.8), transparent);
+    }
+
+    /* 로딩 오버레이 */
+    .sr-loading {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 16px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .sr-loading.show { opacity: 1; pointer-events: all; }
+    .sr-loading-spinner {
+      width: 48px; height: 48px;
+      border: 3px solid rgba(245,166,35,0.2);
+      border-top-color: #f5a623;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .sr-loading-text {
+      color: rgba(255,255,255,0.7); font-size: 0.85rem; font-weight: 600;
+    }
+
+    /* 반응형 */
+    @media(max-width:768px) {
+      .sr-modal { border-radius: 18px; max-height: 95vh; }
+      .sr-modal-header { padding: 14px 18px 12px; }
+      .sr-modal-body { padding: 14px 16px; }
+      .sr-header-title { font-size: 0.9rem; }
+      .sr-dl-btn span { display: none; }
+      .sr-kpi-grid { grid-template-columns: repeat(2,1fr); }
+    }
+    @media(max-width:480px) {
+      .sr-modal-header { flex-wrap: wrap; gap: 10px; }
+      .sr-header-right { width: 100%; justify-content: flex-end; }
+      .sr-modal-body { padding: 10px 12px; }
+      .sr-slide { border-radius: 12px; }
+    }
+
+    /* 구버전 호환 */
+    .inv-elapsed { font-size:0.7rem; color:rgba(255,255,255,0.35); margin-top:4px; }
+
+    /* ── 섹션 카드 ──────────────────────────────── */
+    .bm-card {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      margin-bottom: var(--space-xl);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 32px rgba(0,0,0,0.3);
+    }
+    .bm-card-header {
+      display:flex; align-items:center; justify-content:space-between;
+      padding: var(--space-md) var(--space-xl);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,.03);
+    }
+    .bm-card-title {
+      font-size:.82rem; font-weight:700;
+      color: rgba(255,255,255,0.7);
+      letter-spacing:.08em; text-transform: uppercase;
+    }
+    .bm-card-body { padding: var(--space-xl); }
+
+    /* ── 차트 래퍼 ──────────────────────────────── */
+    .chart-wrap { position:relative; height:320px; }
+    @media(max-width:600px){ .chart-wrap{ height:220px; } }
+
+    /* ── 뷰 전환 버튼 ───────────────────────────── */
+    .view-btns { display:flex; gap:6px; }
+    .view-btn {
+      padding:4px 12px; border-radius:12px; border:1px solid var(--border-default);
+      background:transparent; color:var(--text-muted); font-size:0.75rem; font-weight:600;
+      cursor:pointer; font-family:var(--font-ko); transition:all .2s;
+    }
+    .view-btn.active { background:rgba(245,166,35,.12); color:#f5a623; border-color:rgba(245,166,35,.4); }
+
+    /* ── 테이블 ──────────────────────────────────── */
+    .bm-table { width:100%; border-collapse:collapse; font-size:.82rem; }
+    .bm-table th {
+      padding: var(--space-sm) var(--space-md); text-align:left;
+      color:rgba(255,255,255,0.4); font-size:.72rem; font-weight:700;
+      border-bottom:1px solid rgba(255,255,255,0.06); letter-spacing:.07em;
+      white-space:nowrap; text-transform:uppercase;
+    }
+    .bm-table td {
+      padding: var(--space-sm) var(--space-md);
+      color:rgba(255,255,255,0.75);
+      border-bottom:1px solid rgba(255,255,255,.04);
+      vertical-align:middle;
+    }
+    .bm-table tr.current-row td { background:rgba(245,166,35,.05); }
+    .bm-table tr.predicted-row td { color:var(--text-muted); font-style:italic; }
+    .bm-table tr:hover td { background:rgba(255,255,255,.03); }
+    .rate-pos { color:#00e5a0; font-weight:700; text-shadow: 0 0 6px rgba(0,229,160,.3); }
+    .rate-high { color:#f5c55a; font-weight:700; text-shadow: 0 0 6px rgba(245,166,35,.3); }
+    .badge-curr {
+      font-size:.66rem; font-weight:800; padding:2px 6px;
+      border-radius:10px; background:rgba(245,166,35,.15); color:#f5a623;
+      border:1px solid rgba(245,166,35,.3); white-space:nowrap;
+    }
+    .badge-pred {
+      font-size:.66rem; font-weight:700; padding:2px 6px;
+      border-radius:10px; background:rgba(255,255,255,.05); color:var(--text-muted);
+      white-space:nowrap;
+    }
+
+    /* ── 이슈 카드 ──────────────────────────────── */
+    .issue-grid { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-md); }
+    @media(max-width:700px){ .issue-grid{ grid-template-columns:1fr; } }
+    .issue-card {
+      background: rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:var(--radius-lg);
+      padding:var(--space-lg);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .issue-card:hover {
+      background: rgba(245,166,35,.04);
+      border-color: rgba(245,166,35,.2);
+    }
+    .issue-month { font-size:.72rem; font-weight:800; color:#f5c55a; letter-spacing:.1em; margin-bottom:6px; text-shadow: 0 0 8px rgba(245,166,35,.4); }
+    .issue-title { font-size:.88rem; font-weight:700; color:#fff; margin-bottom:6px; line-height:1.5; }
+    .issue-highlight { font-size:.8rem; color:rgba(255,255,255,0.65); margin-bottom:6px; }
+    .issue-note { font-size:.75rem; color:rgba(255,255,255,0.4); border-top:1px solid rgba(255,255,255,.06); padding-top:8px; margin-top:8px; }
+
+    /* ── 전략 변화 타임라인 ─────────────────────── */
+    .timeline { display:flex; flex-direction:column; gap:0; }
+    .tl-row {
+      display:flex; gap:var(--space-md);
+      padding: 10px 0;
+      border-bottom:1px solid rgba(255,255,255,.05);
+    }
+    .tl-row:last-child { border-bottom:none; }
+    .tl-month {
+      width:90px; flex-shrink:0;
+      font-size:.72rem; font-weight:800;
+      color: rgba(255,255,255,0.5);
+      padding-top:2px; letter-spacing:.05em;
+    }
+    .tl-dot {
+      width:10px; height:10px; border-radius:50%;
+      flex-shrink:0; margin-top:4px;
+      background: var(--inv-c);
+      box-shadow: 0 0 8px var(--inv-c), 0 0 16px rgba(var(--inv-rgb),.3);
+    }
+    .tl-text { font-size:.82rem; color:rgba(255,255,255,0.7); line-height:1.6; }
+
+    /* ── 투자자 선택 필터 ──────────────────────── */
+    .inv-filter { display:flex; gap:var(--space-sm); flex-wrap:wrap; margin-bottom:var(--space-lg); }
+    .inv-filter-btn {
+      display:flex; align-items:center; gap:6px;
+      padding:5px 14px; border-radius:20px;
+      border:1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.03); cursor:pointer;
+      font-size:.78rem; font-weight:700;
+      font-family:var(--font-ko);
+      transition:all .2s;
+      color:rgba(255,255,255,0.5);
+    }
+    .inv-filter-btn.active {
+      background: rgba(var(--filter-rgb),.12);
+      border-color: var(--filter-c);
+      color: var(--filter-c);
+    }
+    .filter-dot { width:8px; height:8px; border-radius:50%; background:var(--filter-c); }
+
+    /* ── 개요 차트 투자자 선택 버튼 ─────────────── */
+    .ov-inv-selector {
+      display:flex; gap:8px; flex-wrap:wrap;
+      padding:0 var(--space-lg) var(--space-md);
+    }
+    .ov-inv-btn {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:6px 14px; border-radius:20px;
+      border:1px solid rgba(255,255,255,.1);
+      background:rgba(255,255,255,.03);
+      color:rgba(255,255,255,.45);
+      font-size:.76rem; font-weight:700;
+      font-family:var(--font-ko); cursor:pointer;
+      transition:all .22s;
+    }
+    .ov-inv-btn:hover {
+      border-color:var(--ic,rgba(255,255,255,.3));
+      color:var(--ic,#fff);
+      background:rgba(255,255,255,.06);
+    }
+    .ov-inv-btn.active {
+      background:rgba(255,255,255,.07);
+      border-color:var(--ic,rgba(255,255,255,.4));
+      color:var(--ic,#fff);
+      box-shadow:0 0 10px rgba(255,255,255,.06);
+    }
+    .ov-inv-all.active {
+      background:rgba(255,255,255,.06);
+      border-color:rgba(255,255,255,.25);
+      color:#fff;
+    }
+    .ov-inv-dot {
+      width:8px; height:8px; border-radius:50%; flex-shrink:0;
+    }
+
+    /* 개별 뷰 정보 배너 */
+    .ov-single-info {
+      display:flex; align-items:center; justify-content:space-between;
+      flex-wrap:wrap; gap:12px;
+      margin:0 var(--space-lg) var(--space-md);
+      padding:12px 16px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:var(--radius-lg);
+    }
+    .ov-si-left { display:flex; flex-direction:column; gap:4px; }
+    .ov-si-name { font-size:1rem; font-weight:800; }
+    .ov-si-pkg  { font-size:.72rem; color:var(--text-muted); }
+    .ov-si-right { display:flex; gap:20px; flex-wrap:wrap; }
+    .ov-si-stat { display:flex; flex-direction:column; align-items:center; gap:2px; }
+    .ov-si-stat-label { font-size:.66rem; color:var(--text-muted); }
+    .ov-si-stat-val   { font-size:.88rem; font-weight:700; color:#fff; }
+
+    /* 차트 하단 노트 */
+    .ov-chart-note {
+      display:flex; align-items:center; gap:8px;
+      padding:10px var(--space-lg) 14px;
+      font-size:.7rem; color:rgba(255,255,255,.35);
+    }
+    .ov-chart-note i { color:rgba(255,255,255,.25); }
+
+    /* ── 실시간 카운터 ─────────────────────────── */
+    .realtime-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-md); }
+    @media(max-width:900px){ .realtime-grid{ grid-template-columns:repeat(2,1fr); } }
+    @media(max-width:480px){ .realtime-grid{ grid-template-columns:1fr; } }
+
+    .rt-card {
+      background: rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:var(--radius-xl); padding:var(--space-lg);
+      text-align:center; position:relative; overflow:hidden;
+      transition: transform 0.25s, box-shadow 0.25s;
+      backdrop-filter: blur(8px);
+    }
+    .rt-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(var(--inv-rgb),.15); }
+    .rt-card::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:3px;
+      background: linear-gradient(90deg, var(--inv-c), rgba(var(--inv-rgb),0.3));
+    }
+    .rt-card::after {
+      content:''; position:absolute;
+      top: -40px; left: -40px; right: -40px;
+      height: 80px;
+      background: radial-gradient(ellipse, rgba(var(--inv-rgb),0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .rt-label { font-size:.72rem; font-weight:800; letter-spacing:.1em; color:var(--inv-c); text-transform:uppercase; margin-bottom:8px; text-shadow: 0 0 10px rgba(var(--inv-rgb),.4); }
+    .rt-value { font-size:1.65rem; font-weight:900; color:#fff; font-family:'Inter',sans-serif; letter-spacing:-.02em; }
+    .rt-sub { font-size:.75rem; color:rgba(255,255,255,0.45); margin-top:3px; }
+    .rt-profit { font-size:1rem; font-weight:800; color:#00e5a0; margin-top:4px; text-shadow: 0 0 8px rgba(0,229,160,.3); }
+
+    /* ── 비교 차트 영역 ────────────────────────── */
+    .compare-legend {
+      display:flex; gap:var(--space-lg); flex-wrap:wrap;
+      margin-bottom:var(--space-md);
+    }
+    .legend-item { display:flex; align-items:center; gap:6px; font-size:.78rem; color:var(--text-secondary); }
+    .legend-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+
+    /* ── 수익률 비교 바 ────────────────────────── */
+    .rate-compare { display:flex; flex-direction:column; gap:var(--space-md); }
+    .rc-row { display:flex; align-items:center; gap:var(--space-md); }
+    .rc-name { width:80px; font-size:.8rem; font-weight:700; color:rgba(255,255,255,0.7); flex-shrink:0; }
+    .rc-bar-wrap { flex:1; height:28px; background:rgba(255,255,255,.04); border-radius:6px; overflow:hidden; position:relative; }
+    .rc-bar {
+      height:100%; border-radius:6px;
+      background: var(--inv-c);
+      display:flex; align-items:center; padding-left:10px;
+      font-size:.75rem; font-weight:800; color:rgba(0,0,0,.8);
+      transition: width 1.2s cubic-bezier(.22,.68,0,1.2);
+      min-width:40px;
+    }
+    .rc-val { width:70px; text-align:right; font-size:.82rem; font-weight:700; color:var(--accent-green); flex-shrink:0; }
+
+    /* 스크롤 테이블 래퍼 */
+    .table-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    .table-scroll table { min-width:480px; }
+
+    /* ════════════════════════════════════
+       Benchmark Responsive
+    ════════════════════════════════════ */
+
+    /* Tablet (≤1024px) */
+    @media(max-width:1024px){
+      .bm-wrap { padding: 0 var(--space-md) var(--space-3xl); }
+      .bm-hero { padding: 40px var(--space-md) 30px; }
+      .bm-card-body { padding: var(--space-md); }
+      .bm-tab { padding: 7px 12px; font-size: 0.78rem; }
+      /* 개요 차트 선택 버튼 */
+      .ov-inv-selector { gap: 6px; padding: 0 var(--space-md) var(--space-sm); flex-wrap: wrap; }
+      .ov-inv-btn { font-size: 0.72rem; padding: 5px 11px; }
+      /* 개별 뷰 정보배너 */
+      .ov-single-info { flex-direction: column; gap:8px; }
+      .ov-si-right { gap:12px; }
+      /* 비교테이블 */
+      .compare-legend { display:none; }
+    }
+
+    /* Mobile (≤768px) */
+    @media(max-width:768px){
+      .bm-hero h1 { font-size: clamp(1.3rem,4vw,1.8rem); }
+      .bm-hero p  { font-size: 0.82rem; }
+      .bm-tab-bar { border-radius: 10px; padding: 4px; margin-bottom: var(--space-md); }
+      .bm-tab     { padding: 6px 10px; font-size: 0.74rem; }
+      .bm-card-header { flex-direction: column; gap: 8px; align-items: flex-start; padding: var(--space-md) var(--space-md) var(--space-sm); }
+      .bm-card-body   { padding: var(--space-sm) var(--space-md); }
+
+      /* persona-live-row */
+      .persona-live-row { gap: 6px; }
+
+      /* 탭 뷰 전환 버튼 */
+      .view-btns { gap: 4px; }
+      .view-btn  { padding: 4px 9px; font-size: 0.7rem; }
+
+      /* 월별필터 */
+      .inv-filter { gap: 5px; }
+      .inv-filter-btn { padding: 4px 10px; font-size: 0.72rem; }
+
+      /* 타임라인 */
+      .tl-month { width: 70px; font-size: 0.68rem; }
+
+      /* 수익률 비교 바 */
+      .rc-row { flex-wrap: wrap; gap: 4px; }
+      .rc-name { width: 100%; }
+
+      /* 차트 높이 조정 */
+      .chart-wrap { height: 200px !important; }
+
+      /* ov-chart-note */
+      .ov-chart-note { font-size: 0.65rem; }
+
+      /* 개별 뷰 배너 */
+      .ov-si-stat-val { font-size: 0.8rem; }
+    }
+
+    /* Mobile-S (≤480px) */
+    @media(max-width:480px){
+      .bm-wrap { padding: 0 var(--space-sm) var(--space-2xl); }
+      .bm-hero { padding: 28px var(--space-sm) 20px; }
+      .bm-tab  { padding: 5px 8px; font-size: 0.68rem; }
+      .persona-grid { gap: var(--space-sm); }
+      .persona-card { padding: 14px 12px 10px; }
+      .inv-grid  { gap: var(--space-sm); }
+      .bm-card   { border-radius: var(--radius-lg); }
+      .rc-val    { width: auto; }
+      /* 타임라인 텍스트 축소 */
+      .tl-content { font-size: 0.78rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- 배경 레이어 -->
+<div class="bm-bg-grid"></div>
+<div class="bm-bg-glow"></div>
+
+<!-- Top Nav -->
+<nav class="vie-nav">
+  <div class="vie-nav-inner">
+    <div class="vie-nav-brand">
+      <a href="index.html" style="display:flex;align-items:center;gap:8px;text-decoration:none">
+        <span class="vie-nav-logo">D.Quant 9.0</span>
+        <span class="vie-nav-badge">V.I.E</span>
+      </a>
+    </div>
+    <div class="vie-nav-links">
+      <a href="dashboard.html" class="vie-nav-link"><i class="fa-solid fa-chart-line"></i> 대시보드</a>
+      <a href="reports.html"   class="vie-nav-link"><i class="fa-solid fa-file-lines"></i> 리포트</a>
+      <a href="consult.html"   class="vie-nav-link"><i class="fa-solid fa-handshake"></i> 상담</a>
+      <a href="benchmark.html" class="vie-nav-link benchmark active"><i class="fa-solid fa-chart-column"></i> 벤치마크</a>
+      <a href="mypage.html"    class="vie-nav-link"><i class="fa-solid fa-user"></i> My</a>
+      <a href="login.html"     class="vie-nav-link" id="nav-login-btn"><i class="fa-solid fa-right-to-bracket"></i> 로그인</a>
+      <div class="bm-usdt-pill" style="margin-left:8px">
+        <div class="bm-live-dot"></div>
+        <span>USDT/KRW</span>
+        <span class="bm-usdt-val" id="usdt-rate-top">로딩중...</span>
+      </div>
+    </div>
+    <div class="vie-nav-hamburger" onclick="vieNavToggle(this)" aria-label="메뉴">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+<nav class="vie-nav-mobile" id="vie-nav-mobile">
+  <a href="dashboard.html" class="vie-nav-link"><i class="fa-solid fa-chart-line"></i> 대시보드</a>
+  <a href="reports.html"   class="vie-nav-link"><i class="fa-solid fa-file-lines"></i> 리포트</a>
+  <a href="consult.html"   class="vie-nav-link"><i class="fa-solid fa-handshake"></i> 상담</a>
+  <a href="benchmark.html" class="vie-nav-link benchmark active"><i class="fa-solid fa-chart-column"></i> 벤치마크</a>
+  <a href="mypage.html"    class="vie-nav-link"><i class="fa-solid fa-user"></i> My</a>
+  <a href="login.html"     class="vie-nav-link" id="nav-login-btn-m"><i class="fa-solid fa-right-to-bracket"></i> 로그인</a>
+</nav>
+
+<div class="bm-wrap">
+
+  <!-- HEADER -->
+  <div class="bm-header">
+    <div class="bm-eyebrow"><i class="fa-solid fa-chart-column"></i> LIVE BENCHMARK</div>
+    <h1 class="bm-title">투자자별 실시간 성과 시나리오</h1>
+    <p class="bm-subtitle">2025년 11월 1일 시작 &nbsp;·&nbsp; 4명의 투자자 &nbsp;·&nbsp; D.Quant 알고리즘 운용 기준</p>
+    <div class="bm-period-badge">
+      <i class="fa-solid fa-circle-dot" style="font-size:.65rem;color:#00e5a0;text-shadow:0 0 6px #00e5a0"></i>
+      <span id="period-text">2025.11.01 ~ 실시간 진행 중</span>
+      <span id="elapsed-days" style="color:rgba(255,255,255,0.5);font-weight:500"></span>
+    </div>
+  </div>
+
+  <!-- Special Report 버튼 -->
+  <div style="display:flex;justify-content:flex-end;margin-bottom:var(--space-md)">
+    <button class="sr-launch-btn" onclick="openSpecialReport()">
+      <i class="fa-solid fa-file-chart-column"></i>
+      <span>Special Report</span>
+      <span class="sr-launch-badge">PDF</span>
+    </button>
+  </div>
+
+  <!-- 탭 네비게이션 -->
+  <div class="bm-tab-bar">
+    <div class="bm-tab active" onclick="switchTab('overview')"><i class="fa-solid fa-gauge-high"></i> 개요</div>
+    <div class="bm-tab" onclick="switchTab('strategy')"><i class="fa-solid fa-route"></i> 전략 변화</div>
+    <div class="bm-tab" onclick="switchTab('issues')"><i class="fa-solid fa-newspaper"></i> 월별 이슈</div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       탭 1: 개요 (OVERVIEW)
+  ════════════════════════════════════ -->
+  <div id="tab-overview">
+
+    <!-- ══ 섹션 1: 투자자 페르소나 ══ -->
+    <div class="bm-section-block persona-section">
+      <div class="bm-section-header">
+        <div>
+          <div class="bm-section-label"><i class="fa-solid fa-users" style="color:rgba(255,255,255,0.3);margin-right:5px"></i>Investor Persona</div>
+          <div class="bm-section-title">투자자 프로필 &amp; 투자 성향</div>
+        </div>
+        <span class="bm-section-badge" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.45);border:1px solid rgba(255,255,255,0.1)">4명 · Core ~ Strategy A</span>
+      </div>
+      <div class="bm-section-divider" style="--div-c:rgba(255,255,255,0.08)"></div>
+
+    <!-- 페르소나 요약 카드 4개 -->
+    <div class="persona-grid">
+
+      <!-- 투자자 A — 38세 직장인 / Core / 1,000만원 -->
+      <div class="persona-card" style="--inv-c:#4a90e2;--inv-rgb:74,144,226">
+        <div class="persona-top">
+          <div class="persona-avatar" style="background:rgba(74,144,226,0.15);border-color:rgba(74,144,226,0.4);color:#4a90e2">김</div>
+          <div class="persona-header-info">
+            <div class="persona-id-row">
+              <span class="persona-id-badge">투자자 A</span>
+              <span class="persona-age-badge" style="background:rgba(74,144,226,0.12);color:#4a90e2;border-color:rgba(74,144,226,0.25)">30대 · 38세</span>
+            </div>
+            <div class="persona-job">
+              <i class="fa-solid fa-briefcase" style="color:#4a90e2;font-size:.65rem"></i>
+              직장인 · 중견기업 과장
+            </div>
+          </div>
+        </div>
+        <div class="persona-purpose">
+          <span class="persona-emoji">🏠</span>
+          <span>월급 외 안정적인 부수입 확보</span>
+        </div>
+        <div class="persona-keywords">
+          <span class="persona-kw" style="border-color:rgba(74,144,226,0.3);color:#4a90e2">#안정</span>
+          <span class="persona-kw" style="border-color:rgba(74,144,226,0.3);color:#4a90e2">#저위험</span>
+          <span class="persona-kw" style="border-color:rgba(74,144,226,0.3);color:#4a90e2">#첫투자</span>
+        </div>
+        <div class="persona-divider"></div>
+        <div class="persona-portfolio-row">
+          <div class="persona-pkg">
+            <span class="persona-pkg-name" style="color:#4a90e2">CORE</span>
+            <span class="persona-pkg-amount">1,000만원</span>
+          </div>
+          <div class="persona-rate-pill" style="background:rgba(74,144,226,0.1);border-color:rgba(74,144,226,0.3);color:#4a90e2">
+            <i class="fa-solid fa-lock" style="font-size:.6rem"></i> 월 +2.5%
+          </div>
+        </div>
+        <div class="persona-live-row">
+          <div class="persona-live-block">
+            <div class="persona-live-label">현재 자산</div>
+            <div class="persona-live-val" id="rt-val-A">—</div>
+          </div>
+          <div class="persona-live-block accent" style="--pa-rgb:74,144,226">
+            <div class="persona-live-label">누적 수익</div>
+            <div class="persona-live-val" id="rt-profit-A" style="color:#4a90e2">—</div>
+          </div>
+        </div>
+        <div class="persona-usdt" id="rt-usdt-A">≈ — USDT</div>
+      </div>
+
+      <!-- 투자자 B — 47세 자영업자 / Growth / 3,600만원 -->
+      <div class="persona-card" style="--inv-c:#36b37e;--inv-rgb:54,179,126">
+        <div class="persona-top">
+          <div class="persona-avatar" style="background:rgba(54,179,126,0.15);border-color:rgba(54,179,126,0.4);color:#36b37e">이</div>
+          <div class="persona-header-info">
+            <div class="persona-id-row">
+              <span class="persona-id-badge">투자자 B</span>
+              <span class="persona-age-badge" style="background:rgba(54,179,126,0.12);color:#36b37e;border-color:rgba(54,179,126,0.25)">40대 · 47세</span>
+            </div>
+            <div class="persona-job">
+              <i class="fa-solid fa-store" style="color:#36b37e;font-size:.65rem"></i>
+              자영업자 · 외식업 대표
+            </div>
+          </div>
+        </div>
+        <div class="persona-purpose">
+          <span class="persona-emoji">📈</span>
+          <span>사업 이익 분산 투자 및 노후 준비</span>
+        </div>
+        <div class="persona-keywords">
+          <span class="persona-kw" style="border-color:rgba(54,179,126,0.3);color:#36b37e">#성장</span>
+          <span class="persona-kw" style="border-color:rgba(54,179,126,0.3);color:#36b37e">#복리</span>
+          <span class="persona-kw" style="border-color:rgba(54,179,126,0.3);color:#36b37e">#분산투자</span>
+        </div>
+        <div class="persona-divider"></div>
+        <div class="persona-portfolio-row">
+          <div class="persona-pkg">
+            <span class="persona-pkg-name" style="color:#36b37e">GROWTH</span>
+            <span class="persona-pkg-amount">3,600만원</span>
+          </div>
+          <div class="persona-rate-pill" style="background:rgba(54,179,126,0.1);border-color:rgba(54,179,126,0.3);color:#36b37e">
+            <i class="fa-solid fa-lock" style="font-size:.6rem"></i> 월 +3.0%
+          </div>
+        </div>
+        <div class="persona-live-row">
+          <div class="persona-live-block">
+            <div class="persona-live-label">현재 자산</div>
+            <div class="persona-live-val" id="rt-val-B">—</div>
+          </div>
+          <div class="persona-live-block accent" style="--pa-rgb:54,179,126">
+            <div class="persona-live-label">누적 수익</div>
+            <div class="persona-live-val" id="rt-profit-B" style="color:#36b37e">—</div>
+          </div>
+        </div>
+        <div class="persona-usdt" id="rt-usdt-B">≈ — USDT</div>
+      </div>
+
+      <!-- 투자자 C — 54세 개원 치과의사 / Premium / 5,000만원 -->
+      <div class="persona-card" style="--inv-c:#9d8ec7;--inv-rgb:157,142,199">
+        <div class="persona-top">
+          <div class="persona-avatar" style="background:rgba(124,111,166,0.15);border-color:rgba(124,111,166,0.4);color:#9d8ec7">박</div>
+          <div class="persona-header-info">
+            <div class="persona-id-row">
+              <span class="persona-id-badge">투자자 C</span>
+              <span class="persona-age-badge" style="background:rgba(124,111,166,0.12);color:#9d8ec7;border-color:rgba(124,111,166,0.25)">50대 · 54세</span>
+            </div>
+            <div class="persona-job">
+              <i class="fa-solid fa-user-doctor" style="color:#9d8ec7;font-size:.65rem"></i>
+              전문직 · 개원 치과의사
+            </div>
+          </div>
+        </div>
+        <div class="persona-purpose">
+          <span class="persona-emoji">💎</span>
+          <span>전문직 여유 자금 수익 극대화</span>
+        </div>
+        <div class="persona-keywords">
+          <span class="persona-kw" style="border-color:rgba(124,111,166,0.3);color:#9d8ec7">#수익극대화</span>
+          <span class="persona-kw" style="border-color:rgba(124,111,166,0.3);color:#9d8ec7">#고수익</span>
+          <span class="persona-kw" style="border-color:rgba(124,111,166,0.3);color:#9d8ec7">#은퇴준비</span>
+        </div>
+        <div class="persona-divider"></div>
+        <div class="persona-portfolio-row">
+          <div class="persona-pkg">
+            <span class="persona-pkg-name" style="color:#9d8ec7">PREMIUM</span>
+            <span class="persona-pkg-amount">5,000만원</span>
+          </div>
+          <div class="persona-rate-pill" style="background:rgba(124,111,166,0.1);border-color:rgba(124,111,166,0.3);color:#9d8ec7">
+            <i class="fa-solid fa-lock" style="font-size:.6rem"></i> 월 +4.0%
+          </div>
+        </div>
+        <div class="persona-live-row">
+          <div class="persona-live-block">
+            <div class="persona-live-label">현재 자산</div>
+            <div class="persona-live-val" id="rt-val-C">—</div>
+          </div>
+          <div class="persona-live-block accent" style="--pa-rgb:124,111,166">
+            <div class="persona-live-label">누적 수익</div>
+            <div class="persona-live-val" id="rt-profit-C" style="color:#9d8ec7">—</div>
+          </div>
+        </div>
+        <div class="persona-usdt" id="rt-usdt-C">≈ — USDT</div>
+      </div>
+
+      <!-- 투자자 D — 61세 제조업 CEO / Strategy A / 1억원 -->
+      <div class="persona-card" style="--inv-c:#c99456;--inv-rgb:201,148,86">
+        <div class="persona-top">
+          <div class="persona-avatar" style="background:rgba(201,148,86,0.15);border-color:rgba(201,148,86,0.4);color:#c99456">최</div>
+          <div class="persona-header-info">
+            <div class="persona-id-row">
+              <span class="persona-id-badge">투자자 D</span>
+              <span class="persona-age-badge" style="background:rgba(201,148,86,0.12);color:#c99456;border-color:rgba(201,148,86,0.25)">60대 · 61세</span>
+            </div>
+            <div class="persona-job">
+              <i class="fa-solid fa-building" style="color:#c99456;font-size:.65rem"></i>
+              기업인 · 제조업 CEO
+            </div>
+          </div>
+        </div>
+        <div class="persona-purpose">
+          <span class="persona-emoji">🏦</span>
+          <span>은퇴 후 자산 보전 + 월 현금흐름 창출</span>
+        </div>
+        <div class="persona-keywords">
+          <span class="persona-kw" style="border-color:rgba(201,148,86,0.3);color:#c99456">#현금흐름</span>
+          <span class="persona-kw" style="border-color:rgba(201,148,86,0.3);color:#c99456">#자산보전</span>
+          <span class="persona-kw" style="border-color:rgba(201,148,86,0.3);color:#c99456">#대형자본</span>
+        </div>
+        <div class="persona-divider"></div>
+        <div class="persona-portfolio-row">
+          <div class="persona-pkg">
+            <span class="persona-pkg-name" style="color:#c99456">STRATEGY A</span>
+            <span class="persona-pkg-amount">1억원</span>
+          </div>
+          <div class="persona-rate-pill" style="background:rgba(201,148,86,0.1);border-color:rgba(201,148,86,0.3);color:#c99456">
+            <i class="fa-solid fa-lock" style="font-size:.6rem"></i> 월 +4.0%
+          </div>
+        </div>
+        <div class="persona-live-row">
+          <div class="persona-live-block">
+            <div class="persona-live-label">현재 자산</div>
+            <div class="persona-live-val" id="rt-val-D">—</div>
+          </div>
+          <div class="persona-live-block accent" style="--pa-rgb:201,148,86">
+            <div class="persona-live-label">누적 수익</div>
+            <div class="persona-live-val" id="rt-profit-D" style="color:#c99456">—</div>
+          </div>
+        </div>
+        <div class="persona-usdt" id="rt-usdt-D">≈ — USDT</div>
+      </div>
+
+    </div><!-- /persona-grid -->
+    </div><!-- /bm-section-block.persona-section -->
+
+    <!-- ══ 섹션 2: 투자 현황 대시보드 ══ -->
+    <div class="bm-section-block inv-section">
+      <div class="bm-section-header">
+        <div>
+          <div class="bm-section-label"><i class="fa-solid fa-chart-line" style="color:rgba(245,166,35,0.5);margin-right:5px"></i>Live Investment Status</div>
+          <div class="bm-section-title" style="color:#f5c55a">투자 현황 &amp; 실시간 운용 성과</div>
+        </div>
+        <span class="bm-section-badge" style="background:rgba(245,166,35,0.1);color:#f5a623;border:1px solid rgba(245,166,35,0.25)"><i class="fa-solid fa-circle" style="font-size:0.45rem;margin-right:4px;animation:pulse 1.5s infinite"></i>LIVE</span>
+      </div>
+      <div class="bm-section-divider" style="--div-c:rgba(245,166,35,0.2)"></div>
+
+    <!-- 투자자 4명 요약 카드 -->
+    <div class="inv-grid" id="inv-cards"></div>
+    </div><!-- /bm-section-block.inv-section -->
+
+    <!-- 누적 수익 곡선 차트 -->
+    <div class="bm-card" id="overview-chart-card">
+      <div class="bm-card-header">
+        <div class="bm-card-title"><i class="fa-solid fa-chart-area" style="color:#f5a623"></i> 투자자별 누적 자산 성장 곡선</div>
+        <div class="compare-legend" id="overview-legend"></div>
+      </div>
+      <!-- 투자자 선택 필터 -->
+      <div class="ov-inv-selector" id="ov-inv-selector">
+        <button class="ov-inv-btn" data-id="A" onclick="selectOverviewInv('A',this)" style="--ic:#4a90e2">
+          <span class="ov-inv-dot" style="background:#4a90e2"></span>투자자 A
+        </button>
+        <button class="ov-inv-btn" data-id="B" onclick="selectOverviewInv('B',this)" style="--ic:#7ed321">
+          <span class="ov-inv-dot" style="background:#7ed321"></span>투자자 B
+        </button>
+        <button class="ov-inv-btn" data-id="C" onclick="selectOverviewInv('C',this)" style="--ic:#f5a623">
+          <span class="ov-inv-dot" style="background:#f5a623"></span>투자자 C
+        </button>
+        <button class="ov-inv-btn" data-id="D" onclick="selectOverviewInv('D',this)" style="--ic:#c99456">
+          <span class="ov-inv-dot" style="background:#c99456"></span>투자자 D
+        </button>
+        <button class="ov-inv-btn ov-inv-all active" data-id="ALL" onclick="selectOverviewInv('ALL',this)">
+          <span class="ov-inv-dot" style="background:linear-gradient(135deg,#4a90e2,#7ed321,#f5a623,#c99456)"></span>전체 비교
+        </button>
+      </div>
+      <!-- 개별 뷰 정보 배너 -->
+      <div class="ov-single-info" id="ov-single-info" style="display:none">
+        <div class="ov-si-left">
+          <span class="ov-si-name" id="ov-si-name">—</span>
+          <span class="ov-si-pkg" id="ov-si-pkg">—</span>
+        </div>
+        <div class="ov-si-right">
+          <div class="ov-si-stat">
+            <div class="ov-si-stat-label">투자원금</div>
+            <div class="ov-si-stat-val" id="ov-si-principal">—</div>
+          </div>
+          <div class="ov-si-stat">
+            <div class="ov-si-stat-label">월 수익률</div>
+            <div class="ov-si-stat-val" id="ov-si-rate">—</div>
+          </div>
+          <div class="ov-si-stat">
+            <div class="ov-si-stat-label">누적 수익</div>
+            <div class="ov-si-stat-val" id="ov-si-profit">—</div>
+          </div>
+        </div>
+      </div>
+      <div class="bm-card-body">
+        <div class="chart-wrap" id="chart-overview-wrap"><canvas id="chart-overview"></canvas></div>
+      </div>
+      <div class="ov-chart-note" id="ov-chart-note">
+        <i class="fa-solid fa-circle-info"></i>
+        <span id="ov-chart-note-text">4명의 투자자 수익 곡선을 동시 표시 중 · 투자자를 선택하면 개별 수익 증가분을 확인할 수 있습니다</span>
+      </div>
+    </div>
+
+    <!-- 수익률 비교 바 -->
+    <div class="bm-card">
+      <div class="bm-card-header">
+        <div class="bm-card-title"><i class="fa-solid fa-ranking-star" style="color:#f5a623"></i> 누적 수익률 비교</div>
+        <div style="font-size:.75rem;color:var(--text-muted)">현재까지 기준</div>
+      </div>
+      <div class="bm-card-body">
+        <div class="rate-compare" id="rate-compare"></div>
+      </div>
+    </div>
+
+  </div><!-- /tab-overview -->
+
+  <!-- ════════════════════════════════════
+       탭 2: 전략 변화
+  ════════════════════════════════════ -->
+  <div id="tab-strategy" style="display:none">
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-lg)">
+      <div class="bm-card" style="margin:0">
+        <div class="bm-card-header">
+          <div class="bm-card-title" style="color:#4a90e2"><i class="fa-solid fa-shield-halved"></i> 투자자 A · D-Grid</div>
+        </div>
+        <div class="bm-card-body">
+          <div class="timeline" id="tl-A" style="--inv-c:#4a90e2"></div>
+        </div>
+      </div>
+      <div class="bm-card" style="margin:0">
+        <div class="bm-card-header">
+          <div class="bm-card-title" style="color:#36b37e"><i class="fa-solid fa-table-cells"></i> 투자자 B · D-Grouping</div>
+        </div>
+        <div class="bm-card-body">
+          <div class="timeline" id="tl-B" style="--inv-c:#36b37e"></div>
+        </div>
+      </div>
+      <div class="bm-card" style="margin:0">
+        <div class="bm-card-header">
+          <div class="bm-card-title" style="color:#7c6fa6"><i class="fa-solid fa-layer-group"></i> 투자자 C · D-Grid Premium</div>
+        </div>
+        <div class="bm-card-body">
+          <div class="timeline" id="tl-C" style="--inv-c:#7c6fa6"></div>
+        </div>
+      </div>
+      <div class="bm-card" style="margin:0">
+        <div class="bm-card-header">
+          <div class="bm-card-title" style="color:#c99456"><i class="fa-solid fa-circle-nodes"></i> 투자자 D · D-Hybrid</div>
+        </div>
+        <div class="bm-card-body">
+          <div class="timeline" id="tl-D" style="--inv-c:#c99456"></div>
+        </div>
+      </div>
+    </div>
+    @media(max-width:700px){
+      #tab-strategy > div { grid-template-columns:1fr !important; }
+    }
+
+  </div><!-- /tab-strategy -->
+
+  <!-- ════════════════════════════════════
+       탭 6: 월별 이슈
+  ════════════════════════════════════ -->
+  <div id="tab-issues" style="display:none">
+    <div class="issue-grid" id="issue-grid"></div>
+  </div>
+
+  <div style="height:60px"></div>
+</div><!-- /bm-wrap -->
+
+<div class="toast-container"></div>
+<script src="js/vie-app.js"></script>
+<script src="js/vie-benchmark.js"></script>
+<script>
+/* ══════════════════════════════════════════════
+   MAIN INIT
+══════════════════════════════════════════════ */
+let usdtRate = 1380;
+let activeInv = { monthly:'A', weekly:'A' };
+let monthlyView = 'rate';
+let charts = {};
+
+const INV_IDS = ['A','B','C','D'];
+const INV_COLORS = { A:'#4a90e2', B:'#36b37e', C:'#7c6fa6', D:'#c99456' };
+const INV_RGBS   = { A:'74,144,226', B:'54,179,126', C:'124,111,166', D:'201,148,86' };
+
+window.addEventListener('DOMContentLoaded', async () => {
+  // 시계
+  setInterval(updateClock, 1000); updateClock();
+
+  // 경과 기간
+  const days = BmCalc.daysSinceStart();
+  const elapsedEl = document.getElementById('elapsed-days');
+  if (elapsedEl) elapsedEl.textContent = `(${days}일 경과)`;
+
+  // USDT 환율 fetch
+  usdtRate = await BmUsdt.fetch();
+  updateUsdtDisplay();
+
+  // 전체 렌더
+  renderInvCards();
+  renderOverviewChart();
+  renderRateCompare();
+  renderOverviewLegend();
+  renderIssueGrid();
+  renderTimelines();
+  updateRealtimeCards();
+
+  // 실시간 갱신 (30초마다)
+  setInterval(updateRealtimeCards, 30000);
+  // USDT 60초마다
+  setInterval(async () => {
+    usdtRate = await BmUsdt.fetch();
+    updateUsdtDisplay();
+    updateRealtimeCards();
+  }, 60000);
+});
+
+/* ── 시계 ─────────────────────────────────── */
+function updateClock() {
+  const el = document.getElementById('bm-clock');
+  if (!el) return;
+  const now = new Date();
+  el.textContent =
+    now.toLocaleString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+
+/* ── USDT 표시 ──────────────────────────────── */
+function updateUsdtDisplay() {
+  const el = document.getElementById('usdt-rate-top');
+  if (!el) return;
+  el.textContent = BmCalc.fmt(usdtRate) + '원';
+}
+
+/* ── 탭 전환 ───────────────────────────────── */
+function switchTab(name) {
+  // 현재 탭: overview · strategy · issues
+  ['overview','strategy','issues'].forEach(t => {
+    const el = document.getElementById('tab-' + t);
+    if (el) el.style.display = t === name ? '' : 'none';
+  });
+  document.querySelectorAll('.bm-tab').forEach((el,i) => {
+    const names = ['overview','strategy','issues'];
+    el.classList.toggle('active', names[i] === name);
+  });
+}
+
+/* ── 실시간 상단 카드 ───────────────────────── */
+function updateRealtimeCards() {
+  INV_IDS.forEach(id => {
+    const inv = BM_CONFIG.INVESTORS[id];
+    const s   = BmCalc.getCurrentStats(id);
+    const profitUsdt = BmCalc.toUsdt(s.totalProfit, usdtRate);
+    const rtVal    = document.getElementById('rt-val-' + id);
+    const rtProfit = document.getElementById('rt-profit-' + id);
+    const rtUsdt   = document.getElementById('rt-usdt-' + id);
+    if (rtVal)    rtVal.textContent    = BmCalc.fmtM(s.currentVal) + '원';
+    if (rtProfit) rtProfit.textContent = '+' + BmCalc.fmtM(s.totalProfit) + '원 (' + BmCalc.fmtRate(s.totalRate) + ')';
+    if (rtUsdt)   rtUsdt.textContent   = '월 ' + (inv.baseMonthlyRate * 100).toFixed(1) + '% 고정 · ≈ ' + profitUsdt.toFixed(1) + ' USDT';
+  });
+}
+
+/* ── 투자자 요약 카드 ───────────────────────── */
+function renderInvCards() {
+  const container = document.getElementById('inv-cards');
+  container.innerHTML = INV_IDS.map(id => {
+    const inv  = BM_CONFIG.INVESTORS[id];
+    const s    = BmCalc.getCurrentStats(id);
+    const usdt = BmCalc.toUsdt(s.totalProfit, usdtRate);
+
+    // 당월 수익: 직전 완료월 누적 원리금 × 월 고정 수익률
+    const rows = BmCalc.calcMonthlyData(id);
+    const completedM = BmCalc.completedMonths();
+    const prevCumulative = completedM > 0
+      ? rows[Math.min(completedM - 1, rows.length - 1)].cumulative
+      : inv.principal;
+    const currentMonthProfit = prevCumulative * inv.baseMonthlyRate;
+
+    // 당월 수익률 표시 (고정)
+    const monthRatePct = (inv.baseMonthlyRate * 100).toFixed(1);
+    // 누적 수익률
+    const cumRatePct = s.totalRate.toFixed(2);
+
+    // 월별 데이터 — 완료 월 기준 자산 성장 통계
+    const completedRows = rows.filter(r => !r.predicted);
+    const peakMonthProfit = completedRows.length > 0
+      ? Math.max(...completedRows.map(r => r.profit))
+      : 0;
+    // 현재 자산 (current val)
+    const currentAsset = s.currentVal;
+
+    return `
+      <div class="inv-card" style="--inv-c:${inv.color};--inv-rgb:${inv.colorRgb}">
+
+        <!-- ══ 헤더 밴드: 투자자 식별 + 포트폴리오 ══ -->
+        <div class="inv-top-band">
+          <div class="inv-top-row">
+            <div class="inv-name">
+              <i class="fa-solid ${inv.icon}" style="margin-right:5px"></i>${inv.name} · ${inv.portfolio}
+            </div>
+            <div class="inv-badge">${inv.badge}</div>
+          </div>
+          <div class="inv-startdate">
+            <i class="fa-solid fa-calendar-check"></i>
+            투자 개시일 &nbsp;<b style="color:rgba(255,255,255,0.7)">${inv.startDate}</b>
+            &nbsp;·&nbsp; <b style="color:rgba(255,255,255,0.55)">${s.daysTotal}일</b> 운용
+          </div>
+          <div class="inv-principal">${BmCalc.fmtM(inv.principal)}<span style="font-size:1rem;font-weight:600;color:rgba(255,255,255,0.6)">원</span></div>
+          <div class="inv-strategy">
+            ${inv.strategy} &nbsp;·&nbsp; ${inv.portfolio} 등급
+          </div>
+        </div>
+
+        <!-- ══ 수익률 행 ══ -->
+        <div class="inv-bottom-band">
+
+          <!-- 월 고정 수익률 · 누적 수익률 -->
+          <div class="inv-rate-row">
+            <div class="inv-fixed-rate-pill">
+              <i class="fa-solid fa-lock"></i>
+              월 고정 +${monthRatePct}%
+            </div>
+            <div class="inv-cumrate">
+              <i class="fa-solid fa-arrow-trend-up"></i>
+              누적 +${cumRatePct}%
+            </div>
+          </div>
+
+          <!-- 현재 자산 (전체 너비) -->
+          <div class="inv-asset-full">
+            <div class="inv-block-label">
+              <i class="fa-solid fa-wallet" style="margin-right:3px"></i>현재 총 자산
+            </div>
+            <div class="inv-asset-val">${BmCalc.fmtM(currentAsset)}<span style="font-size:0.85rem;font-weight:700;color:rgba(255,255,255,0.5)">원</span></div>
+          </div>
+
+          <!-- 당월 수익 | 누적 수익 — 2분할 블록 -->
+          <div class="inv-profit-blocks">
+            <!-- 당월 수익 -->
+            <div class="inv-profit-block">
+              <div class="inv-block-label">
+                <i class="fa-solid fa-calendar-day" style="margin-right:2px"></i>당월 예상 수익
+              </div>
+              <div class="inv-block-value">+${BmCalc.fmtM(currentMonthProfit)}원</div>
+              <div class="inv-block-sub">이번 달 예상 수익금</div>
+            </div>
+            <!-- 누적 수익 -->
+            <div class="inv-profit-block accent">
+              <div class="inv-block-label">
+                <i class="fa-solid fa-layer-group" style="margin-right:2px"></i>누적 수익
+              </div>
+              <div class="inv-block-value">+${BmCalc.fmtM(s.totalProfit)}원</div>
+              <div class="inv-block-sub">개시일 이후 전체</div>
+            </div>
+          </div>
+
+          <!-- 최고 월 수익 + USDT 환산 -->
+          <div class="inv-stat-row">
+            <div class="inv-stat-item">
+              <span class="inv-stat-label"><i class="fa-solid fa-crown" style="color:#f5a623;font-size:.6rem;margin-right:2px"></i>최고 월 수익</span>
+              <span class="inv-stat-val">+${BmCalc.fmtM(peakMonthProfit)}원</span>
+            </div>
+            <div class="inv-stat-item">
+              <span class="inv-stat-label"><i class="fa-solid fa-dollar-sign" style="font-size:.6rem;margin-right:2px"></i>USDT 환산</span>
+              <span class="inv-stat-val">≈ ${usdt.toFixed(1)} USDT</span>
+            </div>
+          </div>
+
+          <!-- 운용 전략 설명 -->
+          <div class="inv-desc">${inv.desc}</div>
+        </div>
+
+      </div>
+    `;
+  }).join('');
+}
+
+/* ── 개요 차트 공용 데이터 ─────────────────── */
+let _overviewSelectedInv = 'ALL'; // 현재 선택된 투자자 ID or 'ALL'
+
+/* ── 투자자 선택 핸들러 ──────────────────────── */
+function selectOverviewInv(id, btn) {
+  _overviewSelectedInv = id;
+  // 버튼 active 처리
+  document.querySelectorAll('.ov-inv-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  // 개별 뷰일 때 차트 높이 늘리기
+  const wrap = document.getElementById('chart-overview-wrap');
+  if (wrap) wrap.style.height = (id === 'ALL') ? '320px' : '360px';
+  renderOverviewChart();
+  renderOverviewLegend();
+}
+
+/* ── 개요 차트 (누적 자산 곡선) ─────────────── */
+function renderOverviewChart() {
+  const ctx = document.getElementById('chart-overview').getContext('2d');
+  const labels = BM_CONFIG.MONTHLY_SCENARIOS.map(s =>
+    s.label.replace('년 ','').replace('월','월').replace(' (예측)','*')
+  );
+
+  const singleInfoEl = document.getElementById('ov-single-info');
+  const noteTextEl   = document.getElementById('ov-chart-note-text');
+
+  // ── 전체 비교 모드 ──
+  if (_overviewSelectedInv === 'ALL') {
+    if (singleInfoEl) singleInfoEl.style.display = 'none';
+
+    // 수익률(%) 기준으로 정규화 — 원금 대비 % 변화율
+    const datasets = INV_IDS.map(id => {
+      const inv  = BM_CONFIG.INVESTORS[id];
+      const rows = BmCalc.calcMonthlyData(id);
+      return {
+        label: inv.name,
+        data: rows.map(r => {
+          const rate = r.cumulative / inv.principal * 100;
+          return +rate.toFixed(2);
+        }),
+        borderColor: INV_COLORS[id],
+        backgroundColor: INV_COLORS[id] + '12',
+        borderWidth: 2.5,
+        pointRadius: rows.map(r => r.isCurrent ? 6 : r.predicted ? 3 : 4),
+        pointBackgroundColor: rows.map(r => r.predicted ? 'transparent' : INV_COLORS[id]),
+        pointBorderColor: INV_COLORS[id],
+        pointBorderWidth: rows.map(r => r.predicted ? 2 : 0),
+        borderDash: [],
+        fill: false,
+        tension: 0.35
+      };
+    });
+
+    if (charts.overview) charts.overview.destroy();
+    charts.overview = new Chart(ctx, {
+      type: 'line',
+      data: { labels, datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: items => labels[items[0].dataIndex],
+              label: ctx => {
+                const id  = INV_IDS[ctx.datasetIndex];
+                const inv = BM_CONFIG.INVESTORS[id];
+                const rows = BmCalc.calcMonthlyData(id);
+                const row  = rows[ctx.dataIndex];
+                return [
+                  ` ${ctx.dataset.label}: +${ctx.parsed.y.toFixed(2)}%`,
+                  `   ▸ 수익금 +${BmCalc.fmtM(row.monthlyProfit)}원`,
+                  `   ▸ 누적 +${BmCalc.fmtM(row.cumulative)}원`
+                ];
+              }
+            }
+          }
+        },
+        scales: {
+          x: { grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#666',font:{size:11}} },
+          y: {
+            grid: {color:'rgba(255,255,255,.04)'},
+            ticks: {color:'#666',font:{size:11}, callback: v => '+' + v.toFixed(1) + '%'}
+          }
+        },
+        interaction: { mode:'index', intersect:false }
+      }
+    });
+
+    if (noteTextEl) noteTextEl.textContent = '수익률(%) 기준 비교 · Y축이 동일 스케일로 통일되어 증가폭을 직관적으로 비교할 수 있습니다';
+    return;
+  }
+
+  // ── 개별 투자자 모드 ──
+  const id  = _overviewSelectedInv;
+  const inv = BM_CONFIG.INVESTORS[id];
+  const rows = BmCalc.calcMonthlyData(id);
+  const color = INV_COLORS[id];
+
+  // 개별 정보 배너 업데이트
+  if (singleInfoEl) {
+    singleInfoEl.style.display = 'flex';
+    document.getElementById('ov-si-name').textContent = inv.name;
+    document.getElementById('ov-si-name').style.color = color;
+    document.getElementById('ov-si-pkg').textContent  = inv.portfolio + ' · ' + (inv.algo || '');
+    document.getElementById('ov-si-principal').textContent = BmCalc.fmtM(inv.principal) + '원';
+    document.getElementById('ov-si-rate').textContent = '+' + (inv.baseMonthlyRate * 100).toFixed(1) + '%/월';
+    const s = BmCalc.getCurrentStats(id);
+    document.getElementById('ov-si-profit').textContent = '+' + BmCalc.fmtM(s.totalProfit) + '원';
+    document.getElementById('ov-si-profit').style.color = color;
+  }
+
+  // 월별 수익금 + 누적 수익금 두 데이터셋
+  const dsMonthly = {
+    label: '월 수익금',
+    data: rows.map(r => Math.round(r.monthlyProfit / 10000)),
+    borderColor: color,
+    backgroundColor: color + '20',
+    borderWidth: 2,
+    pointRadius: rows.map(r => r.isCurrent ? 6 : 3),
+    pointBackgroundColor: color,
+    pointBorderColor: color,
+    borderDash: [5,3],
+    fill: true,
+    tension: 0.35,
+    yAxisID: 'yMonthly'
+  };
+  const dsCumulative = {
+    label: '누적 수익',
+    data: rows.map(r => Math.round(r.cumulative / 10000)),
+    borderColor: '#00e5a0',
+    backgroundColor: 'rgba(0,229,160,.08)',
+    borderWidth: 2.5,
+    pointRadius: rows.map(r => r.isCurrent ? 7 : r.predicted ? 3 : 4),
+    pointBackgroundColor: rows.map(r => r.predicted ? 'transparent' : '#00e5a0'),
+    pointBorderColor: '#00e5a0',
+    pointBorderWidth: rows.map(r => r.predicted ? 2 : 0),
+    borderDash: [],
+    fill: true,
+    tension: 0.35,
+    yAxisID: 'yCumul'
+  };
+
+  if (charts.overview) charts.overview.destroy();
+  charts.overview = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: [dsCumulative, dsMonthly] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          labels: { color:'#aaa', font:{size:11}, boxWidth:12, padding:16 }
+        },
+        tooltip: {
+          callbacks: {
+            title: items => labels[items[0].dataIndex],
+            label: ctx => {
+              if (ctx.dataset.yAxisID === 'yMonthly') {
+                return ` 월 수익금: +${ctx.parsed.y.toLocaleString()}만원`;
+              }
+              const row = rows[ctx.dataIndex];
+              const rate = (row.cumulative / inv.principal * 100).toFixed(2);
+              return [
+                ` 누적 수익: +${ctx.parsed.y.toLocaleString()}만원`,
+                ` 누적 수익률: +${rate}%`
+              ];
+            }
+          }
+        }
+      },
+      scales: {
+        x: { grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#666',font:{size:11}} },
+        yCumul: {
+          position: 'left',
+          grid: {color:'rgba(0,229,160,.08)'},
+          ticks: {color:'#00e5a0',font:{size:10}, callback: v => v.toLocaleString() + '만'},
+          title: {display:true, text:'누적 수익 (만원)', color:'#00e5a0', font:{size:10}}
+        },
+        yMonthly: {
+          position: 'right',
+          grid: {drawOnChartArea:false},
+          ticks: {color:color,font:{size:10}, callback: v => v.toLocaleString() + '만'},
+          title: {display:true, text:'월 수익금 (만원)', color:color, font:{size:10}}
+        }
+      },
+      interaction: { mode:'index', intersect:false }
+    }
+  });
+
+  if (noteTextEl) {
+    const pkgMap = {A:'Core 패키지 · 월 +2.5%', B:'Growth 패키지 · 월 +3.0%', C:'Premium 패키지 · 월 +4.0%', D:'Strategy A · 월 +4.0%'};
+    noteTextEl.textContent = `${inv.name} 개별 분석 · ${pkgMap[id] || ''} · 좌축: 누적 수익금 / 우축: 월 수익금`;
+  }
+}
+
+/* ── 개요 범례 ──────────────────────────────── */
+function renderOverviewLegend() {
+  const el = document.getElementById('overview-legend');
+  if (!el) return;
+  if (_overviewSelectedInv === 'ALL') {
+    el.innerHTML = INV_IDS.map(id =>
+      `<div class="legend-item">
+        <div class="legend-dot" style="background:${INV_COLORS[id]}"></div>
+        ${BM_CONFIG.INVESTORS[id].name}
+      </div>`
+    ).join('');
+  } else {
+    const id = _overviewSelectedInv;
+    el.innerHTML = `
+      <div class="legend-item">
+        <div class="legend-dot" style="background:#00e5a0"></div>누적 수익
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background:${INV_COLORS[id]};opacity:.7"></div>월 수익금
+      </div>`;
+  }
+}
+
+/* ── 수익률 비교 바 ─────────────────────────── */
+function renderRateCompare() {
+  const stats = INV_IDS.map(id => ({ id, s: BmCalc.getCurrentStats(id) }));
+  const maxRate = Math.max(...stats.map(x => x.s.totalRate));
+  document.getElementById('rate-compare').innerHTML = stats
+    .sort((a,b) => b.s.totalRate - a.s.totalRate)
+    .map(({ id, s }) => `
+      <div class="rc-row">
+        <div class="rc-name" style="color:${INV_COLORS[id]}">${BM_CONFIG.INVESTORS[id].name}</div>
+        <div class="rc-bar-wrap">
+          <div class="rc-bar" style="--inv-c:${INV_COLORS[id]};width:${(s.totalRate/maxRate*100).toFixed(1)}%">
+            ${BmCalc.fmtM(BM_CONFIG.INVESTORS[id].principal)}
+          </div>
+        </div>
+        <div class="rc-val">${BmCalc.fmtRate(s.totalRate)}</div>
+      </div>
+    `).join('');
+}
+
+/* ── 이슈 카드 ──────────────────────────────── */
+function renderIssueGrid() {
+  document.getElementById('issue-grid').innerHTML = BM_CONFIG.MONTHLY_SCENARIOS.map(sc => `
+    <div class="issue-card" style="${sc.predicted?'opacity:.7':''}">
+      <div class="issue-month">${sc.label} ${sc.predicted?'· 예측':''}</div>
+      <div class="issue-title"><i class="fa-solid fa-bolt" style="color:#f5a623;margin-right:4px"></i>${sc.issue}</div>
+      <div class="issue-highlight"><i class="fa-solid fa-crosshairs" style="color:var(--accent-green);margin-right:4px"></i>${sc.highlight}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">
+        ${INV_IDS.map(id=>`
+          <span style="font-size:.7rem;padding:2px 7px;border-radius:10px;
+            background:rgba(${INV_RGBS[id]},.12);color:${INV_COLORS[id]};
+            border:1px solid rgba(${INV_RGBS[id]},.3)">
+            투자자${id} +${(sc.rates[id]*100).toFixed(1)}%
+          </span>
+        `).join('')}
+      </div>
+      <div class="issue-note">${sc.note}</div>
+    </div>
+  `).join('');
+}
+
+/* ── 전략 타임라인 ───────────────────────────── */
+function renderTimelines() {
+  INV_IDS.forEach(id => {
+    const changes = BM_CONFIG.STRATEGY_CHANGES[id];
+    document.getElementById('tl-' + id).innerHTML = changes.map(c => `
+      <div class="tl-row">
+        <div class="tl-month">${c.month}</div>
+        <div class="tl-dot"></div>
+        <div class="tl-text">${c.change}</div>
+      </div>
+    `).join('');
+  });
+}
+</script>
+
+<!-- ═══════════════════════════════════════════════════════
+     SPECIAL REPORT MODAL
+═══════════════════════════════════════════════════════ -->
+<div class="sr-overlay" id="sr-overlay" onclick="srOverlayClick(event)">
+  <div class="sr-modal" id="sr-modal">
+
+    <!-- 모달 헤더 -->
+    <div class="sr-modal-header">
+      <div class="sr-header-left">
+        <div class="sr-header-icon"><i class="fa-solid fa-file-chart-column"></i></div>
+        <div>
+          <div class="sr-header-title">Special Report — 2억원 투자 결과 분석</div>
+          <div class="sr-header-sub">D.Quant 9.0 V.I.E &nbsp;·&nbsp; 2025.02.01 ~ 현재 &nbsp;·&nbsp; 월 8.5%–11.2% 운용</div>
+        </div>
+      </div>
+      <div class="sr-header-right">
+        <button class="sr-dl-btn" id="sr-dl-btn" onclick="downloadSRpdf()">
+          <i class="fa-solid fa-file-arrow-down"></i>
+          <span>PDF 다운로드</span>
+        </button>
+        <div class="sr-close-btn" onclick="closeSpecialReport()"><i class="fa-solid fa-xmark"></i></div>
+      </div>
+    </div>
+
+    <!-- 슬라이드 네비게이션 상단 -->
+    <div class="sr-modal-body">
+      <div class="sr-slide-nav" id="sr-slide-nav">
+        <!-- JS로 생성 -->
+      </div>
+
+      <!-- 슬라이드 컨테이너 -->
+      <div class="sr-slide-wrapper" id="sr-slide-wrapper">
+        <!-- JS로 생성 -->
+      </div>
+
+      <!-- 하단 이동 버튼 -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:16px">
+        <button class="sr-slide-nav-btn" id="sr-btn-prev" onclick="srGotoSlide(window.srCurrentSlide - 1)">
+          <i class="fa-solid fa-chevron-left"></i> 이전
+        </button>
+        <span class="sr-slide-counter" id="sr-slide-counter">1 / 8</span>
+        <button class="sr-slide-nav-btn" id="sr-btn-next" onclick="srGotoSlide(window.srCurrentSlide + 1)">
+          다음 <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PDF 생성용 로딩 -->
+<div class="sr-loading" id="sr-loading">
+  <div class="sr-loading-spinner"></div>
+  <div class="sr-loading-text" id="sr-loading-text">PDF 생성 중... 잠시만 기다려 주세요</div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════
+   SPECIAL REPORT ENGINE
+═══════════════════════════════════════════════════ */
+(function(){
+
+/* ── 상수 ── */
+const SR = {
+  PRINCIPAL : 200_000_000,          // 2억원
+  START_DATE: new Date(2025,1,1),   // 2025-02-01
+  RATE_LOW  : 0.085,                // 8.5%
+  RATE_MID  : 0.0985,               // (8.5+11.2)/2 = 9.85%
+  RATE_HIGH : 0.112,                // 11.2%
+  USDT_RATE : 1380,                 // 기본 환율 (동적 반영)
+  PKG_NAME  : 'STRATEGY A',
+  PKG_TYPE  : 'D.Quant 알고리즘 운용 (D-Hybrid)',
+  PACKAGE_BADGE : '2억원 초대형 자본 · STRATEGY-A 등급'
+};
+
+/* ── 유틸 ── */
+function fmtW(v){
+  const uc = Math.floor(v/1_0000_0000);
+  const mc = Math.floor((v%1_0000_0000)/1_0000);
+  if(uc>0 && mc>0) return uc+'억 '+mc.toLocaleString()+'만원';
+  if(uc>0) return uc+'억원';
+  return mc.toLocaleString()+'만원';
+}
+function fmtM(v){ return Math.round(v/10000).toLocaleString()+'만원'; }
+function fmtPct(v){ return (v*100).toFixed(2)+'%'; }
+// 원금 대비 환산 수익률 (부호 + 포함)
+function fmtCumPct(v){ return '+' + (v*100).toFixed(2)+'%'; }
+function fmtUsdt(v,r){ return '$'+(v/r).toLocaleString('en',{maximumFractionDigits:0}); }
+
+/* ── 월 레이블 생성 ── */
+function getMonths(){
+  const now = new Date();
+  const months = [];
+  const d = new Date(SR.START_DATE);
+  while(d <= now){
+    months.push(new Date(d));
+    d.setMonth(d.getMonth()+1);
+  }
+  return months;
+}
+
+/* ── 단리 / 복리 계산 ── */
+function calcData(){
+  const months = getMonths();
+  const P = SR.PRINCIPAL;
+  const rows = [];
+
+  // 월별 수익률: 8.5~11.2% 범위 내 지그재그 패턴 (실제 성과 시뮬)
+  // 매월 고점↗ 저점↘ 반복 — 단순 반복 없이 파동형으로 변동
+  const ratePattern = [
+    0.092, 0.112, 0.088, 0.107, 0.085, 0.110,
+    0.096, 0.108, 0.090, 0.112, 0.087, 0.103,
+    0.095, 0.111, 0.086, 0.099, 0.091, 0.108,
+    0.085, 0.112, 0.093, 0.106, 0.089, 0.100
+  ];
+
+  let simpleProfit = 0;
+  let compoundPrincipal = P;
+  let qSimple = 0, qCompound = 0;
+
+  months.forEach((m, i) => {
+    const rate = ratePattern[i % ratePattern.length];
+    const qIdx = Math.floor(i/3); // 분기 인덱스
+    const mo    = i + 1;
+
+    // 단리
+    const sProfit = P * rate;
+    simpleProfit += sProfit;
+    const sTotal = P + simpleProfit;
+    const sCumRate = simpleProfit / P;
+
+    // 복리
+    const cProfit = compoundPrincipal * rate;
+    compoundPrincipal += cProfit;
+    const cCumRate = (compoundPrincipal - P) / P;
+
+    qSimple   += sProfit;
+    qCompound += cProfit;
+
+    const isQEnd = (i+1) % 3 === 0 || i === months.length-1;
+    const isCurrent = i === months.length - 1;
+
+    rows.push({
+      idx       : i,
+      mo        : mo,
+      date      : m,
+      label     : `${m.getFullYear().toString().slice(2)}년 ${m.getMonth()+1}월`,
+      fullLabel : `${m.getFullYear()}년 ${m.getMonth()+1}월`,
+      rate      : rate,
+      quarter   : `Q${qIdx+1}`,
+      // 단리
+      sProfit   : sProfit,
+      sTotal    : sTotal,
+      sSimpleProfit: simpleProfit,
+      sCumRate  : sCumRate,
+      // 복리
+      cProfit   : cProfit,
+      cTotal    : compoundPrincipal,
+      cCumProfit: compoundPrincipal - P,
+      cCumRate  : cCumRate,
+      // 분기 누계
+      qEnd      : isQEnd,
+      qSimple   : isQEnd ? qSimple : null,
+      qCompound : isQEnd ? qCompound : null,
+      isCurrent : isCurrent,
+    });
+
+    if(isQEnd){ qSimple = 0; qCompound = 0; }
+  });
+
+  return rows;
+}
+
+/* ── 슬라이드 상태 ── */
+window.srCurrentSlide = 0; // HTML onclick에서 접근 가능하도록 window에 노움
+let srTotalSlides  = 0;
+let srData         = null;
+
+/* ── 오픈/클로즈 ── */
+window.openSpecialReport = function(){
+  // 현재 USDT 환율 동기화
+  if(typeof usdtRate === 'number') SR.USDT_RATE = usdtRate;
+  srData = calcData();
+  buildAllSlides();
+  document.getElementById('sr-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+window.closeSpecialReport = function(){
+  document.getElementById('sr-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+};
+window.srOverlayClick = function(e){
+  if(e.target === document.getElementById('sr-overlay')) closeSpecialReport();
+};
+
+/* ── 슬라이드 이동 ── */
+window.srGotoSlide = function(idx){
+  const slides = document.querySelectorAll('#sr-slide-wrapper .sr-slide');
+  const dots   = document.querySelectorAll('#sr-slide-nav .sr-slide-dot');
+  if(!slides.length) return;
+  idx = Math.max(0, Math.min(idx, slides.length - 1));
+  slides.forEach((s,i) => s.classList.toggle('active', i===idx));
+  dots.forEach((d,i)   => d.classList.toggle('active', i===idx));
+  window.srCurrentSlide = idx; // window 레벨 업데이트
+  const counter = document.getElementById('sr-slide-counter');
+  if(counter) counter.textContent = `${idx+1} / ${slides.length}`;
+  // 버튼 활성화 상태 업데이트
+  const btnPrev = document.getElementById('sr-btn-prev');
+  const btnNext = document.getElementById('sr-btn-next');
+  if(btnPrev) btnPrev.disabled = idx === 0;
+  if(btnNext) btnNext.disabled = idx === slides.length - 1;
+};
+
+/* ── 키보드 ── */
+document.addEventListener('keydown', e => {
+  const overlay = document.getElementById('sr-overlay');
+  if(!overlay.classList.contains('open')) return;
+  if(e.key === 'Escape') closeSpecialReport();
+  if(e.key === 'ArrowRight') srGotoSlide(window.srCurrentSlide + 1);
+  if(e.key === 'ArrowLeft')  srGotoSlide(window.srCurrentSlide - 1);
+});
+
+/* ════════════════════════════════════════
+   슬라이드 빌더
+════════════════════════════════════════ */
+function buildAllSlides(){
+  const wrapper = document.getElementById('sr-slide-wrapper');
+  const nav     = document.getElementById('sr-slide-nav');
+  wrapper.innerHTML = '';
+  nav.innerHTML = '';
+
+  const slides = [
+    buildCoverSlide(),
+    buildOverviewSlide(),
+    buildMonthlySimpleSlide(),
+    buildMonthlyCompoundSlide(),
+    buildCompareSlide(),
+    buildQuarterSlide(),
+    buildAnalystSlide(),
+    buildFinalSlide()
+  ];
+
+  srTotalSlides = slides.length;
+
+  // 닷 네비게이터만 nav에 삽입 (이전/다음 버튼은 HTML 하단에 고정)
+  slides.forEach((html,i) => {
+    const div = document.createElement('div');
+    div.className = 'sr-slide' + (i===0?' active':'');
+    div.innerHTML = html;
+    wrapper.appendChild(div);
+
+    const dot = document.createElement('div');
+    dot.className = 'sr-slide-dot' + (i===0?' active':'');
+    dot.title = `${i+1}번째 슬라이드`;
+    dot.onclick = ()=> srGotoSlide(i);
+    nav.appendChild(dot);
+  });
+
+  window.srCurrentSlide = 0;
+  const counter = document.getElementById('sr-slide-counter');
+  if(counter) counter.textContent = `1 / ${slides.length}`;
+
+  // 버튼 초기상태
+  const btnPrev = document.getElementById('sr-btn-prev');
+  const btnNext = document.getElementById('sr-btn-next');
+  if(btnPrev) btnPrev.disabled = true; // 첫 슬라이드에서는 이전 비활성
+  if(btnNext) btnNext.disabled = false;
+
+  // 슬라이드별 Chart 그리기 — 충분한 지연으로 DOM 렌더링 완료 후 그리기
+  setTimeout(()=>{
+    drawOverviewChart();
+    drawCompareChart();
+  }, 150);
+}
+
+/* ── 공통 슬라이드 래퍼 ── */
+function slide(content, pg=''){
+  return `
+    <div class="sr-slide-bg-grid"></div>
+    <div class="sr-slide-bg-glow" style="top:-20%;right:-10%;width:50%;height:60%;background:radial-gradient(circle,rgba(245,166,35,0.08),transparent 70%)"></div>
+    <div class="sr-slide-bg-glow" style="bottom:-20%;left:-10%;width:40%;height:50%;background:radial-gradient(circle,rgba(74,144,226,0.06),transparent 70%)"></div>
+    <div class="sr-slide-inner">
+      ${content}
+    </div>
+    <div class="sr-slide-footer"></div>
+    <div class="sr-slide-footer-bar">
+      <span>D.Quant 9.0 V.I.E — Special Report</span>
+      <span>본 자료는 시뮬레이션 기반 참고 자료이며 실제 수익을 보장하지 않습니다</span>
+      <span>${pg}</span>
+    </div>`;
+}
+
+/* ── 헤더 공통 ── */
+function slHeader(eyebrow, title, sub, pg){
+  return `
+    <div class="sr-sl-header">
+      <div>
+        <div class="sr-sl-eyebrow">${eyebrow}</div>
+        <div class="sr-sl-title">${title}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="sr-sl-pg">${pg}</div>
+        <div class="sr-sl-meta">${sub}</div>
+      </div>
+    </div>`;
+}
+
+/* ══════════════════════════════════════
+   슬라이드 1 — 표지
+══════════════════════════════════════ */
+function buildCoverSlide(){
+  const last = srData[srData.length-1];
+  const now = new Date();
+  // 표지는 slide() wrapper 사용하되, inner 내용만 전달
+  return slide(`
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;height:100%;gap:0;padding:0">
+
+      <!-- 메인 타이틀 -->
+      <div style="font-size:clamp(1.2rem,3.2vw,2.4rem);font-weight:900;background:linear-gradient(135deg,#fff 0%,rgba(255,255,255,.85) 40%,#f5a623 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.15;margin-bottom:1%;">
+        Special Investment<br>Performance Report
+      </div>
+
+      <!-- 서브 타이틀 -->
+      <div style="font-size:clamp(0.5rem,1.2vw,0.85rem);color:rgba(255,255,255,0.5);margin-bottom:2%;">
+        D.QUANT 9.0 V.I.E &nbsp;·&nbsp; 2억원 투자 결과 &nbsp;·&nbsp; 단리 vs 복리 성과 비교 분석
+      </div>
+
+      <!-- 구분선 -->
+      <div style="width:80%;height:1px;background:linear-gradient(90deg,transparent,rgba(245,166,35,0.4),transparent);margin-bottom:2%;"></div>
+
+      <!-- Pills: 날짜 / 수익률 / 운용책임자 -->
+      <div style="display:flex;gap:1.5%;justify-content:center;flex-wrap:wrap;margin-bottom:2.5%;">
+        <div style="padding:1% 2.5%;border-radius:99px;font-size:clamp(0.38rem,0.85vw,0.62rem);font-weight:800;border:1px solid rgba(245,166,35,0.4);background:rgba(245,166,35,0.12);color:#f5c55a;white-space:nowrap">
+          <i class="fa-solid fa-calendar" style="margin-right:4px"></i>2025.02.01 ~ ${now.getFullYear()}.${String(now.getMonth()+1).padStart(2,'0')}.${String(now.getDate()).padStart(2,'0')}
+        </div>
+        <div style="padding:1% 2.5%;border-radius:99px;font-size:clamp(0.38rem,0.85vw,0.62rem);font-weight:800;border:1px solid rgba(0,229,160,0.35);background:rgba(0,229,160,0.1);color:#00e5a0;white-space:nowrap">
+          <i class="fa-solid fa-percent" style="margin-right:4px"></i>월 8.5% ~ 11.2%
+        </div>
+        <div style="padding:1% 2.5%;border-radius:99px;font-size:clamp(0.38rem,0.85vw,0.62rem);font-weight:800;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.75);white-space:nowrap">
+          <i class="fa-solid fa-user-tie" style="margin-right:4px;color:#f5a623"></i>운용 책임자 : 김현수 이사 &nbsp;|&nbsp; CFO, Jay Kim
+        </div>
+      </div>
+
+      <!-- 핵심 수치 5칸 그리드 -->
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:1.2%;width:100%;max-width:96%;">
+
+        <!-- 투자 원금 -->
+        <div style="background:rgba(245,166,35,0.07);border:1px solid rgba(245,166,35,0.25);border-radius:10px;padding:1.8% 1.2%;text-align:center">
+          <div style="font-size:clamp(0.28rem,0.55vw,.44rem);color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">투자 원금</div>
+          <div style="font-size:clamp(0.65rem,1.4vw,1rem);font-weight:900;color:#f5a623;line-height:1.1">${fmtM(SR.PRINCIPAL)}</div>
+          <div style="font-size:clamp(0.28rem,0.52vw,.4rem);color:rgba(245,166,35,0.55);margin-top:2px">${fmtUsdt(SR.PRINCIPAL,SR.USDT_RATE)}</div>
+        </div>
+
+        <!-- 단리 누적 수익 -->
+        <div style="background:rgba(74,144,226,0.07);border:1px solid rgba(74,144,226,0.25);border-radius:10px;padding:1.8% 1.2%;text-align:center">
+          <div style="font-size:clamp(0.28rem,0.55vw,.44rem);color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">단리 누적 수익</div>
+          <div style="font-size:clamp(0.65rem,1.4vw,1rem);font-weight:900;color:#4a90e2;line-height:1.1">${fmtM(last.sSimpleProfit)}</div>
+          <div style="font-size:clamp(0.28rem,0.52vw,.4rem);color:rgba(74,144,226,0.55);margin-top:2px">${fmtUsdt(last.sSimpleProfit,SR.USDT_RATE)}</div>
+        </div>
+
+        <!-- 복리 누적 수익 -->
+        <div style="background:rgba(0,229,160,0.07);border:1px solid rgba(0,229,160,0.25);border-radius:10px;padding:1.8% 1.2%;text-align:center">
+          <div style="font-size:clamp(0.28rem,0.55vw,.44rem);color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">복리 누적 수익</div>
+          <div style="font-size:clamp(0.65rem,1.4vw,1rem);font-weight:900;color:#00e5a0;line-height:1.1">${fmtM(last.cCumProfit)}</div>
+          <div style="font-size:clamp(0.28rem,0.52vw,.4rem);color:rgba(0,229,160,0.55);margin-top:2px">${fmtUsdt(last.cCumProfit,SR.USDT_RATE)}</div>
+        </div>
+
+        <!-- 원금 대비 수익률 -->
+        <div style="background:rgba(157,142,199,0.07);border:1px solid rgba(157,142,199,0.25);border-radius:10px;padding:1.8% 1.2%;text-align:center">
+          <div style="font-size:clamp(0.28rem,0.55vw,.44rem);color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">원금 대비 수익률</div>
+          <div style="font-size:clamp(0.55rem,1.1vw,0.82rem);font-weight:900;color:#9d8ec7;line-height:1.2">${fmtCumPct(last.sCumRate)}<span style="color:rgba(157,142,199,0.4);font-size:.8em;margin:0 2px">/</span>${fmtCumPct(last.cCumRate)}</div>
+          <div style="font-size:clamp(0.28rem,0.52vw,.4rem);color:rgba(157,142,199,0.5);margin-top:2px">단리 / 복리</div>
+        </div>
+
+        <!-- 운용 기간 -->
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:1.8% 1.2%;text-align:center">
+          <div style="font-size:clamp(0.28rem,0.55vw,.44rem);color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">운용 기간</div>
+          <div style="font-size:clamp(0.65rem,1.4vw,1rem);font-weight:900;color:#f5c55a;line-height:1.1">${srData.length}개월</div>
+          <div style="font-size:clamp(0.28rem,0.52vw,.4rem);color:rgba(255,255,255,0.3);margin-top:2px">2025.02 ~ 현재</div>
+        </div>
+
+      </div>
+    </div>
+  `, '01');
+}
+
+/* ══════════════════════════════════════
+   슬라이드 2 — 투자 개요
+══════════════════════════════════════ */
+function buildOverviewSlide(){
+  const last = srData[srData.length-1];
+  const months = srData.length;
+  const avgRate = srData.reduce((s,r)=>s+r.rate,0)/srData.length;
+  const usdtR = SR.USDT_RATE;
+  return slide(`
+    ${slHeader('Investment Overview','투자 패키지 &amp; 구조 개요','2억원 · STRATEGY-A · D-Hybrid 알고리즘','02')}
+    <div class="sr-sl-body" style="flex-direction:column;gap:2%">
+      <!-- 상단 KPI 4개 -->
+      <div class="sr-kpi-grid">
+        <div class="sr-kpi-tile" style="--tc:#f5a623">
+          <div class="sr-kpi-label">투자 원금</div>
+          <div class="sr-kpi-val">2억원</div>
+          <div class="sr-kpi-sub">${fmtUsdt(SR.PRINCIPAL,usdtR)} · USDT 환산</div>
+        </div>
+        <div class="sr-kpi-tile" style="--tc:#00e5a0">
+          <div class="sr-kpi-label">운용 기간</div>
+          <div class="sr-kpi-val">${months}개월</div>
+          <div class="sr-kpi-sub">2025.02 ~ 현재</div>
+        </div>
+        <div class="sr-kpi-tile" style="--tc:#4a90e2">
+          <div class="sr-kpi-label">월 수익률 범위</div>
+          <div class="sr-kpi-val">8.5–11.2%</div>
+          <div class="sr-kpi-sub">평균 ${fmtPct(avgRate)} · 월별 변동</div>
+        </div>
+        <div class="sr-kpi-tile" style="--tc:#c99456">
+          <div class="sr-kpi-label">패키지 등급</div>
+          <div class="sr-kpi-val">STRATEGY-A</div>
+          <div class="sr-kpi-sub">초대형 자본 · VIP 전용</div>
+        </div>
+      </div>
+      <!-- 2단 -->
+      <div class="sr-sl-body" style="gap:3%;flex:1">
+        <div class="sr-col">
+          <div class="sr-sec-title"><i class="fa-solid fa-layer-group"></i> 투자 패키지 상세</div>
+          <div style="display:flex;flex-direction:column;gap:2%;flex:1">
+            ${[
+              ['패키지명','STRATEGY-A (초대형)','#f5a623'],
+              ['투자 유형','D-Hybrid 알고리즘 자동매매','#fff'],
+              ['투자 원금','₩200,000,000 (2억원)','#4a90e2'],
+              ['USDT 환산',fmtUsdt(SR.PRINCIPAL,usdtR),'#fee500'],
+              ['월 수익률 범위','8.5% ~ 11.2% (월별 변동)','#00e5a0'],
+              ['운용 전략','D-Grid + D-Grouping 복합','#9d8ec7'],
+              ['수익 지급','월 정산 (선택: 단리·복리)','#c99456'],
+            ].map(([k,v,c])=>`
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:1.5% 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+                <span style="font-size:clamp(0.42rem,0.85vw,.62rem);color:rgba(255,255,255,0.4)">${k}</span>
+                <span style="font-size:clamp(0.48rem,0.9vw,.68rem);font-weight:800;color:${c}">${v}</span>
+              </div>`).join('')}
+          </div>
+        </div>
+        <div class="sr-col">
+          <div class="sr-sec-title"><i class="fa-solid fa-chart-pie"></i> 수익 구조 &amp; 분배</div>
+          <div style="display:flex;flex-direction:column;gap:2%;flex:1">
+            <div class="sr-comment-box" style="--cc:#00e5a0">
+              <div class="sr-comment-title">단리형 (Simple Interest)</div>
+              매월 원금 2억원의 고정 비율로 수익 산출.<br>
+              <strong>월 수익: ${fmtM(SR.PRINCIPAL*SR.RATE_MID)} ~ ${fmtM(SR.PRINCIPAL*SR.RATE_HIGH)}</strong><br>
+              수익금은 즉시 출금 또는 재투자 선택 가능.
+            </div>
+            <div class="sr-comment-box" style="--cc:#4a90e2">
+              <div class="sr-comment-title">복리형 (Compound Interest)</div>
+              매월 수익을 원금에 재투자하여 기하급수적 성장.<br>
+              <strong>${months}개월 후 총 자산: ${fmtM(last.cTotal)}</strong><br>
+              복리 효과로 단리 대비 초과 수익 극대화.
+            </div>
+            <div class="sr-comment-box" style="--cc:#f5a623">
+              <div class="sr-comment-title">수익금 배분 구조 (VIE 정책)</div>
+              투자자 배당 41.7% · 회사 운용 31.5% · 지급준비금 26.8%<br>
+              안정적 지급을 위한 3단계 리스크 헤징 구조 적용.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `, '02');
+}
+
+/* ══════════════════════════════════════
+   슬라이드 3 — 월별 단리 수익
+══════════════════════════════════════ */
+function buildMonthlySimpleSlide(){
+  const rows = srData;
+  const last = rows[rows.length-1];
+  const tableRows = rows.map((r,i)=>{
+    const isCur = r.isCurrent;
+    const cls = isCur ? 'sr-tr-current' : '';
+    const prevRate = i > 0 ? rows[i-1].rate : r.rate;
+    const arrow = r.rate > prevRate ? '↗' : r.rate < prevRate ? '↘' : '→';
+    const arrowCol = r.rate > prevRate ? '#00e5a0' : r.rate < prevRate ? '#ff6b6b' : '#888';
+    return `<tr class="${cls}">
+      <td>${r.fullLabel}${isCur?'<span style="color:#f5a623;margin-left:4px">▶</span>':''}</td>
+      <td class="sr-td-gold">${fmtPct(r.rate)}&nbsp;<span style="color:${arrowCol};font-size:.85em">${arrow}</span></td>
+      <td class="sr-td-blue">${fmtM(r.sProfit)}</td>
+      <td>${fmtM(r.sTotal)}</td>
+      <td class="sr-td-green">${fmtM(r.sSimpleProfit)}</td>
+      <td class="sr-td-green" style="font-weight:900">${fmtCumPct(r.sCumRate)}</td>
+    </tr>`;
+  }).join('');
+
+  return slide(`
+    ${slHeader('Simple Interest · Monthly','고정수익율 기반 정기 인출형 상세 테이블','원금 2억원 고정 · 월별 수익 8.5%–11.2%','03')}
+    <div class="sr-sl-body" style="flex-direction:column;gap:2%">
+      <div class="sr-kpi-grid" style="grid-template-columns:repeat(3,1fr)">
+        <div class="sr-kpi-tile" style="--tc:#4a90e2">
+          <div class="sr-kpi-label">단리 누적 수익</div>
+          <div class="sr-kpi-val">${fmtM(last.sSimpleProfit)}</div>
+          <div class="sr-kpi-sub">원금 대비 환산 수익률 <span style="color:#4a90e2;font-weight:900">${fmtCumPct(last.sCumRate)}</span></div>
+        </div>
+        <div class="sr-kpi-tile" style="--tc:#00e5a0">
+          <div class="sr-kpi-label">현재 총 자산</div>
+          <div class="sr-kpi-val">${fmtM(last.sTotal)}</div>
+          <div class="sr-kpi-sub">원금 ${fmtM(SR.PRINCIPAL)} + 수익</div>
+        </div>
+        <div class="sr-kpi-tile" style="--tc:#f5a623">
+          <div class="sr-kpi-label">USDT 환산 수익</div>
+          <div class="sr-kpi-val">${fmtUsdt(last.sSimpleProfit,SR.USDT_RATE)}</div>
+          <div class="sr-kpi-sub">@ ₩${SR.USDT_RATE.toLocaleString()}/USDT</div>
+        </div>
+      </div>
+      <div style="flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(245,166,35,0.3) transparent">
+        <table class="sr-table">
+          <thead><tr>
+            <th style="text-align:left">기간</th>
+            <th>월 수익률</th>
+            <th>월 수익금</th>
+            <th>누적 자산</th>
+            <th>누적 수익금</th>
+            <th>원금 대비 수익률</th>
+          </tr></thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>
+    </div>
+  `, '03');
+}
+
+/* ══════════════════════════════════════
+   슬라이드 4 — 월별 복리 수익
+══════════════════════════════════════ */
+function buildMonthlyCompoundSlide(){
+  const rows = srData;
+  const last = rows[rows.length-1];
+  const advantage = last.cCumProfit - last.sSimpleProfit;
+  const tableRows = rows.map((r,i)=>{
+    const isCur = r.isCurrent;
+    const cls = isCur ? 'sr-tr-current' : '';
+    const prevRate2 = i > 0 ? rows[i-1].rate : r.rate;
+    const arrow2 = r.rate > prevRate2 ? '↗' : r.rate < prevRate2 ? '↘' : '→';
+    const arrowCol2 = r.rate > prevRate2 ? '#00e5a0' : r.rate < prevRate2 ? '#ff6b6b' : '#888';
+    return `<tr class="${cls}">
+      <td>${r.fullLabel}${isCur?'<span style="color:#f5a623;margin-left:4px">▶</span>':''}</td>
+      <td class="sr-td-gold">${fmtPct(r.rate)}&nbsp;<span style="color:${arrowCol2};font-size:.85em">${arrow2}</span></td>
+      <td class="sr-td-green">${fmtM(r.cProfit)}</td>
+      <td>${fmtM(r.cTotal)}</td>
+      <td class="sr-td-green">${fmtM(r.cCumProfit)}</td>
+      <td class="sr-td-green" style="font-weight:900">${fmtCumPct(r.cCumRate)}</td>
+    </tr>`;
+  }).join('');
+
+  return slide(`
+    ${slHeader('Compound Interest · Monthly','수익금 미인출 거치형 상세 테이블','복리 재투자 · 기하급수적 자산 성장','04')}
+    <div class="sr-sl-body" style="flex-direction:column;gap:2%">
+      <div class="sr-kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="sr-kpi-tile" style="--tc:#00e5a0">
+          <div class="sr-kpi-label">복리 누적 수익</div>
+          <div class="sr-kpi-val">${fmtM(last.cCumProfit)}</div>
+          <div class="sr-kpi-sub">원금 대비 환산 수익률 <span style="color:#00e5a0;font-weight:900">${fmtCumPct(last.cCumRate)}</span></div>
+        </div>
+        <div class="sr-kpi-tile" style="--tc:#4a90e2">
+          <div class="sr-kpi-label">복리 총 자산</div>
+          <div class="sr-kpi-val">${fmtM(last.cTotal)}</div>
+          <div class="sr-kpi-sub">원금 포함</div>
+        </div>
+        <div class="sr-kpi-tile" style="--tc:#f5a623">
+          <div class="sr-kpi-label">vs 단리 초과 수익</div>
+          <div class="sr-kpi-val">+${fmtM(advantage)}</div>
+          <div class="sr-kpi-sub">복리 효과 프리미엄</div>
+        </div>
+        <div class="sr-kpi-tile" style="--tc:#fee500">
+          <div class="sr-kpi-label">USDT 환산 수익</div>
+          <div class="sr-kpi-val">${fmtUsdt(last.cCumProfit,SR.USDT_RATE)}</div>
+          <div class="sr-kpi-sub">@ ₩${SR.USDT_RATE.toLocaleString()}/USDT</div>
+        </div>
+      </div>
+      <div style="flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(0,229,160,0.3) transparent">
+        <table class="sr-table">
+          <thead><tr>
+            <th style="text-align:left">기간</th>
+            <th>월 수익률</th>
+            <th>월 수익금</th>
+            <th>복리 총 자산</th>
+            <th>누적 수익금</th>
+            <th>원금 대비 수익률</th>
+          </tr></thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>
+    </div>
+  `, '04');
+}
+
+/* ══════════════════════════════════════
+   슬라이드 5 — 단리 vs 복리 비교 차트
+══════════════════════════════════════ */
+function buildCompareSlide(){
+  const last = srData[srData.length-1];
+  return slide(`
+    ${slHeader('Simple vs Compound','단리 vs 복리 누적 성과 비교','시각화 — 복리 효과의 시간가치','05')}
+    <div class="sr-sl-body" style="gap:3%">
+      <!-- 차트 -->
+      <div class="sr-col sr-col-wide" style="display:flex;flex-direction:column;min-height:0">
+        <div class="sr-sec-title" style="flex-shrink:0"><i class="fa-solid fa-chart-area"></i> 누적 자산 성장 곡선</div>
+        <div class="sr-chart-wrap" style="flex:1;min-height:0;position:relative;">
+          <canvas id="sr-chart-compare"></canvas>
+        </div>
+        <!-- 범례 -->
+        <div style="display:flex;gap:4%;margin-top:1%;flex-wrap:wrap;flex-shrink:0">
+          <div style="display:flex;align-items:center;gap:5px">
+            <div style="width:18px;height:2px;background:#4a90e2;border-radius:2px"></div>
+            <span style="font-size:clamp(0.38rem,0.75vw,.58rem);color:rgba(255,255,255,0.55)">단리 누적 자산</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px">
+            <div style="width:18px;height:2px;background:#00e5a0;border-radius:2px"></div>
+            <span style="font-size:clamp(0.38rem,0.75vw,.58rem);color:rgba(255,255,255,0.55)">복리 누적 자산</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px">
+            <div style="width:18px;height:1px;background:#f5a623;border-radius:2px;border-top:1px dashed #f5a623"></div>
+            <span style="font-size:clamp(0.38rem,0.75vw,.58rem);color:rgba(245,166,35,0.7)">월 수익률(우축)</span>
+          </div>
+        </div>
+      </div>
+      <!-- 우측 요약 -->
+      <div class="sr-col sr-col-narrow" style="gap:2%">
+        <div class="sr-sec-title"><i class="fa-solid fa-scale-balanced"></i> 최종 성과 비교</div>
+        <div class="sr-comment-box" style="--cc:#4a90e2;flex:1">
+          <div class="sr-comment-title">단리 최종 성과</div>
+          원금: <strong>2억원</strong><br>
+          누적 수익: <strong>${fmtM(last.sSimpleProfit)}</strong><br>
+          총 자산: <strong>${fmtM(last.sTotal)}</strong><br>
+          원금 대비 환산 수익률: <strong>${fmtCumPct(last.sCumRate)}</strong><br>
+          USDT: <strong>${fmtUsdt(last.sSimpleProfit,SR.USDT_RATE)}</strong>
+        </div>
+        <div class="sr-comment-box" style="--cc:#00e5a0;flex:1">
+          <div class="sr-comment-title">복리 최종 성과</div>
+          원금: <strong>2억원</strong><br>
+          누적 수익: <strong>${fmtM(last.cCumProfit)}</strong><br>
+          총 자산: <strong>${fmtM(last.cTotal)}</strong><br>
+          원금 대비 환산 수익률: <strong>${fmtCumPct(last.cCumRate)}</strong><br>
+          USDT: <strong>${fmtUsdt(last.cCumProfit,SR.USDT_RATE)}</strong>
+        </div>
+        <div class="sr-comment-box" style="--cc:#f5a623">
+          <div class="sr-comment-title">복리 프리미엄</div>
+          <div style="font-size:clamp(0.9rem,2.2vw,1.6rem);font-weight:900;color:#f5a623">+${fmtM(last.cCumProfit-last.sSimpleProfit)}</div>
+          복리 선택 시 추가 수익
+        </div>
+      </div>
+    </div>
+  `, '05');
+}
+
+/* ══════════════════════════════════════
+   슬라이드 6 — 분기별 요약
+══════════════════════════════════════ */
+function buildQuarterSlide(){
+  const qRows = srData.filter(r => r.qEnd);
+  const tableRows = qRows.map((r,i)=>{
+    const cls = i%2===0 ? 'sr-tr-q' : '';
+    return `<tr class="${cls}">
+      <td>${r.quarter} (${r.fullLabel} 기준)</td>
+      <td class="sr-td-blue">${fmtM(r.qSimple)}</td>
+      <td class="sr-td-green">${fmtM(r.qCompound)}</td>
+      <td class="sr-td-gold">+${fmtM(r.qCompound - r.qSimple)}</td>
+      <td style="font-weight:800;color:#4a90e2">${fmtCumPct(r.sCumRate)}</td>
+      <td style="font-weight:800;color:#00e5a0">${fmtCumPct(r.cCumRate)}</td>
+    </tr>`;
+  }).join('');
+
+  const totalSimpleQ = qRows.reduce((s,r)=>s+(r.qSimple||0),0);
+  const totalCompQ   = qRows.reduce((s,r)=>s+(r.qCompound||0),0);
+  const annualSimple = SR.PRINCIPAL * 4 * SR.RATE_MID;
+  const annualComp   = SR.PRINCIPAL * (Math.pow(1+SR.RATE_MID,12)-1);
+
+  return slide(`
+    ${slHeader('Quarterly & Annual Summary','분기별 · 연간 투자 성과 요약','D.Quant 알고리즘 분기 성과 흐름 분석','06')}
+    <div class="sr-sl-body" style="flex-direction:column;gap:2%">
+      <div class="sr-kpi-grid">
+        <div class="sr-kpi-tile" style="--tc:#4a90e2">
+          <div class="sr-kpi-label">분기 평균 단리 수익</div>
+          <div class="sr-kpi-val">${qRows.length>0?fmtM(totalSimpleQ/qRows.length):'—'}</div>
+          <div class="sr-kpi-sub">분기당 평균</div>
+        </div>
+        <div class="sr-kpi-tile" style="--tc:#00e5a0">
+          <div class="sr-kpi-label">분기 평균 복리 수익</div>
+          <div class="sr-kpi-val">${qRows.length>0?fmtM(totalCompQ/qRows.length):'—'}</div>
+          <div class="sr-kpi-sub">분기당 평균</div>
+        </div>
+        <div class="sr-kpi-tile" style="--tc:#f5a623">
+          <div class="sr-kpi-label">연간 단리 수익(추정)</div>
+          <div class="sr-kpi-val">${fmtM(annualSimple)}</div>
+          <div class="sr-kpi-sub">12개월 기준</div>
+        </div>
+        <div class="sr-kpi-tile" style="--tc:#9d8ec7">
+          <div class="sr-kpi-label">연간 복리 수익(추정)</div>
+          <div class="sr-kpi-val">${fmtM(annualComp)}</div>
+          <div class="sr-kpi-sub">복리 재투자 12개월</div>
+        </div>
+      </div>
+      <div style="flex:1;overflow-y:auto">
+        <table class="sr-table">
+          <thead><tr>
+            <th style="text-align:left">분기</th>
+            <th>단리 분기수익</th>
+            <th>복리 분기수익</th>
+            <th>복리 초과분</th>
+            <th>단리 원금대비</th>
+            <th>복리 원금대비</th>
+          </tr></thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>
+    </div>
+  `, '06');
+}
+
+/* ══════════════════════════════════════
+   슬라이드 7 — 애널리스트 코멘트
+══════════════════════════════════════ */
+function buildAnalystSlide(){
+  const last = srData[srData.length-1];
+  const months = srData.length;
+  const avgRate = srData.reduce((s,r)=>s+r.rate,0)/srData.length;
+  return slide(`
+    ${slHeader('Analyst Commentary','애널리스트 투자 성과 해석 &amp; 전망','D.Quant Research Division','07')}
+    <div class="sr-sl-body" style="gap:3%">
+      <div class="sr-col">
+        <div class="sr-sec-title"><i class="fa-solid fa-magnifying-glass-chart"></i> 월간 성과 분석</div>
+        <div class="sr-comment-box" style="--cc:#4a90e2;margin-bottom:2%">
+          <div class="sr-comment-title">월간 수익 안정성</div>
+          ${months}개월 운용 기간 동안 월 수익률 <strong>8.5% ~ 11.2%</strong> 범위 내에서 매월 변동 패턴으로 운용되었습니다.
+          평균 월 수익률 <strong>${fmtPct(avgRate)}</strong>은 전통 금융상품(예금 연 3~4%) 대비
+          월간 기준으로 약 <strong>${(avgRate/0.003).toFixed(0)}배</strong> 수준의 성과로,
+          원금 대비 실질 환산 수익률 <strong>${fmtPct(last.sCumRate)}</strong>(단리) / <strong>${fmtPct(last.cCumRate)}</strong>(복리)를 달성합니다.
+        </div>
+        <div class="sr-comment-box" style="--cc:#00e5a0">
+          <div class="sr-comment-title">단리형 투자자 특성</div>
+          매월 수익금을 확정 출금하는 단리형은 <strong>월 현금흐름 창출</strong>에 최적화된 전략입니다.
+          2억원 원금 기준 월 <strong>${fmtM(SR.PRINCIPAL*SR.RATE_LOW)} ~ ${fmtM(SR.PRINCIPAL*SR.RATE_HIGH)}</strong>(가변)의
+          안정적 수익이 매달 발생하며, 운용 원금 보존과 동시에
+          생활비·사업 운전자금으로의 활용이 가능합니다.
+        </div>
+      </div>
+      <div class="sr-col">
+        <div class="sr-sec-title"><i class="fa-solid fa-chart-line"></i> 분기·연간 성과 전망</div>
+        <div class="sr-comment-box" style="--cc:#f5a623;margin-bottom:2%">
+          <div class="sr-comment-title">복리 재투자 전략 우위</div>
+          복리형 선택 시 ${months}개월 기준 단리 대비
+          <strong>+${fmtM(last.cCumProfit - last.sSimpleProfit)}</strong> 추가 수익이 발생합니다.
+          이는 복리 효과의 시간적 가속이 본격화되는 구간으로,
+          운용 기간이 길어질수록 격차는 기하급수적으로 확대됩니다.
+          <strong>12개월 기준 복리 예상 수익 ${fmtM(SR.PRINCIPAL*(Math.pow(1+SR.RATE_MID,12)-1))}</strong>은
+          단리 연 수익 ${fmtM(SR.PRINCIPAL*SR.RATE_MID*12)} 대비 약 <strong>${((SR.PRINCIPAL*(Math.pow(1+SR.RATE_MID,12)-1))/(SR.PRINCIPAL*SR.RATE_MID*12)*100).toFixed(1)}%</strong> 수준입니다.
+        </div>
+        <div class="sr-comment-box" style="--cc:#9d8ec7">
+          <div class="sr-comment-title">연간 투자 전략 권고</div>
+          2억원 규모의 초대형 자본 투자자에게 D.Quant Research는
+          <strong>복리형 6개월 + 단리형 전환</strong> 혼합 전략을 권고합니다.
+          초반 복리 구간에서 원금 기반을 확대한 후 단리로 전환하여
+          안정적 현금흐름과 자산 성장을 동시에 달성하는
+          <strong>D-Hybrid 최적 운용 방식</strong>입니다.
+        </div>
+      </div>
+      <div class="sr-col">
+        <div class="sr-sec-title"><i class="fa-solid fa-triangle-exclamation"></i> 리스크 관리</div>
+        <div style="display:flex;flex-direction:column;gap:2%;flex:1">
+          ${[
+            ['시장 리스크','암호화폐 시장 변동성. D-Grid 알고리즘으로 헤징','#fee500'],
+            ['유동성','월 정산 주기. 중도 출금 시 조기 청산 손실 가능','#ff6b6b'],
+            ['규제 리스크','각국 암호화폐 규제 변화 모니터링 필수','#f5a623'],
+            ['환율 리스크','USDT/KRW 환율 변동. 원화 환산 수익 영향','#4a90e2'],
+          ].map(([t,d,c])=>`
+            <div style="display:flex;gap:3%;align-items:flex-start;padding:1.5% 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+              <div style="width:3px;height:auto;border-radius:2px;background:${c};flex-shrink:0;align-self:stretch"></div>
+              <div>
+                <div style="font-size:clamp(0.42rem,0.85vw,.62rem);font-weight:800;color:${c};margin-bottom:2px">${t}</div>
+                <div style="font-size:clamp(0.38rem,0.75vw,.58rem);color:rgba(255,255,255,0.5);line-height:1.5">${d}</div>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  `, '07');
+}
+
+/* ══════════════════════════════════════
+   슬라이드 8 — 개요 차트 슬라이드
+══════════════════════════════════════ */
+/* ══════════════════════════════════════
+   슬라이드 8 — 마지막 (요약 + CTA)
+══════════════════════════════════════ */
+function buildFinalSlide(){
+  const last = srData[srData.length-1];
+  // 바 항목 — USDT 값을 부제목으로 병기
+  const barItems = [
+    { label:'단리 수익', val:last.sSimpleProfit, max:last.cCumProfit, color:'#4a90e2',
+      sub: fmtUsdt(last.sSimpleProfit, SR.USDT_RATE) },
+    { label:'복리 수익', val:last.cCumProfit, max:last.cCumProfit, color:'#00e5a0',
+      sub: fmtUsdt(last.cCumProfit, SR.USDT_RATE) },
+    { label:'단리 자산', val:last.sTotal, max:last.cTotal, color:'#9d8ec7',
+      sub: fmtUsdt(last.sTotal, SR.USDT_RATE) },
+    { label:'복리 자산', val:last.cTotal, max:last.cTotal, color:'#f5a623',
+      sub: fmtUsdt(last.cTotal, SR.USDT_RATE) },
+  ];
+  return slide(`
+    ${slHeader('Summary & Next Steps','투자 성과 요약 및 상담 안내','D.Quant 9.0 V.I.E — 2억원 Special Report','08')}
+    <div class="sr-sl-body" style="gap:3%">
+
+      <!-- 좌측: 바 차트 (원화 + USDT 병기) -->
+      <div class="sr-col sr-col-wide">
+        <div class="sr-sec-title"><i class="fa-solid fa-trophy"></i> 핵심 성과 요약 (원화 · USDT 병기)</div>
+        <div class="sr-bar-list" style="flex:1;justify-content:space-around">
+          ${barItems.map(item=>`
+            <div style="display:flex;align-items:center;gap:2%">
+              <div style="width:14%;flex-shrink:0;text-align:right">
+                <div class="sr-bar-label" style="width:100%">${item.label}</div>
+                <div style="font-size:clamp(0.35rem,0.65vw,.5rem);color:rgba(254,229,0,0.6);margin-top:1px">${item.sub}</div>
+              </div>
+              <div class="sr-bar-track" style="flex:1">
+                <div class="sr-bar-fill" style="width:${(item.val/item.max*100).toFixed(1)}%;background:linear-gradient(90deg,${item.color}66,${item.color})"></div>
+              </div>
+              <div style="width:22%;text-align:right">
+                <div class="sr-bar-val" style="color:${item.color}">${fmtM(item.val)}</div>
+                <div style="font-size:clamp(0.35rem,0.65vw,.5rem);color:rgba(254,229,0,0.55)">${item.sub}</div>
+              </div>
+            </div>`).join('')}
+          <!-- 원금 대비 환산 수익률 행 -->
+          <div style="margin-top:2%;padding-top:2%;border-top:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-around">
+            <div style="text-align:center">
+              <div style="font-size:clamp(0.38rem,0.7vw,.54rem);color:rgba(255,255,255,0.4)">단리 원금대비 수익률</div>
+              <div style="font-size:clamp(0.65rem,1.4vw,1rem);font-weight:900;color:#4a90e2">${fmtCumPct(last.sCumRate)}</div>
+            </div>
+            <div style="width:1px;background:rgba(255,255,255,0.08)"></div>
+            <div style="text-align:center">
+              <div style="font-size:clamp(0.38rem,0.7vw,.54rem);color:rgba(255,255,255,0.4)">복리 원금대비 수익률</div>
+              <div style="font-size:clamp(0.65rem,1.4vw,1rem);font-weight:900;color:#00e5a0">${fmtCumPct(last.cCumRate)}</div>
+            </div>
+            <div style="width:1px;background:rgba(255,255,255,0.08)"></div>
+            <div style="text-align:center">
+              <div style="font-size:clamp(0.38rem,0.7vw,.54rem);color:rgba(255,255,255,0.4)">복리 프리미엄</div>
+              <div style="font-size:clamp(0.65rem,1.4vw,1rem);font-weight:900;color:#f5a623">+${fmtM(last.cCumProfit-last.sSimpleProfit)}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 우측: 전략 코멘트 (2박스가 100% 채움) -->
+      <div class="sr-col" style="gap:2%">
+        <div class="sr-sec-title"><i class="fa-solid fa-handshake"></i> 투자 전략 선택 가이드</div>
+        <div style="display:flex;flex-direction:column;gap:2%;flex:1">
+          <div class="sr-comment-box" style="--cc:#4a90e2;flex:1">
+            <div class="sr-comment-title">단리형 — 월 현금흐름 전략</div>
+            매월 수익을 즉시 출금하여 <strong>안정적인 현금흐름</strong>을 확보하는 방식입니다.
+            2억원 원금 기준 월 <strong>${fmtM(SR.PRINCIPAL*SR.RATE_LOW)}~${fmtM(SR.PRINCIPAL*SR.RATE_HIGH)}</strong> 수령,
+            원금은 그대로 유지됩니다.<br>
+            <span style="color:rgba(74,144,226,0.7)">→ 생활비·사업 운전자금 활용에 최적</span>
+          </div>
+          <div class="sr-comment-box" style="--cc:#00e5a0;flex:1">
+            <div class="sr-comment-title">복리형 — 자산 기하급수 성장 전략</div>
+            수익을 매달 재투자하여 원금이 계속 증가하는 방식입니다.
+            <strong>${srData.length}개월 후 총 자산 ${fmtM(last.cTotal)}</strong>으로 성장,
+            단리 대비 <strong>+${fmtM(last.cCumProfit-last.sSimpleProfit)}</strong> 추가 수익 달성.<br>
+            <span style="color:rgba(0,229,160,0.7)">→ 중장기 자산 극대화에 최적</span>
+          </div>
+          <div class="sr-comment-box" style="--cc:#f5a623;flex:0.7">
+            <div class="sr-comment-title">D.Quant Research 권고</div>
+            초기 <strong>복리 6개월</strong> 운용 후 단리 전환 — D-Hybrid 혼합 전략으로
+            현금흐름과 자산 성장을 동시에 실현하십시오.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  `, '08');
+}
+
+/* ════════════════════════════════════
+   차트 그리기
+════════════════════════════════════ */
+let srChartInstances = {};
+
+function drawCompareChart(){
+  const canvas = document.getElementById('sr-chart-compare');
+  if(!canvas) return;
+  // 부모 컨테이너 크기에 맞게 canvas 크기 명시 설정
+  const wrap = canvas.parentElement;
+  if(wrap && wrap.offsetWidth > 0) {
+    canvas.style.width  = wrap.offsetWidth  + 'px';
+    canvas.style.height = wrap.offsetHeight + 'px';
+    canvas.width  = wrap.offsetWidth;
+    canvas.height = wrap.offsetHeight;
+  }
+  if(srChartInstances.compare) srChartInstances.compare.destroy();
+  const labels = srData.map(r => r.label);
+  srChartInstances.compare = new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: '단리 누적 자산 (만원)',
+          data: srData.map(r => Math.round(r.sTotal/10000)),
+          borderColor: '#4a90e2',
+          backgroundColor: 'rgba(74,144,226,0.07)',
+          borderWidth: 2.5, tension: 0.3, fill: true,
+          pointRadius: srData.map(r => r.isCurrent ? 6 : 2),
+          pointBackgroundColor: '#4a90e2',
+          yAxisID: 'y',
+        },
+        {
+          label: '복리 누적 자산 (만원)',
+          data: srData.map(r => Math.round(r.cTotal/10000)),
+          borderColor: '#00e5a0',
+          backgroundColor: 'rgba(0,229,160,0.07)',
+          borderWidth: 2.5, tension: 0.3, fill: true,
+          pointRadius: srData.map(r => r.isCurrent ? 6 : 2),
+          pointBackgroundColor: '#00e5a0',
+          yAxisID: 'y',
+        },
+        {
+          label: '월 수익률 (%)',
+          data: srData.map(r => +(r.rate*100).toFixed(2)),
+          borderColor: '#f5a623',
+          backgroundColor: 'rgba(245,166,35,0)',
+          borderWidth: 1.5, tension: 0.2, fill: false,
+          pointRadius: 2, pointBackgroundColor: '#f5a623',
+          borderDash: [4,3],
+          yAxisID: 'y2',
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode:'index', intersect:false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              if(ctx.dataset.yAxisID === 'y2') return `월 수익률: ${ctx.parsed.y.toFixed(2)}%`;
+              return ctx.dataset.label.replace(' (만원)','') + ': ' + ctx.parsed.y.toLocaleString() + '만원';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color:'rgba(255,255,255,0.35)', font:{size:9} },
+          grid:  { color:'rgba(255,255,255,0.04)' }
+        },
+        y: {
+          position: 'left',
+          ticks: {
+            color:'rgba(255,255,255,0.35)', font:{size:9},
+            callback: v => v.toLocaleString()+'만'
+          },
+          grid: { color:'rgba(255,255,255,0.04)' }
+        },
+        y2: {
+          position: 'right',
+          min: 7, max: 13,
+          ticks: {
+            color:'rgba(245,166,35,0.6)', font:{size:8},
+            callback: v => v.toFixed(1)+'%'
+          },
+          grid: { drawOnChartArea: false }
+        }
+      }
+    }
+  });
+}
+
+function drawOverviewChart(){
+  const canvas = document.getElementById('sr-chart-overview');
+  if(!canvas || !srData) return;
+  if(srChartInstances.overview) srChartInstances.overview.destroy();
+  const labels = srData.map(r => r.label);
+  srChartInstances.overview = new Chart(canvas.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        {
+          label: '단리 월 수익',
+          data: srData.map(r => Math.round(r.sProfit/10000)),
+          backgroundColor: 'rgba(74,144,226,0.6)',
+          borderColor: '#4a90e2', borderWidth: 1,
+        },
+        {
+          label: '복리 월 수익',
+          data: srData.map(r => Math.round(r.cProfit/10000)),
+          backgroundColor: 'rgba(0,229,160,0.6)',
+          borderColor: '#00e5a0', borderWidth: 1,
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: 'rgba(255,255,255,0.6)', font:{size:10} } } },
+      scales: {
+        x: { ticks: { color:'rgba(255,255,255,0.35)', font:{size:9} }, grid:{ color:'rgba(255,255,255,0.04)' } },
+        y: { ticks: { color:'rgba(255,255,255,0.35)', font:{size:9}, callback: v=>v.toLocaleString()+'만' }, grid:{ color:'rgba(255,255,255,0.04)' } }
+      }
+    }
+  });
+}
+
+/* ════════════════════════════════════
+   PDF 다운로드 (html2canvas + jsPDF)
+════════════════════════════════════ */
+window.downloadSRpdf = async function(){
+  const btn = document.getElementById('sr-dl-btn');
+  const loading = document.getElementById('sr-loading');
+  const loadText = document.getElementById('sr-loading-text');
+
+  btn.disabled = true;
+  loading.classList.add('show');
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation:'landscape', unit:'mm', format:'a4' });
+    const slides = document.querySelectorAll('#sr-slide-wrapper .sr-slide');
+    const W = 297, H = 210; // A4 가로
+
+    // 슬라이드 wrapper의 실제 너비로 16:9 높이 계산
+    const wrapper = document.getElementById('sr-slide-wrapper');
+    const slideW = wrapper.offsetWidth;
+    const slideH = Math.round(slideW * 9 / 16);
+
+    for(let i=0; i<slides.length; i++){
+      loadText.textContent = `슬라이드 ${i+1}/${slides.length} 변환 중...`;
+
+      // 해당 슬라이드만 표시 (display:flex로 명시 — aspect-ratio 올바르게 적용)
+      slides.forEach((s,j) => {
+        s.style.display = 'none';
+        s.style.removeProperty('position');
+      });
+      slides[i].style.display = 'block';
+
+      // 차트가 있는 슬라이드는 다시 그리기 (슬라이드 인덱스 1 = overview, 4 = compare)
+      if(i === 1) { drawOverviewChart(); }
+      if(i === 4) { drawCompareChart(); }
+
+      // DOM 완전 렌더링 대기 (차트 포함)
+      await new Promise(r=>setTimeout(r, i===1||i===4 ? 350 : 150));
+
+      const captureH = slides[i].offsetHeight || slideH;
+      const captureW = slides[i].offsetWidth || slideW;
+
+      const canvas = await html2canvas(slides[i], {
+        backgroundColor: '#070d1a',
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        width: captureW,
+        height: captureH,
+        windowWidth: captureW,
+        windowHeight: captureH,
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.93);
+      if(i > 0) pdf.addPage();
+      pdf.addImage(imgData, 'JPEG', 0, 0, W, H);
+    }
+
+    // 원래 슬라이드 복원
+    slides.forEach((s,j) => {
+      s.style.display = j===window.srCurrentSlide ? 'block' : 'none';
+    });
+    // 현재 슬라이드의 차트 복원
+    if(window.srCurrentSlide === 1) drawOverviewChart();
+    if(window.srCurrentSlide === 4) drawCompareChart();
+
+    loadText.textContent = 'PDF 저장 중...';
+    const now = new Date();
+    const fname = `DQuant_SpecialReport_${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}.pdf`;
+    pdf.save(fname);
+
+  } catch(err) {
+    console.error('PDF 오류:', err);
+    alert('PDF 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.\n' + err.message);
+  } finally {
+    btn.disabled = false;
+    loading.classList.remove('show');
+  }
+};
+
+})(); // IIFE end
+</script>
+</body>
+</html>
