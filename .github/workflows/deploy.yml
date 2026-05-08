@@ -1,18 +1,25 @@
 name: Deploy to NAS
+
 on:
   push:
-    branches: [main]
+    branches: [ main ]
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.NAS_HOST }}
           username: ${{ secrets.NAS_USER }}
           port: ${{ secrets.NAS_SSH_PORT }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          key: ${{ secrets.GH_PRIVATE_KEY }}
           script: |
-            cd /volume2/web/start-dquant9/start_dquant9
+            git config --global --add safe.directory /volume2/web/start-dquant9
+            cd /volume2/web/start-dquant9
             git pull origin main
+            echo "✅ Deploy complete: $(date '+%Y-%m-%d %H:%M:%S')"
