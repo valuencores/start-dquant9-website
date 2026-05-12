@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>로그인 — D.Quant 9.0 V.I.E</title>
+  <meta name="description" content="D.Quant 9.0 V.I.E 로그인. AI 알고리즘 가상 투자 플랫폼에 접속하세요.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="D.Quant 9.0 V.I.E">
+  <meta property="og:title" content="D.Quant 9.0 V.I.E — 변동성이 수익이 되는 24시간">
+  <meta property="og:description" content="초대받은 분만 접근 가능한 AI 알고리즘 가상 투자 경험 플랫폼. 지금 바로 체험해보세요.">
+  <meta property="og:image" content="images/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="images/og-image.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/vie.css">
+  <style>
+    /* ── 전체 배경 ── */
+    .bg-grid {
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: grid-drift 20s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes grid-drift {
+      from { transform: translateY(0); }
+      to   { transform: translateY(60px); }
+    }
+    .bg-glow {
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse 70% 50% at 50% 30%, rgba(0,212,255,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ── 로그인 래퍼 ── */
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-lg);
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── 로그인 카드 ── */
+    .login-card {
+      width: 100%;
+      max-width: 440px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      padding: var(--space-2xl);
+      box-shadow: var(--shadow-lg);
+      animation: fadeIn 0.5s ease;
+    }
+
+    /* ── 헤더 ── */
+    .login-brand {
+      text-align: center;
+      margin-bottom: var(--space-2xl);
+    }
+    .login-logo-text {
+      font-size: 1.3rem;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .login-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      border: 1px solid var(--accent-blue);
+      border-radius: var(--radius-full);
+      padding: 2px 8px;
+      letter-spacing: 0.1em;
+      display: inline-block;
+      margin-left: 6px;
+      opacity: 0.8;
+      vertical-align: middle;
+    }
+    .login-title {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-top: var(--space-lg);
+      margin-bottom: 6px;
+    }
+    .login-sub {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* ── 아이콘 아바타 ── */
+    .login-icon {
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(0,229,160,0.12));
+      border: 2px solid rgba(0,212,255,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; color: var(--accent-blue);
+      margin: 0 auto var(--space-md);
+    }
+
+    /* ── 비밀번호 토글 ── */
+    .pw-field {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .pw-field .form-input {
+      flex: 1;
+      padding-right: 48px;
+    }
+    .pw-toggle {
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: 100%;
+      width: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1rem;
+      cursor: pointer;
+      z-index: 20;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      outline: none;
+    }
+    .pw-toggle:hover  { color: var(--accent-blue); }
+    .pw-toggle:active { color: var(--accent-blue); opacity: 0.6; }
+
+    /* ── 에러 배너 ── */
+    .login-error {
+      background: rgba(244, 63, 94, 0.08);
+      border: 1px solid rgba(244, 63, 94, 0.25);
+      border-radius: var(--radius-md);
+      padding: var(--space-md) var(--space-lg);
+      font-size: 0.86rem;
+      color: var(--accent-red);
+      display: none;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-lg);
+      animation: fadeIn 0.3s ease;
+    }
+    .login-error.show { display: flex; }
+
+    /* ── 성공 배너 ── */
+    .login-success {
+      background: rgba(0, 229, 160, 0.08);
+      border: 1px solid rgba(0, 229, 160, 0.25);
+      border-radius: var(--radius-md);
+      padding: var(--space-md) var(--space-lg);
+      font-size: 0.86rem;
+      color: var(--accent-green);
+      display: none;
+      align-items: center;
+      gap: var(--space-sm);
+      margin-bottom: var(--space-lg);
+    }
+    .login-success.show { display: flex; }
+
+    /* ── 구분선 ── */
+    .or-divider {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      margin: var(--space-xl) 0;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+    }
+    .or-divider::before,
+    .or-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-default);
+    }
+
+    /* ── 하단 링크 ── */
+    .login-footer {
+      text-align: center;
+      margin-top: var(--space-xl);
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .login-footer a {
+      color: var(--accent-blue);
+      font-weight: 600;
+    }
+    .login-footer a:hover { color: var(--accent-green); }
+
+    /* ── 저장된 계정 목록 드롭다운 ── */
+    .saved-accounts {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      margin-bottom: var(--space-lg);
+      display: none;
+    }
+    .saved-accounts.show { display: block; }
+    .saved-accounts-header {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      padding: var(--space-sm) var(--space-md);
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border-default);
+    }
+    .saved-account-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+      border-bottom: 1px solid var(--border-default);
+    }
+    .saved-account-item:last-child { border-bottom: none; }
+    .saved-account-item:hover { background: rgba(255,255,255,0.03); }
+    .saved-avatar {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem; font-weight: 700; color: #fff;
+      flex-shrink: 0;
+    }
+    .saved-name  { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+    .saved-email { font-size: 0.75rem; color: var(--text-muted); }
+    .saved-item-right { margin-left: auto; font-size: 0.75rem; color: var(--text-muted); }
+
+    /* ── Login Responsive ── */
+    @media (max-width: 768px) {
+      .login-wrapper { padding: var(--space-xl) var(--space-md); }
+      .login-card    { padding: var(--space-xl) var(--space-md); border-radius: var(--radius-lg); }
+      .login-logo    { font-size: 1.2rem; }
+    }
+    @media (max-width: 480px) {
+      .login-card    { padding: var(--space-lg) var(--space-md); }
+      .social-btns   { flex-direction: column; gap: 8px; }
+      .social-btn    { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+
+  <!-- Top Nav -->
+  <nav class="vie-nav">
+    <div class="vie-nav-inner">
+      <div class="vie-nav-brand">
+        <a href="index.html" style="display:flex;align-items:center;gap:8px;text-decoration:none">
+          <span class="vie-nav-logo">D.Quant 9.0</span>
+          <span class="vie-nav-badge">V.I.E</span>
+        </a>
+      </div>
+      <div class="vie-nav-links">
+        <a href="dashboard.html" class="vie-nav-link"><i class="fa-solid fa-chart-line"></i> 대시보드</a>
+        <a href="reports.html"   class="vie-nav-link"><i class="fa-solid fa-file-lines"></i> 리포트</a>
+        <a href="consult.html"   class="vie-nav-link"><i class="fa-solid fa-handshake"></i> 상담</a>
+        <a href="benchmark.html" class="vie-nav-link benchmark"><i class="fa-solid fa-chart-column"></i> 벤치마크</a>
+        <a href="mypage.html"    class="vie-nav-link"><i class="fa-solid fa-user"></i> My</a>
+        <a href="login.html"     class="vie-nav-link active" id="nav-login-btn"><i class="fa-solid fa-right-to-bracket"></i> 로그인</a>
+      </div>
+      <div class="vie-nav-hamburger" onclick="vieNavToggle(this)" aria-label="메뉴">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </nav>
+  <nav class="vie-nav-mobile" id="vie-nav-mobile">
+    <a href="dashboard.html" class="vie-nav-link"><i class="fa-solid fa-chart-line"></i> 대시보드</a>
+    <a href="reports.html"   class="vie-nav-link"><i class="fa-solid fa-file-lines"></i> 리포트</a>
+    <a href="consult.html"   class="vie-nav-link"><i class="fa-solid fa-handshake"></i> 상담</a>
+    <a href="benchmark.html" class="vie-nav-link benchmark"><i class="fa-solid fa-chart-column"></i> 벤치마크</a>
+    <a href="mypage.html"    class="vie-nav-link"><i class="fa-solid fa-user"></i> My</a>
+    <a href="login.html"     class="vie-nav-link active" id="nav-login-btn-m"><i class="fa-solid fa-right-to-bracket"></i> 로그인</a>
+  </nav>
+
+  <div class="login-wrapper">
+    <div class="login-card">
+
+      <!-- 브랜드 헤더 -->
+      <div class="login-brand">
+        <div class="login-icon">
+          <i class="fa-solid fa-user-shield"></i>
+        </div>
+        <div>
+          <span class="login-logo-text">D.Quant 9.0</span>
+          <span class="login-badge">V.I.E</span>
+        </div>
+        <div class="login-title">다시 오셨군요</div>
+        <div class="login-sub">이메일과 비밀번호로 로그인해 주세요</div>
+      </div>
+
+      <!-- 저장된 계정 목록 -->
+      <div class="saved-accounts" id="saved-accounts">
+        <div class="saved-accounts-header">
+          <i class="fa-solid fa-clock-rotate-left"></i> 이 기기에서 가입한 계정
+        </div>
+        <div id="saved-accounts-list"></div>
+      </div>
+
+      <!-- 에러 / 성공 배너 -->
+      <div class="login-error" id="login-error">
+        <i class="fa-solid fa-circle-xmark" style="flex-shrink:0"></i>
+        <span id="login-error-msg">이메일 또는 비밀번호가 일치하지 않습니다.</span>
+      </div>
+      <div class="login-success" id="login-success">
+        <i class="fa-solid fa-circle-check" style="flex-shrink:0"></i>
+        <span id="login-success-msg">로그인되었습니다. 대시보드로 이동합니다...</span>
+      </div>
+
+      <!-- 로그인 폼 -->
+      <form id="login-form" autocomplete="on" onsubmit="event.preventDefault(); doLogin();">
+        <div class="form-group">
+          <label class="form-label">이메일</label>
+          <input
+            type="email"
+            class="form-input"
+            id="login-email"
+            placeholder="가입 시 입력한 이메일"
+            autocomplete="email"
+            required
+          >
+          <span class="form-error hidden" id="e-email">
+            <i class="fa-solid fa-circle-xmark"></i> 이메일을 입력해 주세요.
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">비밀번호</label>
+          <div class="pw-field">
+            <input
+              type="password"
+              class="form-input"
+              id="login-pw"
+              placeholder="비밀번호 입력"
+              autocomplete="current-password"
+              required
+            >
+            <button
+              type="button"
+              id="pw-toggle"
+              class="pw-toggle"
+              tabindex="-1"
+              onmousedown="event.preventDefault();"
+              onclick="togglePw()"
+            >
+              <i class="fa-solid fa-eye" id="pw-eye"></i>
+            </button>
+          </div>
+          <span class="form-error hidden" id="e-pw">
+            <i class="fa-solid fa-circle-xmark"></i> 비밀번호를 입력해 주세요.
+          </span>
+        </div>
+
+        <!-- 로그인 유지 -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-xl)">
+          <label class="checkbox-group" style="margin-bottom:0">
+            <input type="checkbox" id="remember-me" checked>
+            <span style="font-size:0.82rem;color:var(--text-secondary)">로그인 유지</span>
+          </label>
+          <a href="#" onclick="showForgot()" style="font-size:0.82rem;color:var(--text-muted)">
+            비밀번호 찾기
+          </a>
+        </div>
+
+        <button type="submit" class="btn btn-cta btn-full btn-lg" id="login-btn">
+          <span id="login-btn-text"><i class="fa-solid fa-right-to-bracket"></i> 로그인</span>
+          <span id="login-spinner" class="hidden"><i class="fa-solid fa-spinner fa-spin"></i> 로그인 중...</span>
+        </button>
+      </form>
+
+      <!-- 구분선 -->
+      <div class="or-divider">또는</div>
+
+      <!-- 초대 코드로 신규 가입 -->
+      <button class="btn btn-outline btn-full" onclick="window.location.href='index.html'">
+        <i class="fa-solid fa-key"></i>
+        초대 코드로 신규 가입하기
+      </button>
+
+      <!-- 하단 안내 -->
+      <div class="login-footer">
+        <div style="margin-bottom:6px">
+          아직 계정이 없으신가요?
+          <a href="index.html">초대 코드로 가입</a>
+        </div>
+        <div style="font-size:0.76rem;color:var(--text-muted);margin-top:var(--space-md)">
+          이 서비스는 가상 투자 경험 시뮬레이션을 제공합니다.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 비밀번호 찾기 모달 -->
+  <div class="modal-overlay" id="forgot-modal" onclick="if(event.target===this)closeForgot()">
+    <div class="modal-box" style="max-width:400px">
+      <div class="modal-header">
+        <div>
+          <h3 style="font-size:1.05rem">비밀번호 찾기</h3>
+          <p style="font-size:0.8rem;margin-top:4px">가입 시 사용한 이메일을 입력해 주세요</p>
+        </div>
+        <button class="modal-close" onclick="closeForgot()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="form-group" style="margin-top:var(--space-md)">
+        <label class="form-label">이메일</label>
+        <input type="email" class="form-input" id="forgot-email" placeholder="가입 시 이메일">
+      </div>
+      <div id="forgot-result" style="display:none;font-size:0.85rem;margin-bottom:var(--space-md)"></div>
+      <div style="display:flex;gap:var(--space-sm);margin-top:var(--space-lg)">
+        <button class="btn btn-ghost btn-full" onclick="closeForgot()">취소</button>
+        <button class="btn btn-primary btn-full" onclick="doForgot()">
+          <i class="fa-solid fa-magnifying-glass"></i> 계정 찾기
+        </button>
+      </div>
+      <p class="form-hint mt-md text-center">
+        실제 서비스에서는 이메일로 재설정 링크가 발송됩니다.
+      </p>
+    </div>
+  </div>
+
+  <div class="toast-container"></div>
+
+  <script src="js/vie-app.js"></script>
+  <script>
+    /* ── 이미 로그인 상태면 대시보드로 ── */
+    VieAuth.redirectIfLoggedIn();
+
+    /* ── 저장된 계정 로드 ── */
+    function loadSavedAccounts() {
+      const list = VieStorage.get('demoUsers') || [];
+      // currentUser가 있으면 맨 위에
+      const cur = VieStorage.get('currentUser');
+      if (cur && !list.find(u => u.email === cur.email)) list.unshift(cur);
+
+      if (!list.length) return;
+
+      const container = document.getElementById('saved-accounts');
+      const listEl    = document.getElementById('saved-accounts-list');
+      container.classList.add('show');
+
+      listEl.innerHTML = list.map(u => `
+        <div class="saved-account-item" onclick="fillAccount('${u.email}')">
+          <div class="saved-avatar">${(u.name || '?').charAt(0)}</div>
+          <div>
+            <div class="saved-name">${u.name || '사용자'}</div>
+            <div class="saved-email">${u.email || ''}</div>
+          </div>
+          <div class="saved-item-right">
+            <i class="fa-solid fa-chevron-right" style="font-size:0.75rem"></i>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function fillAccount(email) {
+      document.getElementById('login-email').value = email;
+      document.getElementById('login-pw').focus();
+      hideError();
+    }
+
+    loadSavedAccounts();
+
+    /* ── 비밀번호 표시/숨김 ── */
+    function togglePw() {
+      const inp = document.getElementById('login-pw');
+      const ico = document.getElementById('pw-eye');
+      if (!inp || !ico) return;
+      const show = inp.type === 'password';
+      inp.type = show ? 'text' : 'password';
+      ico.className = show ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+    }
+
+    /* ── 에러/성공 UI ── */
+    function showError(msg) {
+      document.getElementById('login-error-msg').textContent = msg;
+      document.getElementById('login-error').classList.add('show');
+      document.getElementById('login-success').classList.remove('show');
+    }
+    function hideError() {
+      document.getElementById('login-error').classList.remove('show');
+    }
+    function showSuccess(msg) {
+      document.getElementById('login-success-msg').textContent = msg;
+      document.getElementById('login-success').classList.add('show');
+      document.getElementById('login-error').classList.remove('show');
+    }
+
+    /* ── 폼 입력 시 에러 숨김 ── */
+    ['login-email','login-pw'].forEach(id => {
+      document.getElementById(id).addEventListener('input', hideError);
+    });
+
+    /* ── 로그인 실행 ── */
+    async function doLogin() {
+      const email = document.getElementById('login-email').value.trim();
+      const pw    = document.getElementById('login-pw').value;
+      let ok = true;
+
+      document.getElementById('e-email').classList.toggle('hidden', !!email); if (!email) ok = false;
+      document.getElementById('e-pw').classList.toggle('hidden', !!pw);       if (!pw)    ok = false;
+      if (!ok) return;
+
+      /* 버튼 로딩 상태 */
+      const btn     = document.getElementById('login-btn');
+      const btnText = document.getElementById('login-btn-text');
+      const spinner = document.getElementById('login-spinner');
+      btn.disabled = true;
+      btnText.classList.add('hidden');
+      spinner.classList.remove('hidden');
+      hideError();
+
+      try {
+        const result = await VieAuth.login(email, pw);
+
+        if (result.success) {
+          const isAdmin = result.user.role === 'superadmin';
+          const dest    = isAdmin ? 'admin.html' : 'dashboard.html';
+          const msg     = isAdmin
+            ? `${result.user.name}님, 관리자 대시보드로 이동합니다...`
+            : `${result.user.name || '사용자'}님, 환영합니다! 대시보드로 이동합니다...`;
+          showSuccess(msg);
+          VieToast.success('로그인 성공!');
+          setTimeout(() => { window.location.href = dest; }, 900);
+        } else if (result.reason === 'wrong_password') {
+          showError('비밀번호가 올바르지 않습니다. 다시 확인해 주세요.');
+          document.getElementById('login-pw').classList.add('error');
+          setTimeout(() => document.getElementById('login-pw').classList.remove('error'), 1500);
+        } else {
+          showError('등록된 계정을 찾을 수 없습니다. 이메일을 확인하거나 신규 가입해 주세요.');
+          document.getElementById('login-email').classList.add('error');
+          setTimeout(() => document.getElementById('login-email').classList.remove('error'), 1500);
+        }
+      } catch(e) {
+        // API 접근 불가(NAS 환경 등)일 경우에도 재시도
+        console.warn('login error:', e);
+        showError('등록된 계정을 찾을 수 없습니다. 이메일과 비밀번호를 확인해 주세요.');
+      } finally {
+        btn.disabled = false;
+        btnText.classList.remove('hidden');
+        spinner.classList.add('hidden');
+      }
+    }
+
+    /* ── 비밀번호 찾기 모달 ── */
+    function showForgot() {
+      document.getElementById('forgot-modal').classList.add('open');
+    }
+    function closeForgot() {
+      document.getElementById('forgot-modal').classList.remove('open');
+      document.getElementById('forgot-result').style.display = 'none';
+    }
+
+    async function doForgot() {
+      const email = document.getElementById('forgot-email').value.trim();
+      if (!email) return;
+
+      const list = VieStorage.get('demoUsers') || [];
+      const cur  = VieStorage.get('currentUser');
+      const all  = cur ? [cur, ...list] : list;
+      const found = all.find(u => u.email?.toLowerCase() === email.toLowerCase());
+
+      const resultEl = document.getElementById('forgot-result');
+      resultEl.style.display = 'block';
+
+      if (found) {
+        resultEl.style.background   = 'rgba(0,229,160,0.08)';
+        resultEl.style.border       = '1px solid rgba(0,229,160,0.25)';
+        resultEl.style.borderRadius = '8px';
+        resultEl.style.padding      = '10px 14px';
+        resultEl.style.color        = 'var(--accent-green)';
+        resultEl.innerHTML = `
+          <i class="fa-solid fa-circle-check"></i>
+          <strong>${found.name}</strong>님의 계정이 확인되었습니다.<br>
+          <span style="font-size:0.8rem;color:var(--text-secondary)">
+            이 기기에서 가입하셨으므로 이메일로 바로 로그인 가능합니다.
+          </span>
+        `;
+        setTimeout(() => {
+          closeForgot();
+          fillAccount(email);
+          VieToast.info('이메일이 자동 입력되었습니다. 비밀번호를 입력해 주세요.');
+        }, 1800);
+      } else {
+        resultEl.style.background   = 'rgba(244,63,94,0.08)';
+        resultEl.style.border       = '1px solid rgba(244,63,94,0.25)';
+        resultEl.style.borderRadius = '8px';
+        resultEl.style.padding      = '10px 14px';
+        resultEl.style.color        = 'var(--accent-red)';
+        resultEl.innerHTML = `
+          <i class="fa-solid fa-circle-xmark"></i>
+          해당 이메일로 가입된 계정을 찾을 수 없습니다.<br>
+          <a href="index.html" style="color:var(--accent-blue);font-weight:600">초대 코드로 신규 가입하기</a>
+        `;
+      }
+    }
+  </script>
+
+  <!-- ── ADMIN 플로팅 버튼 (이미 로그인된 관리자 전용) ── -->
+  <div id="admin-fab" style="
+    position:fixed; bottom:28px; right:28px; z-index:9000;
+    display:none; flex-direction:column; align-items:flex-end; gap:8px;
+  ">
+    <a href="admin.html" style="
+      display:flex; align-items:center; gap:8px;
+      padding:10px 18px; border-radius:40px;
+      background:linear-gradient(135deg,#00d4ff,#7c6fa6);
+      color:#000d1a; font-weight:700; font-size:0.82rem;
+      text-decoration:none; font-family:inherit;
+      box-shadow:0 4px 20px rgba(0,212,255,0.4);
+      transition:transform 0.2s;
+    " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+      <i class="fa-solid fa-user-shield"></i> ADMIN
+    </a>
+  </div>
+  <script>
+    (function(){
+      const u = typeof VieAuth !== 'undefined' ? VieAuth.getUser() : null;
+      if (u && u.role === 'superadmin') {
+        document.getElementById('admin-fab').style.display = 'flex';
+      }
+    })();
+  </script>
+</body>
+</html>
