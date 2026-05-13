@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>투자자 사전 설문 — D.Quant Partners</title>
+  <meta name="description" content="밸류앤코어스 D.Quant 9.0 투자자 사전 설문. 참여를 원하시는 분은 아래 양식을 작성해주세요.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="D.Quant 9.0 V.I.E">
+  <meta property="og:title" content="투자자 사전 설문 — D.Quant Partners">
+  <meta property="og:description" content="밸류앤코어스 D.Quant 9.0 투자 구조 참여를 위한 사전 설문입니다.">
+  <meta property="og:image" content="../images/og-image.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="../css/vie.css">
+  <style>
+    /* ── Background ── */
+    .bg-grid {
+      position: fixed; inset: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: grid-drift 20s linear infinite;
+    }
+    @keyframes grid-drift { from{transform:translateY(0)} to{transform:translateY(60px)} }
+    .bg-glow {
+      position: fixed; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse 80% 50% at 50% 20%, rgba(0,212,255,0.06) 0%, transparent 70%);
+    }
+    .bg-glow-2 {
+      position: fixed; bottom:-20%; left:50%; transform:translateX(-50%); pointer-events: none;
+      width: 700px; height: 350px;
+      background: radial-gradient(ellipse, rgba(139,92,246,0.05) 0%, transparent 70%);
+    }
+
+    /* ── Header ── */
+    .survey-header {
+      position: fixed; top:0; left:0; right:0; z-index: var(--z-nav);
+      background: var(--bg-glass);
+      border-bottom: 1px solid var(--border-default);
+      backdrop-filter: blur(16px);
+      height: 64px;
+    }
+    .survey-header-inner {
+      height: 100%; max-width: 900px; margin: 0 auto;
+      padding: 0 var(--space-lg);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .survey-brand {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .survey-logo-text {
+      font-size: 1.05rem; font-weight: 900; letter-spacing: 0.05em;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .survey-logo-badge {
+      font-size: 0.62rem; font-weight: 700; color: var(--accent-blue);
+      border: 1px solid rgba(0,212,255,0.4); border-radius: var(--radius-full);
+      padding: 2px 8px; letter-spacing: 0.1em; opacity: 0.85;
+    }
+    .survey-header-right {
+      font-size: 0.78rem; color: var(--text-muted);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .survey-header-right i { color: var(--accent-green); }
+
+    /* ── Progress ── */
+    .survey-progress-wrap {
+      position: fixed; top: 64px; left: 0; right: 0; z-index: calc(var(--z-nav) - 1);
+      height: 3px; background: rgba(255,255,255,0.05);
+    }
+    .survey-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+      transition: width 0.4s ease;
+      width: 0%;
+    }
+
+    /* ── Page ── */
+    .survey-page {
+      padding-top: 80px; padding-bottom: 60px;
+      min-height: 100vh; position: relative; z-index: 1;
+    }
+    .survey-wrap {
+      max-width: 740px; margin: 0 auto;
+      padding: var(--space-2xl) var(--space-lg);
+    }
+
+    /* ── Hero ── */
+    .survey-hero {
+      text-align: center; margin-bottom: var(--space-2xl);
+      animation: fadeIn 0.7s ease;
+    }
+    .survey-eyebrow {
+      display: inline-flex; align-items: center; gap: var(--space-sm);
+      border: 1px solid rgba(0,212,255,0.3); border-radius: var(--radius-full);
+      padding: 5px 16px; font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--accent-blue); background: rgba(0,212,255,0.06);
+      margin-bottom: var(--space-lg);
+    }
+    .survey-eyebrow::before {
+      content: ''; width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent-blue);
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    .survey-hero h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 900; line-height: 1.15;
+      margin-bottom: var(--space-md);
+    }
+    .survey-hero h1 .hl {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-green));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .survey-hero p {
+      font-size: 0.95rem; color: var(--text-secondary); line-height: 1.8;
+      max-width: 560px; margin: 0 auto var(--space-lg);
+    }
+    .survey-meta-row {
+      display: flex; justify-content: center; gap: var(--space-xl); flex-wrap: wrap;
+    }
+    .survey-meta-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.8rem; color: var(--text-muted);
+    }
+    .survey-meta-item i { color: var(--accent-blue); font-size: 0.82rem; }
+
+    /* ── Form Card ── */
+    .survey-form-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+      animation: fadeIn 0.6s ease 0.15s both;
+    }
+
+    /* ── Section ── */
+    .s-sec {
+      padding: var(--space-2xl) var(--space-2xl) var(--space-xl);
+      border-bottom: 1px solid var(--border-default);
+    }
+    .s-sec:last-child { border-bottom: none; }
+    .s-sec-head {
+      display: flex; align-items: flex-start; gap: var(--space-md);
+      margin-bottom: var(--space-xl);
+    }
+    .s-sec-num {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(0,229,160,0.1));
+      border: 1px solid rgba(0,212,255,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.78rem; font-weight: 800; color: var(--accent-blue);
+    }
+    .s-sec-title { font-size: 1rem; font-weight: 700; color: var(--text-primary); }
+    .s-sec-sub { font-size: 0.8rem; color: var(--text-muted); margin-top: 3px; }
+
+    /* ── Field ── */
+    .field-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); }
+    @media(max-width:560px){ .field-row-2 { grid-template-columns: 1fr; } }
+
+    /* ── Radio Pill Group ── */
+    .pill-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .pill-item { position: relative; }
+    .pill-item input[type=radio] { display: none; }
+    .pill-lbl {
+      display: block; padding: 7px 16px; border-radius: var(--radius-full);
+      border: 1px solid var(--border-default);
+      background: rgba(255,255,255,0.03);
+      color: var(--text-muted); font-size: 0.83rem; font-weight: 500;
+      cursor: pointer; transition: all var(--transition-base); white-space: nowrap;
+    }
+    .pill-item input:checked + .pill-lbl {
+      border-color: var(--accent-blue);
+      background: rgba(0,212,255,0.1);
+      color: var(--accent-blue); font-weight: 700;
+      box-shadow: 0 0 0 1px rgba(0,212,255,0.3);
+    }
+    .pill-lbl:hover { border-color: rgba(0,212,255,0.4); color: var(--text-secondary); }
+
+    /* ── Radio List ── */
+    .radio-list { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+    .radio-list-item { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 10px 14px;
+      border-radius: var(--radius-md); border: 1px solid var(--border-default);
+      background: rgba(255,255,255,0.02); transition: all var(--transition-fast); }
+    .radio-list-item:hover { border-color: rgba(0,212,255,0.25); background: rgba(0,212,255,0.03); }
+    .radio-list-item input[type=radio] { display: none; }
+    .radio-circle {
+      width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0;
+      border: 2px solid var(--border-default); background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--transition-fast);
+    }
+    .radio-circle::after {
+      content: ''; width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent-blue); opacity: 0; transition: opacity 0.2s;
+    }
+    .radio-list-item input:checked ~ .radio-circle {
+      border-color: var(--accent-blue); background: rgba(0,212,255,0.1);
+    }
+    .radio-list-item input:checked ~ .radio-circle::after { opacity: 1; }
+    .radio-list-item input:checked ~ .radio-lbl-text { color: var(--text-primary); font-weight: 600; }
+    .radio-lbl-text { font-size: 0.88rem; color: var(--text-secondary); transition: color 0.2s; }
+    .radio-list-item:has(input:checked) {
+      border-color: rgba(0,212,255,0.3); background: rgba(0,212,255,0.05);
+    }
+
+    /* ── Checkbox ── */
+    .check-list { display: flex; flex-direction: column; gap: 10px; }
+    .check-item { display: flex; align-items: flex-start; gap: 12px; cursor: pointer;
+      padding: 12px 16px; border-radius: var(--radius-md);
+      border: 1px solid var(--border-default); background: rgba(255,255,255,0.02);
+      transition: all var(--transition-fast); }
+    .check-item:hover { border-color: rgba(0,212,255,0.25); background: rgba(0,212,255,0.03); }
+    .check-item input[type=checkbox] { display: none; }
+    .check-box {
+      width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0;
+      border: 2px solid var(--border-default); background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--transition-fast); margin-top: 1px;
+    }
+    .check-box i { font-size: 0.65rem; color: var(--bg-primary); opacity: 0; transition: opacity 0.15s; }
+    .check-item input:checked ~ .check-box {
+      border-color: var(--accent-blue); background: var(--accent-blue);
+    }
+    .check-item input:checked ~ .check-box i { opacity: 1; }
+    .check-item input:checked ~ .check-lbl-text { color: var(--text-primary); font-weight: 600; }
+    .check-lbl-text { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.5; transition: color 0.2s; }
+    .check-item:has(input:checked) { border-color: rgba(0,212,255,0.3); background: rgba(0,212,255,0.05); }
+
+    /* ── Consent Box ── */
+    .consent-block {
+      background: rgba(255,255,255,0.02); border: 1px solid var(--border-default);
+      border-radius: var(--radius-md); padding: var(--space-lg); margin-bottom: var(--space-md);
+    }
+    .consent-block-title {
+      font-size: 0.82rem; font-weight: 700; color: var(--text-secondary);
+      display: flex; align-items: center; gap: 6px; margin-bottom: 8px;
+    }
+    .consent-block-title i { color: var(--accent-blue); }
+    .consent-block p {
+      font-size: 0.8rem; color: var(--text-muted); line-height: 1.75;
+      margin-bottom: var(--space-md);
+    }
+
+    /* ── Submit Section ── */
+    .survey-submit-sec {
+      padding: var(--space-2xl);
+      background: linear-gradient(135deg, rgba(0,212,255,0.03), rgba(0,229,160,0.02));
+      border-top: 1px solid var(--border-default);
+      text-align: center;
+    }
+    .survey-submit-hint {
+      font-size: 0.78rem; color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      margin-top: var(--space-md);
+    }
+    .survey-submit-hint i { color: var(--accent-green); }
+
+    /* ── Error msg ── */
+    .field-err {
+      font-size: 0.78rem; color: var(--accent-red);
+      display: none; margin-top: 5px;
+      align-items: center; gap: 4px;
+    }
+    .field-err.show { display: flex; }
+    .form-group.has-err .form-input,
+    .form-group.has-err .form-textarea { border-color: var(--accent-red); }
+    .form-group.has-err .field-err { display: flex; }
+
+    /* ── Success Screen ── */
+    #successScreen {
+      display: none; position: fixed; inset: 0; z-index: 9000;
+      background: var(--bg-primary);
+      align-items: center; justify-content: center;
+      flex-direction: column; text-align: center; padding: var(--space-2xl);
+    }
+    #successScreen.show { display: flex; }
+    .success-icon-wrap {
+      width: 80px; height: 80px; border-radius: 50%; margin: 0 auto var(--space-xl);
+      background: linear-gradient(135deg, rgba(0,229,160,0.15), rgba(0,212,255,0.1));
+      border: 2px solid rgba(0,229,160,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; color: var(--accent-green);
+      animation: successPop 0.5s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes successPop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+    #successScreen h2 {
+      font-size: 2rem; font-weight: 800; margin-bottom: var(--space-md);
+      background: linear-gradient(135deg, var(--text-primary), var(--accent-blue));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    #successScreen p { color: var(--text-secondary); max-width: 440px; line-height: 1.8; }
+    .success-meta {
+      display: flex; gap: var(--space-lg); margin-top: var(--space-xl); flex-wrap: wrap; justify-content: center;
+    }
+    .success-meta-card {
+      background: var(--bg-card); border: 1px solid var(--border-default);
+      border-radius: var(--radius-md); padding: var(--space-md) var(--space-xl);
+      text-align: center;
+    }
+    .success-meta-card b { display: block; font-size: 1rem; color: var(--accent-blue); margin-bottom: 3px; }
+    .success-meta-card span { font-size: 0.78rem; color: var(--text-muted); }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; bottom: var(--space-xl); left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--bg-card); border: 1px solid var(--border-default);
+      border-radius: var(--radius-full); padding: 10px var(--space-xl);
+      font-size: 0.85rem; font-weight: 600; color: var(--text-primary);
+      z-index: 9999; opacity: 0; pointer-events: none;
+      transition: opacity 0.3s, transform 0.3s;
+      box-shadow: var(--shadow-lg);
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    #toast.err { border-left: 3px solid var(--accent-red); }
+    #toast.ok  { border-left: 3px solid var(--accent-green); }
+
+    .spinner-sm {
+      display: inline-block; width: 16px; height: 16px;
+      border: 2px solid rgba(10,14,26,0.4); border-top-color: #0a0e1a;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+    @media(max-width:600px){
+      .s-sec { padding: var(--space-lg) var(--space-md); }
+      .survey-submit-sec { padding: var(--space-xl) var(--space-md); }
+      .survey-wrap { padding: var(--space-xl) var(--space-md); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- BG -->
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+<div class="bg-glow-2"></div>
+
+<!-- Header -->
+<header class="survey-header">
+  <div class="survey-header-inner">
+    <div class="survey-brand">
+      <span class="survey-logo-text">D.Quant 9.0</span>
+      <span class="survey-logo-badge">V.I.E</span>
+    </div>
+    <div class="survey-header-right">
+      <i class="fas fa-shield-halved"></i> 보안 설문
+    </div>
+  </div>
+</header>
+
+<!-- Progress -->
+<div class="survey-progress-wrap">
+  <div class="survey-progress-bar" id="progressBar"></div>
+</div>
+
+<!-- Page -->
+<div class="survey-page">
+  <div class="survey-wrap">
+
+    <!-- Hero -->
+    <div class="survey-hero">
+      <div class="survey-eyebrow">INVESTOR SURVEY 2025</div>
+      <h1>밸류앤코어스<br><span class="hl">투자자 사전 설문</span></h1>
+      <p>D.Quant 9.0 투자 구조 참여를 위한 기본 정보 및<br>투자 성향을 확인합니다. 모든 정보는 안전하게 보호됩니다.</p>
+      <div class="survey-meta-row">
+        <div class="survey-meta-item"><i class="fas fa-clock"></i> 소요시간 약 5분</div>
+        <div class="survey-meta-item"><i class="fas fa-lock"></i> 개인정보 암호화</div>
+        <div class="survey-meta-item"><i class="fas fa-circle-check"></i> 필수 항목 <span style="color:var(--accent-red);margin-left:3px;">*</span></div>
+      </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="survey-form-card">
+      <form id="surveyForm" novalidate>
+
+        <!-- ① 추천인 -->
+        <div class="s-sec">
+          <div class="s-sec-head">
+            <div class="s-sec-num">1</div>
+            <div><div class="s-sec-title">추천인 정보</div><div class="s-sec-sub">소개해주신 분의 성함을 입력해주세요</div></div>
+          </div>
+          <div class="form-group" id="fg-candidate_name">
+            <label class="form-label">추천인 이름 <span style="color:var(--accent-red)">*</span></label>
+            <input type="text" class="form-input" id="candidate_name" placeholder="추천인 성명">
+            <div class="field-err"><i class="fas fa-circle-exclamation"></i> 추천인 이름을 입력해주세요.</div>
+          </div>
+        </div>
+
+        <!-- ② 기본 인적사항 -->
+        <div class="s-sec">
+          <div class="s-sec-head">
+            <div class="s-sec-num">2</div>
+            <div><div class="s-sec-title">기본 인적사항</div><div class="s-sec-sub">정확한 정보를 입력해주세요</div></div>
+          </div>
+          <div class="field-row-2">
+            <div class="form-group" id="fg-full_name">
+              <label class="form-label">성명 <span style="color:var(--accent-red)">*</span></label>
+              <input type="text" class="form-input" id="full_name" placeholder="실명 입력">
+              <div class="field-err"><i class="fas fa-circle-exclamation"></i> 성명을 입력해주세요.</div>
+            </div>
+            <div class="form-group" id="fg-rrn">
+              <label class="form-label">주민등록번호 <span style="color:var(--accent-red)">*</span></label>
+              <input type="text" class="form-input" id="rrn" placeholder="000000-0000000" maxlength="14">
+              <div class="field-err"><i class="fas fa-circle-exclamation"></i> 주민등록번호를 입력해주세요.</div>
+            </div>
+          </div>
+
+          <div class="form-group" id="fg-gender">
+            <label class="form-label">성별 <span style="color:var(--accent-red)">*</span></label>
+            <div class="pill-group">
+              <div class="pill-item"><input type="radio" name="gender" id="g_m" value="남성"><label class="pill-lbl" for="g_m">👨 남성</label></div>
+              <div class="pill-item"><input type="radio" name="gender" id="g_f" value="여성"><label class="pill-lbl" for="g_f">👩 여성</label></div>
+            </div>
+            <div class="field-err" id="err-gender"><i class="fas fa-circle-exclamation"></i> 성별을 선택해주세요.</div>
+          </div>
+
+          <div class="form-group" id="fg-nationality">
+            <label class="form-label">국적 <span style="color:var(--accent-red)">*</span></label>
+            <div class="pill-group">
+              <div class="pill-item"><input type="radio" name="nationality" id="nat_k" value="내국인"><label class="pill-lbl" for="nat_k">🇰🇷 내국인</label></div>
+              <div class="pill-item"><input type="radio" name="nationality" id="nat_f" value="외국인"><label class="pill-lbl" for="nat_f">🌐 외국인</label></div>
+            </div>
+            <div class="field-err" id="err-nationality"><i class="fas fa-circle-exclamation"></i> 국적을 선택해주세요.</div>
+          </div>
+
+          <div class="field-row-2">
+            <div class="form-group" id="fg-mobile">
+              <label class="form-label">연락처 <span style="color:var(--accent-red)">*</span></label>
+              <input type="tel" class="form-input" id="mobile" placeholder="010-0000-0000">
+              <div class="field-err"><i class="fas fa-circle-exclamation"></i> 연락처를 입력해주세요.</div>
+            </div>
+            <div class="form-group" id="fg-email">
+              <label class="form-label">이메일 <span style="color:var(--accent-red)">*</span></label>
+              <input type="email" class="form-input" id="email" placeholder="example@email.com">
+              <div class="field-err"><i class="fas fa-circle-exclamation"></i> 유효한 이메일을 입력해주세요.</div>
+            </div>
+          </div>
+
+          <div class="form-group" id="fg-job_and_activities">
+            <label class="form-label">직업 및 활동 내용 <span style="color:var(--accent-red)">*</span></label>
+            <textarea class="form-textarea" id="job_and_activities" placeholder="현재 직업, 사업, 활동 내용 등을 자유롭게 기재해주세요" style="min-height:90px;"></textarea>
+            <div class="field-err"><i class="fas fa-circle-exclamation"></i> 직업 및 활동 내용을 입력해주세요.</div>
+          </div>
+        </div>
+
+        <!-- ③ 투자 성향 -->
+        <div class="s-sec">
+          <div class="s-sec-head">
+            <div class="s-sec-num">3</div>
+            <div><div class="s-sec-title">투자 성향 파악</div><div class="s-sec-sub">현재 상황과 가장 가까운 항목을 선택해주세요</div></div>
+          </div>
+
+          <div class="form-group" id="fg-dquant9_awareness">
+            <label class="form-label">D.Quant 9.0을 어떻게 알게 되셨나요? <span style="color:var(--accent-red)">*</span></label>
+            <div class="pill-group">
+              <div class="pill-item"><input type="radio" name="dquant9_awareness" id="aw1" value="지인 소개"><label class="pill-lbl" for="aw1">지인 소개</label></div>
+              <div class="pill-item"><input type="radio" name="dquant9_awareness" id="aw2" value="SNS/유튜브"><label class="pill-lbl" for="aw2">SNS / 유튜브</label></div>
+              <div class="pill-item"><input type="radio" name="dquant9_awareness" id="aw3" value="온라인 검색"><label class="pill-lbl" for="aw3">온라인 검색</label></div>
+              <div class="pill-item"><input type="radio" name="dquant9_awareness" id="aw4" value="설명회/세미나"><label class="pill-lbl" for="aw4">설명회 / 세미나</label></div>
+              <div class="pill-item"><input type="radio" name="dquant9_awareness" id="aw5" value="기타"><label class="pill-lbl" for="aw5">기타</label></div>
+            </div>
+            <div class="field-err" id="err-dquant9_awareness"><i class="fas fa-circle-exclamation"></i> 인지 경로를 선택해주세요.</div>
+          </div>
+
+          <div class="form-group" id="fg-investment_experience">
+            <label class="form-label">투자 경험이 있으신가요? <span style="color:var(--accent-red)">*</span></label>
+            <div class="radio-list">
+              <label class="radio-list-item"><input type="radio" name="investment_experience" value="투자 경험 없음"><div class="radio-circle"></div><span class="radio-lbl-text">투자 경험 없음</span></label>
+              <label class="radio-list-item"><input type="radio" name="investment_experience" value="주식/펀드 경험 있음"><div class="radio-circle"></div><span class="radio-lbl-text">주식 / 펀드 경험 있음</span></label>
+              <label class="radio-list-item"><input type="radio" name="investment_experience" value="가상자산 경험 있음"><div class="radio-circle"></div><span class="radio-lbl-text">가상자산 경험 있음</span></label>
+              <label class="radio-list-item"><input type="radio" name="investment_experience" value="주식+가상자산 모두 경험"><div class="radio-circle"></div><span class="radio-lbl-text">주식 + 가상자산 모두 경험</span></label>
+            </div>
+            <div class="field-err" id="err-investment_experience"><i class="fas fa-circle-exclamation"></i> 투자 경험 여부를 선택해주세요.</div>
+          </div>
+
+          <div class="form-group" id="fg-asset_satisfaction">
+            <label class="form-label">현재 자산 현황에 만족하시나요? <span style="color:var(--accent-red)">*</span></label>
+            <div class="radio-list">
+              <label class="radio-list-item"><input type="radio" name="asset_satisfaction" value="매우 만족"><div class="radio-circle"></div><span class="radio-lbl-text">매우 만족 — 안정적으로 유지 중</span></label>
+              <label class="radio-list-item"><input type="radio" name="asset_satisfaction" value="보통"><div class="radio-circle"></div><span class="radio-lbl-text">보통 — 개선이 필요하다고 느낌</span></label>
+              <label class="radio-list-item"><input type="radio" name="asset_satisfaction" value="불만족"><div class="radio-circle"></div><span class="radio-lbl-text">불만족 — 적극적인 변화가 필요함</span></label>
+              <label class="radio-list-item"><input type="radio" name="asset_satisfaction" value="매우 불만족"><div class="radio-circle"></div><span class="radio-lbl-text">매우 불만족 — 당장 개선이 시급함</span></label>
+            </div>
+            <div class="field-err" id="err-asset_satisfaction"><i class="fas fa-circle-exclamation"></i> 자산 만족도를 선택해주세요.</div>
+          </div>
+
+          <div class="form-group" id="fg-income_stability">
+            <label class="form-label">현재 수입의 안정성은 어떠한가요? <span style="color:var(--accent-red)">*</span></label>
+            <div class="radio-list">
+              <label class="radio-list-item"><input type="radio" name="income_stability" value="매우 안정적"><div class="radio-circle"></div><span class="radio-lbl-text">매우 안정적 — 정기적 고정 수입 있음</span></label>
+              <label class="radio-list-item"><input type="radio" name="income_stability" value="보통"><div class="radio-circle"></div><span class="radio-lbl-text">보통 — 수입이 있으나 불규칙한 편</span></label>
+              <label class="radio-list-item"><input type="radio" name="income_stability" value="불안정"><div class="radio-circle"></div><span class="radio-lbl-text">불안정 — 수입이 일정하지 않음</span></label>
+              <label class="radio-list-item"><input type="radio" name="income_stability" value="수입 없음"><div class="radio-circle"></div><span class="radio-lbl-text">수입 없음 — 현재 별도 수입 없음</span></label>
+            </div>
+            <div class="field-err" id="err-income_stability"><i class="fas fa-circle-exclamation"></i> 수입 안정성을 선택해주세요.</div>
+          </div>
+
+          <div class="form-group" id="fg-income_structure">
+            <label class="form-label">현재 수입 구조는 어떠한가요? <span style="color:var(--accent-red)">*</span></label>
+            <div class="radio-list">
+              <label class="radio-list-item"><input type="radio" name="income_structure" value="근로소득 위주"><div class="radio-circle"></div><span class="radio-lbl-text">근로소득 위주 (직장인 · 공무원 등)</span></label>
+              <label class="radio-list-item"><input type="radio" name="income_structure" value="사업소득 위주"><div class="radio-circle"></div><span class="radio-lbl-text">사업소득 위주 (자영업 · 프리랜서 등)</span></label>
+              <label class="radio-list-item"><input type="radio" name="income_structure" value="투자소득 위주"><div class="radio-circle"></div><span class="radio-lbl-text">투자소득 위주 (배당 · 임대 · 이자 등)</span></label>
+              <label class="radio-list-item"><input type="radio" name="income_structure" value="혼합"><div class="radio-circle"></div><span class="radio-lbl-text">혼합 (근로 + 사업 + 투자 복합)</span></label>
+              <label class="radio-list-item"><input type="radio" name="income_structure" value="없음"><div class="radio-circle"></div><span class="radio-lbl-text">없음 (학생 · 주부 · 무직 등)</span></label>
+            </div>
+            <div class="field-err" id="err-income_structure"><i class="fas fa-circle-exclamation"></i> 수입 구조를 선택해주세요.</div>
+          </div>
+
+          <div class="form-group" id="fg-asset_goal_3y">
+            <label class="form-label">3년 내 자산 목표를 자유롭게 기재해주세요 <span style="color:var(--accent-red)">*</span></label>
+            <textarea class="form-textarea" id="asset_goal_3y" placeholder="예: 3년 안에 자산 5억 달성, 월 500만원 현금흐름 확보 등"></textarea>
+            <div class="field-err"><i class="fas fa-circle-exclamation"></i> 자산 목표를 입력해주세요.</div>
+          </div>
+        </div>
+
+        <!-- ④ 자격증 의향 -->
+        <div class="s-sec">
+          <div class="s-sec-head">
+            <div class="s-sec-num">4</div>
+            <div><div class="s-sec-title">금융자격증 취득 의향</div><div class="s-sec-sub">해당하는 항목을 선택해주세요 (중복 가능)</div></div>
+          </div>
+          <div class="check-list">
+            <label class="check-item">
+              <input type="checkbox" id="willing_life_exam">
+              <div class="check-box"><i class="fas fa-check"></i></div>
+              <span class="check-lbl-text">생명보험 관련 시험에 응시할 의향이 있습니다</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" id="willing_nonlife_exam">
+              <div class="check-box"><i class="fas fa-check"></i></div>
+              <span class="check-lbl-text">손해보험 관련 시험에 응시할 의향이 있습니다</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- ⑤ 동의 -->
+        <div class="s-sec">
+          <div class="s-sec-head">
+            <div class="s-sec-num">5</div>
+            <div><div class="s-sec-title">동의 사항</div><div class="s-sec-sub">아래 내용을 확인하고 동의해주세요</div></div>
+          </div>
+
+          <div class="consent-block">
+            <div class="consent-block-title"><i class="fas fa-shield-halved"></i> 개인정보 수집 및 이용 동의</div>
+            <p>수집 항목: 성명, 주민등록번호, 연락처, 이메일, 직업 등 투자 관련 정보<br>
+            수집 목적: D.Quant 9.0 투자 구조 참여 자격 심사 및 투자자 성향 분석<br>
+            보유 기간: 동의 철회 시 또는 목적 달성 후 즉시 파기<br>
+            <span style="color:var(--text-muted);font-size:.78rem;">※ 동의하지 않을 경우 서비스 이용이 제한될 수 있습니다.</span></p>
+            <label class="check-item" style="border-color:rgba(0,212,255,0.2);">
+              <input type="checkbox" id="consent_personal_info">
+              <div class="check-box"><i class="fas fa-check"></i></div>
+              <span class="check-lbl-text" style="font-weight:600;color:var(--text-primary);">개인정보 수집 및 이용에 동의합니다 <span style="color:var(--accent-red);">*</span></span>
+            </label>
+            <div class="field-err" id="err-consent_personal_info" style="margin-top:8px;"><i class="fas fa-circle-exclamation"></i> 개인정보 동의가 필요합니다.</div>
+          </div>
+
+          <div class="consent-block">
+            <div class="consent-block-title"><i class="fas fa-lock"></i> 보안 서약 동의</div>
+            <p>본 설문에서 제공된 정보 및 D.Quant 9.0 투자 전략·시스템에 관한 모든 내용은
+            대외비로서 제3자에게 유출하거나 상업적으로 이용하지 않을 것을 서약합니다.</p>
+            <label class="check-item" style="border-color:rgba(0,212,255,0.2);">
+              <input type="checkbox" id="consent_confidentiality">
+              <div class="check-box"><i class="fas fa-check"></i></div>
+              <span class="check-lbl-text" style="font-weight:600;color:var(--text-primary);">보안 서약에 동의합니다 <span style="color:var(--accent-red);">*</span></span>
+            </label>
+            <div class="field-err" id="err-consent_confidentiality" style="margin-top:8px;"><i class="fas fa-circle-exclamation"></i> 보안 서약 동의가 필요합니다.</div>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="survey-submit-sec">
+          <button type="submit" class="btn btn-cta btn-xl" id="submitBtn" style="min-width:240px;">
+            <i class="fas fa-paper-plane"></i> 설문 제출하기
+          </button>
+          <div class="survey-submit-hint">
+            <i class="fas fa-shield-halved"></i> 모든 정보는 SSL 암호화로 안전하게 전송됩니다
+          </div>
+        </div>
+
+      </form>
+    </div><!-- /form-card -->
+
+    <!-- Footer -->
+    <div style="text-align:center;margin-top:var(--space-2xl);color:var(--text-muted);font-size:.78rem;">
+      © 2025 ValuenCores · D.Quant 9.0 V.I.E &nbsp;|&nbsp;
+      <a href="https://www.dquant9.com" target="_blank" style="color:var(--accent-blue);">dquant9.com</a>
+    </div>
+  </div>
+</div>
+
+<!-- Success -->
+<div id="successScreen">
+  <div class="success-icon-wrap"><i class="fas fa-check"></i></div>
+  <h2>설문이 완료되었습니다!</h2>
+  <p>소중한 답변 감사합니다.<br>검토 후 담당자가 개별 연락드릴 예정입니다.</p>
+  <div class="success-meta">
+    <div class="success-meta-card"><b id="sid">—</b><span>접수 번호</span></div>
+    <div class="success-meta-card"><b id="stime">—</b><span>제출 시각</span></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+/* ── API endpoint — points to the D.Quant Partners Express server ── */
+const API_BASE = 'https://dquantpartners.dquant9.com';
+
+/* ── RRN hyphen ── */
+document.getElementById('rrn').addEventListener('input', e => {
+  let v = e.target.value.replace(/[^0-9]/g,'');
+  if(v.length > 6) v = v.slice(0,6)+'-'+v.slice(6,13);
+  e.target.value = v;
+});
+/* ── Phone hyphen ── */
+document.getElementById('mobile').addEventListener('input', e => {
+  let v = e.target.value.replace(/[^0-9]/g,'');
+  if(v.length<=3) e.target.value=v;
+  else if(v.length<=7) e.target.value=v.slice(0,3)+'-'+v.slice(3);
+  else e.target.value=v.slice(0,3)+'-'+v.slice(3,7)+'-'+v.slice(7,11);
+});
+
+/* ── Progress ── */
+const REQUIRED = ['candidate_name','full_name','rrn','gender','nationality','mobile','email',
+  'job_and_activities','dquant9_awareness','investment_experience','asset_satisfaction',
+  'income_stability','income_structure','asset_goal_3y','consent_personal_info','consent_confidentiality'];
+
+function calcProgress(){
+  let n=0;
+  REQUIRED.forEach(name=>{
+    const el = document.getElementById(name) || document.querySelector(`input[name="${name}"]:checked`);
+    if(!el) return;
+    if(el.type==='checkbox'){ if(el.checked) n++; }
+    else if(el.type==='radio'){ if(document.querySelector(`input[name="${name}"]:checked`)) n++; }
+    else { if(el.value.trim()) n++; }
+  });
+  document.getElementById('progressBar').style.width = (n/REQUIRED.length*100)+'%';
+}
+document.getElementById('surveyForm').addEventListener('change', calcProgress);
+document.getElementById('surveyForm').addEventListener('input', calcProgress);
+
+/* ── Toast ── */
+function showToast(msg, type='err'){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = type+' show';
+  setTimeout(()=>t.className='', 3200);
+}
+
+/* ── Validate ── */
+function validate(){
+  let ok=true;
+  function txt(id){ const fg=document.getElementById('fg-'+id), el=document.getElementById(id);
+    const e=!el.value.trim(); fg.classList.toggle('has-err',e); if(e) ok=false; }
+  function radio(name){ const c=!!document.querySelector(`input[name="${name}"]:checked`);
+    const err=document.getElementById('err-'+name); if(err) err.classList.toggle('show',!c);
+    const fg=document.getElementById('fg-'+name); if(fg) fg.classList.toggle('has-err',!c);
+    if(!c) ok=false; }
+  function cb(id){ const el=document.getElementById(id), err=document.getElementById('err-'+id);
+    const e=!el.checked; if(err) err.classList.toggle('show',e); if(e) ok=false; }
+  txt('candidate_name'); txt('full_name'); txt('rrn');
+  radio('gender'); radio('nationality');
+  txt('mobile');
+  // email
+  const em=document.getElementById('email'), fg=document.getElementById('fg-email');
+  const eOk=em.value.trim()&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value);
+  fg.classList.toggle('has-err',!eOk); if(!eOk) ok=false;
+  txt('job_and_activities');
+  radio('dquant9_awareness'); radio('investment_experience');
+  radio('asset_satisfaction'); radio('income_stability'); radio('income_structure');
+  txt('asset_goal_3y');
+  cb('consent_personal_info'); cb('consent_confidentiality');
+  return ok;
+}
+
+/* ── Submit ── */
+document.getElementById('surveyForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  if(!validate()){
+    showToast('⚠️ 필수 항목을 모두 입력해주세요.');
+    const first = document.querySelector('.has-err, .field-err.show');
+    if(first) first.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+  const btn = document.getElementById('submitBtn');
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner-sm"></span> 제출 중...';
+  const payload = {
+    candidate_name: document.getElementById('candidate_name').value.trim(),
+    full_name:      document.getElementById('full_name').value.trim(),
+    rrn:            document.getElementById('rrn').value.trim(),
+    gender:         document.querySelector('input[name="gender"]:checked')?.value||'',
+    nationality:    document.querySelector('input[name="nationality"]:checked')?.value||'',
+    mobile:         document.getElementById('mobile').value.trim(),
+    email:          document.getElementById('email').value.trim(),
+    job_and_activities:   document.getElementById('job_and_activities').value.trim(),
+    dquant9_awareness:    document.querySelector('input[name="dquant9_awareness"]:checked')?.value||'',
+    investment_experience:document.querySelector('input[name="investment_experience"]:checked')?.value||'',
+    asset_satisfaction:   document.querySelector('input[name="asset_satisfaction"]:checked')?.value||'',
+    income_stability:     document.querySelector('input[name="income_stability"]:checked')?.value||'',
+    income_structure:     document.querySelector('input[name="income_structure"]:checked')?.value||'',
+    asset_goal_3y:        document.getElementById('asset_goal_3y').value.trim(),
+    consent_personal_info:  document.getElementById('consent_personal_info').checked,
+    willing_life_exam:      document.getElementById('willing_life_exam').checked,
+    willing_nonlife_exam:   document.getElementById('willing_nonlife_exam').checked,
+    consent_confidentiality:document.getElementById('consent_confidentiality').checked
+  };
+  try {
+    const res  = await fetch(API_BASE + '/api/survey', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    if(data.success){
+      document.getElementById('sid').textContent  = '#'+data.id.slice(0,8).toUpperCase();
+      document.getElementById('stime').textContent = new Date().toLocaleString('ko-KR');
+      document.getElementById('successScreen').classList.add('show');
+    } else throw new Error();
+  } catch {
+    showToast('제출 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    btn.disabled=false;
+    btn.innerHTML='<i class="fas fa-paper-plane"></i> 설문 제출하기';
+  }
+});
+</script>
+</body>
+</html>
